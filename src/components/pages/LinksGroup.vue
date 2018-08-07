@@ -102,54 +102,226 @@
       return {
         dialogMakeMeetingVisible: false,
         dialogCreateGroupVisible: false,
-        formLabelWidth: '120px',
         pulldown: true,
+        //个人信息
+        selfInfo: null,
+        /*
+        {
+          nickname:"a",
+          phone:"15029057276",
+          realname:"shixinxin",
+          email:"575893505@qq.com",
+          headimg:"String"
+        }
+        */
+        //所有群
+        allGroups: [],
+        /*
+        allGroups: [{
+            id:10001,
+            groupName:"视频会议",
+            founderId:101,
+            createTime:1533183890720,
+            available:1
+          }
+        ],
+        */
+        //所有成员
+        allMembers:[],
+        /*
+        allMembers: [(
+            10001,
+            [{
+                nickname:"a",
+                phone:"15029057276",
+                realname:"shixinxin",
+                email:"575893505@qq.com",
+                headimg:"String"
+              },{
+                nickname:"b",
+                phone:"15029057277",
+                realname:"linxiaoming",
+                email:"575893202@qq.com",
+                headimg:"String"
+              }
+            ]
+          )
+        ],
+        */
         form: {
           groups: ''
-        },
-        groups: [{
-          label: '一级 1',
-          children: [{
-            label: '二级 1-1'
-          }]
-        }, {
-          label: '一级 2',
-          children: [{
-            label: '二级 2-1'
-          }, {
-            label: '二级 2-2'
-          }]
-        }, {
-          label: '一级 3',
-          children: [{
-            label: '二级 3-1'
-          }, {
-            label: '二级 3-2'
-          }, {
-            label: '二级 3-2'
-          }, {
-            label: '二级 3-2'
-          }, {
-            label: '二级 3-2'
-          }, {
-            label: '二级 3-2'
-          }, {
-            label: '二级 3-2'
-          }]
-        }],
-        defaultProps: {
-          children: 'children',
-          label: 'label'
         }
-      };
+      }
     },
     name: 'FriendsGroup',
     components: {
       scroll: Scroll
     },
     methods: {
-      handleNodeClick(data) {
-        console.log(data);
+      //创建群
+      createGroup(groupName) {
+        axios.put('/groups/create', {
+          params: {
+            group_name:groupName
+          }
+        })
+        .then(function(response){
+          if(response.code == 0) {
+            this.allGroups.push(response.data);
+            appendGroupUser(response.data.group_id, this.selfInfo);
+            console.log(response.msg);
+          } else {
+            console.log(response.msg);
+          }
+        })
+        .catch(function(err){
+          console.log(err);
+        });
+      },
+
+      //群组添加用户
+      appendGroupUser(groupId, nickname) {
+        axios.put('/groups/append', {
+          params: {
+            group_id:groupId,
+            nickname:nickname
+          }
+        })
+        .then(function(response){
+          if(response.code == 0) {
+            var userInfo = getUserInfo(nickname);
+            if(this.allMember.hasOwnProperty(groupId)) {
+              this.allMember[(groupId)].push(userInfo);
+            } else {
+              this.allMember[(groupId)] = [];
+              this.allMember[(groupId)].push(info);
+            }
+            console.log(response.msg);
+          } else {
+            console.log(response.msg);
+          }
+        })
+        .catch(function(err){
+          console.log(err);
+        });
+      },
+
+      //删除群组中的用户
+      deleteGroupUser(groupId, nickname) {
+        axios.delete('/groups/delete', {
+          params: {
+            group_id:groupId,
+            nickname:nickname
+          }
+        })
+        .then(function(response){
+          if(response.code == 0) {
+            var userInfo = getUserInfo(nickname);
+            allMember[groupId].splice(allMember[groupId].indexOf(userInfo));
+            console.log(response.msg);
+          } else {
+            console.log(response.msg);
+          }
+        })
+        .catch(function(err){
+          console.log(err);
+        });
+      },
+      //更新群组名称
+      updateGroupName(groupId, newGroupName) {
+        axios.post('/group/update', {
+          params: {
+            group_id: groupId,
+            nickname: newGroupName
+          }
+        })
+        .then(function(response) {
+          if (response.code == 0) {
+            for(var i = 0; i < allGroups; i++) {
+              if(allGroups[i].id == groupId) {
+                allGroups[i].groupName == newGroupName;
+                break;
+              }
+            }
+            console.log(response.msg);
+          } else {
+            console.log(response.msg);
+          }
+        })
+        .catch(function(err){
+          console.log(err);
+        });
+      },
+      //查找用户的所有群组
+      findAllGroup() {
+        axios.get('/groups/find_all_group')
+          .then(function(response) {
+            if(response.code == 0) {
+              this.allGroups = response.data;
+              console.log(response.msg);
+            } else {
+              console.log(response.msg);
+            }
+          })
+          .catch(function(err){
+            console.log(err);
+          });
+      },
+      //查找群组中的所有成员
+      findAllMember(groupId) {
+        axios.post('/groups/find_all_member',{
+          params: {
+            group_id: groupId
+          }
+        })
+        .then(function(response) {
+          if(response.code == 0) {
+            this.allMember[groupId] = response.data; 
+            console.log(response.msg);
+          } else {
+            console.log(response.msg);
+          }
+        })
+        .catch(function(err) {
+          console.log(err)
+        })
+      },
+      //获取本人信息
+      getSelfInfo() {
+        axios.get('get_self_info')
+        .then(function(response) {
+          if(response.code == 0) {
+            this.selfInfo = response.data;
+            console.log(response.msg);
+          } else {
+            console.log(response.msg);
+          }
+        })
+        .catch(function(error) {
+          console.log(error);
+        })
+      },
+
+      //根据昵称获取用户信息
+      getUserInfo(nickname) {
+        axios.get('get_user_info', {
+          params: {
+            nickname:nickname
+          }
+        })
+        .then(function(response){
+          if(response.code == 0) {
+            console.log(response.msg);
+            return response.data;
+          } else {
+            console.log(response.msg);
+            response.data
+          }
+        })
+        .catch(function(error) {
+          console.log(error);
+          return null;
+        })
       }
     },
     mounted: function() {

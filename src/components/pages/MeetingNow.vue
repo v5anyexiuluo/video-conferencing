@@ -32,6 +32,26 @@ export default {
 		return {
 		}
 	},
+	methods:{
+		addMember(meetingId, userNickname) {
+			axios.put('/meeting/add_member', {
+				params:{
+					meeting_id: meetingId,
+					user_nickname: userNickname
+				}
+			})
+			.then(function(response){
+				if(response.code == 0) {
+					console.log(response.msg);
+				} else {
+					console.log(response.msg);
+				}
+			})
+			.catch(function(error) {
+				console.log(error);
+			})
+		}
+	},
 	name: 'MeetingNow'
 }
 </script>

@@ -1,26 +1,32 @@
 <template>
   <ul>
-    <li v-for="(nav, index) in navs.subs" :class="activeSelect==nav.id? 'selected':''" @click="selectSubNav(navs.id, nav.id)"><span>
-      <router-link :to="{name:nav.url}">{{nav.name}}</router-link>
-      <!-- <a href="/">{{nav.name}}</a> -->
-    </span></li>
+    <router-link v-for="(item, index) in subNavs.subs" :to="{name:item.url}">
+      <li :class="nav.activeId==item.id? 'selected':''" @click="selectSubNav(subNavs.id, item.id)">
+        <span>{{item.name}}</span>
+      </li>
+    </router-link>
   </ul>
 </template>
 <script>
-import connect from '@/assets/js/connector.js';
+import {mapState,mapGetters} from 'vuex';
 export default {
   data () {
     return {
-      activeSelect: 0
     };
   },
   name: 'sub-nav',
-  props:['navs'],
   methods:{
     selectSubNav(pid, id){
-      this.activeSelect = id;
-      connect.$emit('sub-to-parent',{navId: pid, subId: id});
+      this.nav.activeId = id;
     }
+  },
+  computed:{
+    ...mapState({
+      nav:state=>state.nav
+    }),
+    ...mapGetters([
+      'subNavs'
+    ])
   }
 }
 </script>
@@ -37,11 +43,13 @@ li{
   cursor: pointer;
   color: #8e8e8e;
 }
-li a{
-  color: #8e8e8e;
+a{
   text-decoration: none;
 }
-li.selected a{
+li span{
+  color: #8e8e8e;
+}
+li.selected span{
   color: rgb(255, 208, 75);
 }
 </style>

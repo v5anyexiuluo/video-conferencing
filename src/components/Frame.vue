@@ -2,16 +2,15 @@
   <el-row class="full-height">
     <el-col :span="24" class="full-height">
       <el-container class="full-height">
-        <side-nav logo="/static/images/logo.png" :navs="sideNavs" :active="subIndex"></side-nav>
+        <side-nav logo="/static/images/logo.png"></side-nav>
         <el-container>
           <el-header>
-            <head-nav :navs="headNavs"></head-nav>
+            <head-nav></head-nav>
           </el-header>
           <el-main class="full-height scroll-hidden">
-            <!-- <custom-main :collapse="isTabCollapse" :navs="subNavs"></custom-main> -->
             <el-row class="full-height main-wrap">
-              <div v-show="!isTabCollapse" class="full-height fleft sidenav-submenu-wrap hidden-xs-only">
-                <sub-nav :navs="subNavs"></sub-nav>
+              <div v-show="!nav.isTabCollapse&&subNavs.subs" class="full-height fleft sidenav-submenu-wrap hidden-xs-only">
+                <sub-nav></sub-nav>
               </div>
               <div class="fright content-wrap full-height">
                 <router-view></router-view>
@@ -25,7 +24,7 @@
 </template>
 
 <script>
-import connect from '@/assets/js/connector.js';
+// import connect from '@/assets/js/connector.js';
 import SideNav from '@/components/SideNav.vue';
 import HeadNav from '@/components/HeadNav.vue';
 import SubNav from '@/components/SubNav.vue';
@@ -35,30 +34,19 @@ import SubNav from '@/components/SubNav.vue';
 // import MeetingNow from '@/components/MeetingNow.vue';
 
 // import pinyin from '/static/js/pinyin/bundle.js'
+import {mapState,mapGetters} from 'vuex';
 
 export default {
   data() {
     return {
-      isTabCollapse: true,
-      activeIndex: 1,
-      subIndex: 1,
-      sideNavs: [
-        {id:1, name: '会话', icon:'el-icon-location', image: '', component: ''},
-        {id:2, name: '通讯录', icon:'el-icon-location', image: '', component: '', subs:[{id: 1, name: '新的好友', icon:'', image:'', component:''},{id: 2, name: '我的好友', icon:'', image:'', component:''},{id: 3, name: '我的群组', icon:'', image:'', url: 'group', component:''}]},
-        {id:3, name: '视频会议', icon:'el-icon-location', image: '', component: 'VideoConf', url:'', subs:[{id: 1, name: '加入会议', icon:'', image:'', url: 'join', component:''},{id: 2, name: '预约会议', icon:'', image:'', url: 'order', component:''},{id: 3, name: '历史会议', icon:'', image:'', url: 'history', component:''},{id: 4, name: '未参加会议', icon:'', image:'', url: 'miss', component:''},{id: 5, name: '进入会议', icon:'', image:'', url: 'now', component:'MeetingNow'}]},
-        {id:4, name: '通知', icon:'el-icon-location', image: '', component: '', subs:[{id: 1, name: '会议通知', icon:'', image:'', component:''},{id: 2, name: '好友通知', icon:'', image:'', component:''}]}
-      ],
-      headNavs: [
-        {id:1, name: '用户', icon: '', image: '/static/images/user.jpg', subs:[{id: 1, name: 'list1', icon:'', image:'', component:''},{id: 2, name: 'list2', icon:'', image:'', component:''}]},
-        {id:2, name: '', icon: 'el-icon-bell', image: '', subs:[{id: 1, name: 'list1', icon:'', image:'', component:''},{id: 2, name: 'list2', icon:'', image:'', component:''}]}
-      ],
-      subNavs: [
-      ]
+      // isTabCollapse: true,
+      // activeIndex: 1,
+      // subIndex: 1,
     };
   },
   name: 'Frame',
   created: function(){
-    this.listen();
+    // this.listen();
     // this.addRouters();
   },
   mounted: function() {
@@ -69,26 +57,26 @@ export default {
     'sub-nav': SubNav
   },
   methods: {
-    listen(){
-      var $this = this;
-      connect.$on('sub-to-parent',function(msg){
-        if(typeof(msg.isTabCollapse)!='undefined'){
-          $this.isTabCollapse = msg.isTabCollapse;
-        }
-        if(typeof(msg.navId)!='undefined'&&typeof(msg.subId)){
-          $this.activeIndex = msg.navId;
-          $this.subIndex = msg.subId;
-        }
-        if(typeof(msg.activeIndex)!='undefined'){
-          $this.activeIndex = msg.activeIndex;
-          for(var i=0;i<$this.sideNavs.length;i++){
-            if($this.sideNavs[i].id==msg.activeIndex){
-              $this.subNavs = $this.sideNavs[i]; 
-            }
-          }
-        }
-      })
-    },
+    // listen(){
+    //   var $this = this;
+    //   connect.$on('sub-to-parent',function(msg){
+    //     if(typeof(msg.isTabCollapse)!='undefined'){
+    //       $this.isTabCollapse = msg.isTabCollapse;
+    //     }
+    //     if(typeof(msg.navId)!='undefined'&&typeof(msg.subId)){
+    //       $this.activeIndex = msg.navId;
+    //       $this.subIndex = msg.subId;
+    //     }
+    //     if(typeof(msg.activeIndex)!='undefined'){
+    //       $this.activeIndex = msg.activeIndex;
+    //       for(var i=0;i<$this.sideNavs.length;i++){
+    //         if($this.sideNavs[i].id==msg.activeIndex){
+    //           $this.subNavs = $this.sideNavs[i]; 
+    //         }
+    //       }
+    //     }
+    //   })
+    // },
     // addRouters(){
     //   var $this = this
     //   for (var i = 0; i < $this.sideNavs.length; i++) {
@@ -123,7 +111,29 @@ export default {
     // }
   },
   watch:{
-    
+    nav: {
+      handler:function(val, oldVal){
+        var $this=this;
+        val.sideNavs.map(function(item){
+          if(item.id==$this.nav.activePid&&item.subs){
+            item.subs.map(function(subItem){
+              if(subItem.id==$this.nav.activeId&&subItem.url){
+                $this.$router.push({name:subItem.url})
+              }
+            })
+          }
+        })
+      },
+      deep: true
+    }
+  },
+  computed:{
+    ...mapState({
+      nav:state=>state.nav
+    }),
+    ...mapGetters([
+      'subNavs'
+    ])
   }
 }
 </script>

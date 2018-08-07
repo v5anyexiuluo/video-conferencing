@@ -11,7 +11,7 @@
         <el-menu-item class="v-center" index="4">订单管理</el-menu-item>
       </el-menu> -->
 	<el-row type="flex" justify="end" class="header-wrap">
-		<el-dropdown v-for="(nav, index) in navs" placement="bottom">
+		<el-dropdown v-for="(nav, index) in nav.headNavs" placement="bottom">
 		  <span class="el-dropdown-link v-center">
 		    <img v-if="nav.image" :src="nav.image" style="height: 40px;width: 40px;border-radius: 20px; margin-right: 6px;" alt="">{{nav.name}}<i v-if="nav.image" class="el-icon-arrow-down el-icon--right"></i>
 		    <el-button v-if="nav.icon" type="warning" :icon="nav.icon" circle></el-button>
@@ -35,6 +35,7 @@
 	</el-row>
 </template>
 <script>
+import {mapState} from 'vuex';
 export default {
   data () {
     return {
@@ -42,7 +43,11 @@ export default {
     };
   },
   name: 'head-nav',
-  props:['navs']
+  computed:{
+    ...mapState({
+      nav:state=>state.nav
+    }),
+  }
 }
 </script>
 <style scoped>

@@ -4,10 +4,12 @@ import Vue from 'vue'
 import App from './App'
 import router from './router'
 import Axios from 'axios';
-import { Row, Col, Container, Aside, Header, Footer, Main, Menu, Submenu, MenuItem, Tooltip, Button, Dropdown, DropdownMenu, DropdownItem, Collapse, CollapseItem, Popover, Tree, Dialog, Form, FormItem, Select, Option } from 'element-ui';
+//vuex
+import store from './store'
+import { Row, Col, Container, Aside, Header, Footer, Main, Menu, Submenu, MenuItem, Tooltip, Button, Dropdown, DropdownMenu, DropdownItem, Collapse, CollapseItem, Popover, Tree, Dialog, Form, FormItem, Select, Option, Card, Input } from 'element-ui';
 import 'element-ui/lib/theme-chalk/display.css';
 import "./assets/icon/iconfont.css";
-import "./assets/css/common.css";  
+import "./assets/css/common.css";
 
 Axios.defaults.baseURL = 'http://182.254.146.100:8899/api/';
 //给Vue原型挂载一个属性
@@ -38,6 +40,8 @@ Vue.component(Form.name, Form);
 Vue.component(FormItem.name, FormItem);
 Vue.component(Select.name, Select);
 Vue.component(Option.name, Option);
+Vue.component(Input.name, Input);
+Vue.component(Card.name, Card);
 
 Vue.config.productionTip = false
 Vue.config.debug = true
@@ -46,6 +50,7 @@ Vue.config.debug = true
 new Vue({
   el: '#app',
   router,
+  store,
   components: { App },
   template: '<App/>'
 })

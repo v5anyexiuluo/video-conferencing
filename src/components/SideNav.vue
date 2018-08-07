@@ -5,7 +5,7 @@
       <el-col :span="isCollapse? 24:6"><div class="grid-content" @click="collapseSideBar"><i class="iconfont el-icon-lg-collapse-on"></i></div></el-col>
     </el-row>
     <el-menu
-      :default-active="activeIndex"
+      :default-active="nav.activePid.toString()"
       class="el-menu-vertical-demo full-height"
       @select="handleSelect"
       @open="handleOpen"
@@ -14,42 +14,41 @@
       background-color="#545c64"
       text-color="#fff"
       active-text-color="#ffd04b">
-      <el-menu-item v-for="(nav, index) in navs" :index="nav.id | toString">
+      <el-menu-item v-for="(item, index) in nav.sideNavs" :index="item.id.toString()">
         <el-popover
-          v-show="nav.subs"
+          v-show="item.subs"
           placement="right"
           popper-class="sidenav-submenu"
           trigger="hover"
-          :disabled="!isTabCollapse"
+          :disabled="!nav.isTabCollapse"
           v-if="!isCollapse">
             <div class="toolbar"><i @click="collapseTab" class="el-icon-lg-fixed-off fright"></i></div>
-            <ul v-for="(subNav, index) in nav.subs">
-              <li @click="getNavId(nav.id, subNav.id)">{{subNav.name}}</li>
+            <ul v-for="(subNav, index) in item.subs">
+              <li @click="getNavId(item.id, subNav.id)">{{subNav.name}}</li>
             </ul>
             <span slot="reference" style="display: inline-block;width: 96%;height: 100%;position: absolute;left: 0px;"></span>
         </el-popover>
-        <i :class="nav.icon"></i>
-        <span>{{nav.name}}</span>
-        <span v-show="nav.subs" class="fright" @click="collapseTab"><i v-bind:class="[isTabCollapse? 'triangle-left':'triangle-right','triangle']"></i></span>
+        <i :class="item.icon"></i>
+        <span>{{item.name}}</span>
+        <span v-show="item.subs" class="fright" @click="collapseTab"><i :class="[nav.isTabCollapse? 'triangle-left':'triangle-right','triangle']"></i></span>
       </el-menu-item>
     </el-menu>
   </el-aside>
 </template>
 
 <script>
-import connect from '@/assets/js/connector.js';
+// import connect from '@/assets/js/connector.js';
+import {mapState} from 'vuex';
 export default {
   data () {
     return {
       isCollapse: false,
-      isTabCollapse: true,
-      activeIndex: '1',
-      navId: '',
-      subNavId: ''
+      // isTabCollapse: true,
+      // activeIndex: '1',
     };
   },
   name: 'side-nav',
-  props:['logo','navs'],
+  props:['logo'],
   methods: {
     handleOpen(key, keyPath) {
       console.log(key, keyPath);
@@ -59,35 +58,38 @@ export default {
     },
     handleSelect(key, keyPath) {
       console.log(key, keyPath);
-      connect.$emit('sub-to-parent',{activeIndex: key});
+      this.nav.activePid = key;
+      this.nav.activeId = 1;
+      this.isPopoverShow = false;
+      // connect.$emit('sub-to-parent',{activeIndex: key});
     },
     collapseSideBar(){
       this.isCollapse = !this.isCollapse;
     },
     collapseTab(){
-      this.isTabCollapse = !this.isTabCollapse;
-      connect.$emit('sub-to-parent',{isTabCollapse: this.isTabCollapse});
+      this.nav.isTabCollapse = !this.nav.isTabCollapse;
+      // connect.$emit('sub-to-parent',{isTabCollapse: this.isTabCollapse});
     },
     getNavId(pid, id){
-      this.navId = pid;
-      this.id = id;
+      this.nav.activePid = pid;
+      this.nav.activeId = id;
+      this.isPopoverShow = false;
     }
-    // fixedPopup(){
-    //   this.isTabCollapse = !this.isTabCollapse;
-    // }
   },
   filters:{
-    toString: function(value){
-      return value.toString();
-    }
+    // toString: function(value){
+    //   return value.toString();
+    // }
   },
   created:function(){
     
   },
   watch:{
-    activeIndex: function(){
-      console.log(this.activeIndex)
-    }
+  },
+  computed:{
+    ...mapState({
+      nav:state=>state.nav
+    }),
   }
 }
 </script>
@@ -173,6 +175,9 @@ export default {
   height: 40px;
   line-height: 40px;
   cursor: pointer;
+}
+.sidenav-submenu li:hover{
+  color: rgb(255, 208, 75);
 }
 
 </style>

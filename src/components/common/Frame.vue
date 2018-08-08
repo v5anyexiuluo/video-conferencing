@@ -25,9 +25,9 @@
 
 <script>
 // import connect from '@/assets/js/connector.js';
-import SideNav from '@/components/SideNav.vue';
-import HeadNav from '@/components/HeadNav.vue';
-import SubNav from '@/components/SubNav.vue';
+import SideNav from '@/components/common/SideNav.vue';
+import HeadNav from '@/components/common/HeadNav.vue';
+import SubNav from '@/components/common/SubNav.vue';
 
 // import Frame from '@/components/Frame.vue';
 // import VideoConf from '@/components/VideoConf.vue';

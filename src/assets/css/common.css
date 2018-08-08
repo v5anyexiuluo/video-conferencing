@@ -30,3 +30,8 @@
 .margin-b-20{
 	margin-bottom: 20px;
 }
+.inline-ele{
+	display: flex;
+	flex-wrap: nowrap;
+	justify-content: flex-start;
+}

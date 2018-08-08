@@ -86,7 +86,7 @@
 </template>
 <script>
   import BScroll from 'better-scroll'
-  import Scroll from '@/components/Scroll.vue'
+  import Scroll from '@/components/common/Scroll.vue'
   export default {
     data() {
       return {

@@ -1,6 +1,8 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Frame from '@/components/Frame'
+import Frame from '@/components/common/Frame'
+import Login from '@/components/pages/Login'
+import Regist from '@/components/pages/Regist'
 import MeetingJoin from '@/components/pages/MeetingJoin'
 import MeetingOrder from '@/components/pages/MeetingOrder'
 import MeetingHistory from '@/components/pages/MeetingHistory'
@@ -15,7 +17,17 @@ export default new Router({
   routes: [
     {
 		path: '/',
-		redirect: { name: 'frame' },
+		redirect: { name: 'login' },
+    },
+    {
+    	name: 'login',
+		path: '/login',
+		component: Login
+    },
+    {
+    	name: 'regist',
+		path: '/regist',
+		component: Regist
     },
     {
 	    name: 'frame',

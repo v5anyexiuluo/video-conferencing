@@ -96,7 +96,7 @@
 </template>
 <script>
   import BScroll from 'better-scroll'
-  import Scroll from '@/components/Scroll.vue'
+  import Scroll from '@/components/common/Scroll.vue'
   export default {
     data() {
       return {
@@ -158,6 +158,11 @@
       scroll: Scroll
     },
     methods: {
+      FindObjectByID(array, id){
+        return array.findIndex((value, index, arr) => {
+          value.id = id
+        })
+      },
       //创建群
       createGroup(groupName) {
         axios.put('/groups/create', {
@@ -254,11 +259,16 @@
       },
       //查找用户的所有群组
       findAllGroup() {
+        var $this = this;
         axios.get('/groups/find_all_group')
           .then(function(response) {
             if(response.code == 0) {
-              this.allGroups = response.data;
-              console.log(response.msg);
+              var groups = response.data;
+              $this.allGroups = groups;
+              groups.map(function(item){
+                $this.allGroups[FindObjectByID($this.allGroups,item.id)]['members']=$this.findAllMember(item.id)
+              })
+              // console.log(response.msg);
             } else {
               console.log(response.msg);
             }
@@ -276,8 +286,8 @@
         })
         .then(function(response) {
           if(response.code == 0) {
-            this.allMember[groupId] = response.data; 
-            console.log(response.msg);
+            return response.data; 
+            // console.log(response.msg);
           } else {
             console.log(response.msg);
           }

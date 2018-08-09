@@ -26,9 +26,9 @@
 
 <script>
 // import connect from '@/assets/js/connector.js';
-import SideNav from '@/components/common/SideNav.vue';
-import HeadNav from '@/components/common/HeadNav.vue';
-import SubNav from '@/components/common/SubNav.vue';
+import SideNav from '@/components/SideNav.vue';
+import HeadNav from '@/components/HeadNav.vue';
+import SubNav from '@/components/SubNav.vue';
 
 // import Frame from '@/components/Frame.vue';
 // import VideoConf from '@/components/VideoConf.vue';
@@ -60,7 +60,7 @@ export default {
   methods: {
     login() {
       alert("登录成功！");
-      this.$axios.post('http://192.168.2.31:8082/api/v1/users/sign_in', 
+      this.$axios.post('http://192.168.2.29:8082/api/v1/users/sign_in', 
           {
             nickname:"006",
             password:"weihongkai1995"
@@ -130,7 +130,6 @@ export default {
     //   }
     //   $this.$router.addRoutes(this.$router.options.routes);//调用addRoutes添加路由
     // }
-
   },
   watch:{
     nav: {

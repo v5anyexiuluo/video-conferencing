@@ -10,7 +10,9 @@
                     <el-input type="password" placeholder="密码" v-model="ruleForm.password" @keyup.enter.native="submitForm('ruleForm')"></el-input>
                 </el-form-item>
                 <el-form-item>
-                    <el-button type="primary" @click="submitForm('ruleForm')">登录</el-button>
+                    <router-link to="/frame">
+                        <el-button type="primary" @click="submitForm('ruleForm')">登录</el-button>
+                    </router-link>
                     <router-link to="/regist"><el-button>去注册</el-button></router-link>
                 </el-form-item>
                 <p style="font-size:12px;margin:0px;color:#999;">Tips : 请填写用户名和密码。</p>
@@ -20,7 +22,7 @@
 </template>
 
 <script>
-    import {apiAuth} from '@/api/index.js'
+    import {apiAuth} from '@/api/api.js'
     export default {
         data: function(){
             return {
@@ -44,7 +46,7 @@
         name: 'Login',
         methods: {
             //登录
-            login(user) {
+            login(user, cbOk, cbErr) {
                 var $this = this;
                 $this.$axios.post(apiAuth.login,
                     {
@@ -54,12 +56,15 @@
                 )
                 .then(function(response) {
                     if(response.code == 0) {
+                        typeof(cbOk)!="undefined"&&cbOk()
                         // sessionStorage.setItem("token", response.data);
                     } else {
+                        typeof(cbErr)!="undefined"&&cbErr()
                         console.log(response.msg);
                     }
                 })
                 .catch(function(err){
+                    $this.$message.error('网络或服务器错误！');
                     console.log(err);
                 });
             },
@@ -69,7 +74,15 @@
                     if (valid) {
                         // localStorage.setItem('ms_username',this.ruleForm.username);
                         // this.$router.push('/');
-                        $this.login($this.ruleForm)
+                        $this.login($this.ruleForm, function(){
+                            $this.$router.push({name: 'friends'})
+                            $this.$message({
+                                message: '登录成功！',
+                                type: 'success'
+                            });
+                        },function(){
+                            $this.$message.error('用户名或密码错误！');
+                        })
                     } else {
                         console.log('error submit!!');
                         return false;

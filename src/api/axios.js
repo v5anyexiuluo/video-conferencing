@@ -1,6 +1,3 @@
-// 配置API接口地址
-var root = process.env.API
- 
 // 引用axios
 import axios from 'axios';
 // 自定义判断元素类型JS
@@ -34,21 +31,20 @@ function apiAxios (method, url, params, success, failure) {
     url: url,
     data: method === 'POST'  ? params : null,
     params: method === 'GET'  ? params : null,
-    baseURL: root,
-    withCredentials: false
+    withCredentials: true
   })
   .then(function (res) {
     console.log(res);
-    return;
-    if (res.data.success === true) {
+    // return;
+    if (res.code == 0) {
       if (success) {
-        success(res.data)
+        success(res)
       }
     } else {
       if (failure) {
-        failure(res.data)
+        failure(res)
       } else {
-        window.alert('error: ' + JSON.stringify(res.data))
+        window.alert(res.code+":"+res.msg)
       }
     }
   })

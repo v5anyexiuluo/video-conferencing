@@ -5,8 +5,8 @@ var data = process.env.API_DATA_ROOT
 export var apiAuth = {
 	login: auth+'/users/sign_in',
 	logout: auth+'/users/sign_out',
-	userInfo: auth+'/get_self_info',
-	userInfoByNickname: auth+'get_user_info'
+	userInfo: data+'user/get_self_info',
+	userInfoByNickname: data+'user/get_user_info'
 }
 export var apiLinks = {
 	friends:{
@@ -19,7 +19,7 @@ export var apiLinks = {
 		modifyName: data+'/group/update',
 		all: data+'/groups/find_all_group',
 		members: data+'/groups/find_all_member',
-
+		allmember: data + 'groups/get_group_member',
 	}
 }
 export var apiMeeting = {

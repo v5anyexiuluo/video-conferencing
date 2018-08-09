@@ -1,6 +1,6 @@
 <template>
   <ul>
-    <router-link v-for="(item, index) in subNavs.subs" :to="{name:item.url}">
+    <router-link v-for="(item, index) in subNavs.subs" :key=index :to="{name:item.url}">
       <li :class="nav.activeId==item.id? 'selected':''" @click="selectSubNav(subNavs.id, item.id)">
         <span>{{item.name}}</span>
       </li>

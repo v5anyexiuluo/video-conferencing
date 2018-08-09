@@ -22,7 +22,7 @@
     </el-dropdown>
 		<el-dropdown placement="bottom">
 		  <span class="el-dropdown-link v-center">
-		    <img src="/static/images/user.jpg" style="height: 40px;width: 40px;border-radius: 20px; margin-right: 6px;" alt="">{{user.nickName}}<i class="el-icon-arrow-down el-icon--right"></i>
+		    <img src="/static/images/user.jpg" style="height: 40px;width: 40px;border-radius: 20px; margin-right: 6px;" alt="">{{nav.user.nickName}}<i class="el-icon-arrow-down el-icon--right"></i>
 		  </span>
 		  <el-dropdown-menu :popper-append-to-body="false" slot="dropdown">
 		    <el-dropdown-item>用户中心</el-dropdown-item>
@@ -37,13 +37,12 @@ import {apiAuth} from '@/api/index.js'
 export default {
   data () {
     return {
-      user: null,
     };
   },
   name: 'head-nav',
   created: function(){
     this.getSelfInfo(function(){
-      $this.user = response.data;
+      $this.nav.user = response.data;
     },function(){
       $this.$router.push({name: 'login'})
     });
@@ -63,13 +62,14 @@ export default {
           }
       })
       .catch(function(error) {
-          typeof(cbErr)!="undefined"&&cbErr()
+          $this.$message.error('网络或服务器错误！');
           console.log(error);
       })
     },
     handleLogout(){
       var $this = this;
       $this.logout(function(){
+        $this.nav.user = null;
         $this.$router.push({name: 'login'})
       })
     },

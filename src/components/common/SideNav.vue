@@ -14,7 +14,7 @@
       background-color="#545c64"
       text-color="#fff"
       active-text-color="#ffd04b">
-      <el-menu-item v-for="(item, index) in nav.sideNavs" :index="item.id.toString()">
+      <el-menu-item v-for="(item, index) in nav.sideNavs" :index="item.id.toString()" :key=index>
         <el-popover
           v-show="item.subs"
           placement="right"

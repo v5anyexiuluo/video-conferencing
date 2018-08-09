@@ -20,7 +20,7 @@
                 </el-form-item>
                 <el-form-item>
                     <el-button type="primary" @click="submitForm('ruleForm')">注册</el-button>
-                    <router-link to="/regist"><el-button>去登录</el-button></router-link>
+                    <router-link to="/login"><el-button>去登录</el-button></router-link>
                 </el-form-item>
                 <p style="font-size:12px;margin:0px;color:#999;">Tips : 请填写用户名和密码。</p>
             </el-form>

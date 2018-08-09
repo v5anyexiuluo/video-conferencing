@@ -3,7 +3,7 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
-import Axios from 'axios';
+import Axios from '@/api/axios.js';
 //vuex
 import store from './store'
 import api from './api'
@@ -13,6 +13,7 @@ import "./assets/icon/iconfont.css";
 import "./assets/css/common.css";
 
 // Axios.defaults.baseURL = 'http://182.254.146.100:8899/api/';
+Axios.defaults.withCredentials=true;
 //给Vue原型挂载一个属性
 Vue.prototype.$axios = Axios;
 

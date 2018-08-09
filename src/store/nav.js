@@ -4,6 +4,7 @@ export default {
         activePid: 2,
         activeId: 2,
         isTabCollapse: false,
+        user: null,
         sideNavs: [
 			{id:1, name: '会话', icon:'el-icon-location', image: '', component: ''},
 			{id:2, name: '通讯录', icon:'el-icon-location', image: '', component: '', subs:[{id: 1, name: '新的好友', icon:'', image:'', component:''},{id: 2, name: '我的好友', icon:'', image:'', url: 'friend', component:''},{id: 3, name: '我的群组', icon:'', image:'', url: 'group', component:''}]},

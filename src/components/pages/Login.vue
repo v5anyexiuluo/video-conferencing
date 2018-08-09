@@ -63,21 +63,6 @@
                     console.log(err);
                 });
             },
-            //获取本人信息
-            getSelfInfo() {
-                axios.get(apiAuth.userInfo)
-                .then(function(response) {
-                    if(response.code == 0) {
-                        this.selfInfo = response.data;
-                        console.log(response.msg);
-                    } else {
-                        console.log(response.msg);
-                    }
-                })
-                .catch(function(error) {
-                    console.log(error);
-                })
-            },
             submitForm(formName) {
                 var $this = this
                 $this.$refs[formName].validate((valid) => {

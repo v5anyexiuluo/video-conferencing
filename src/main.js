@@ -7,7 +7,7 @@ import Axios from 'axios';
 //vuex
 import store from './store'
 import api from './api'
-import { Row, Col, Container, Aside, Header, Footer, Main, Menu, Submenu, MenuItem, Tooltip, Button, Dropdown, DropdownMenu, DropdownItem, Collapse, CollapseItem, Popover, Tree, Dialog, Form, FormItem, Select, Option, Card, Input } from 'element-ui';
+import { Row, Col, Container, Aside, Header, Footer, Main, Menu, Submenu, MenuItem, Tooltip, Button, Dropdown, DropdownMenu, DropdownItem, Collapse, CollapseItem, Popover, Tree, Dialog, Form, FormItem, Select, Option, Card, Input, Message } from 'element-ui';
 import 'element-ui/lib/theme-chalk/display.css';
 import "./assets/icon/iconfont.css";
 import "./assets/css/common.css";
@@ -43,6 +43,7 @@ Vue.component(Select.name, Select);
 Vue.component(Option.name, Option);
 Vue.component(Input.name, Input);
 Vue.component(Card.name, Card);
+Vue.component(Message.name, Message);
 
 Vue.config.productionTip = false
 Vue.config.debug = true

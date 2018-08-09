@@ -11,38 +11,86 @@
         <el-menu-item class="v-center" index="4">订单管理</el-menu-item>
       </el-menu> -->
 	<el-row type="flex" justify="end" class="header-wrap">
-		<el-dropdown v-for="(nav, index) in nav.headNavs" placement="bottom">
+    <el-dropdown placement="bottom">
+      <span class="el-dropdown-link v-center">
+        <el-button type="warning" icon="el-icon-bell" circle></el-button>
+      </span>
+      <el-dropdown-menu :popper-append-to-body="false" slot="dropdown">
+        <el-dropdown-item>你有一条系统通知</el-dropdown-item>
+        <el-dropdown-item>修罗请求添加你</el-dropdown-item>
+      </el-dropdown-menu>
+    </el-dropdown>
+		<el-dropdown placement="bottom">
 		  <span class="el-dropdown-link v-center">
-		    <img v-if="nav.image" :src="nav.image" style="height: 40px;width: 40px;border-radius: 20px; margin-right: 6px;" alt="">{{nav.name}}<i v-if="nav.image" class="el-icon-arrow-down el-icon--right"></i>
-		    <el-button v-if="nav.icon" type="warning" :icon="nav.icon" circle></el-button>
+		    <img src="/static/images/user.jpg" style="height: 40px;width: 40px;border-radius: 20px; margin-right: 6px;" alt="">{{user.nickName}}<i class="el-icon-arrow-down el-icon--right"></i>
 		  </span>
 		  <el-dropdown-menu :popper-append-to-body="false" slot="dropdown">
-		    <el-dropdown-item v-for="(subNav, index) in nav.subs">{{subNav.name}}</el-dropdown-item>
+		    <el-dropdown-item>用户中心</el-dropdown-item>
+        <el-dropdown-item @click="logout">注销</el-dropdown-item>
 		  </el-dropdown-menu>
 		</el-dropdown>
-		<!-- <el-dropdown placement="bottom">
-		  <span class="el-dropdown-link">
-		    <el-button type="warning" icon="el-icon-bell" circle></el-button>
-		  </span>
-		  <el-dropdown-menu :popper-append-to-body="false" slot="dropdown">
-		    <el-dropdown-item>黄金糕</el-dropdown-item>
-		    <el-dropdown-item>狮子头</el-dropdown-item>
-		    <el-dropdown-item>螺蛳粉</el-dropdown-item>
-		    <el-dropdown-item disabled>双皮奶</el-dropdown-item>
-		    <el-dropdown-item divided>蚵仔煎</el-dropdown-item>
-		  </el-dropdown-menu>
-		</el-dropdown> -->
 	</el-row>
 </template>
 <script>
 import {mapState} from 'vuex';
+import {apiAuth} from '@/api/index.js'
 export default {
   data () {
     return {
-      
+      user: null,
     };
   },
   name: 'head-nav',
+  created: function(){
+    this.getSelfInfo(function(){
+      $this.user = response.data;
+    },function(){
+      $this.$router.push({name: 'login'})
+    });
+  },
+  method: {
+    //获取本人信息
+    getSelfInfo(cbOk, cbErr) {
+      var $this = this;
+      axios.get(apiAuth.userInfo)
+      .then(function(response) {
+          if(response.code == 0) {
+            typeof(cbOk)!="undefined"&&cbOk()
+            console.log(response.msg);
+          } else {
+            typeof(cbErr)!="undefined"&&cbErr()
+            console.log(response.msg);
+          }
+      })
+      .catch(function(error) {
+          typeof(cbErr)!="undefined"&&cbErr()
+          console.log(error);
+      })
+    },
+    handleLogout(){
+      var $this = this;
+      $this.logout(function(){
+        $this.$router.push({name: 'login'})
+      })
+    },
+    logout(cbOk, cbErr){
+      var $this = this;
+      axios.get(apiAuth.logout)
+      .then(function(response) {
+          if(response.code == 0) {
+            typeof(cbOk)!="undefined"&&cbOk()
+            console.log(response.msg);
+          } else {
+            typeof(cbErr)!="undefined"&&cbErr()
+            console.log(response.msg);
+          }
+      })
+      .catch(function(error) {
+          typeof(cbErr)!="undefined"&&cbErr()
+          console.log(error);
+      })
+    }
+  },
   computed:{
     ...mapState({
       nav:state=>state.nav

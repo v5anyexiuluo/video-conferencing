@@ -20,6 +20,7 @@
 </template>
 
 <script>
+    import {apiAuth} from '@/api/index.js'
     export default {
         data: function(){
             return {
@@ -37,13 +38,53 @@
                 }
             }
         },
+        created: function(){
+            // console.log(process.env)
+        },
         name: 'Login',
         methods: {
+            //登录
+            login(user) {
+                var $this = this;
+                $this.$axios.post(apiAuth.login,
+                    {
+                        nickname: user.username,
+                        password: user.password
+                    }
+                )
+                .then(function(response) {
+                    if(response.code == 0) {
+                        // sessionStorage.setItem("token", response.data);
+                    } else {
+                        console.log(response.msg);
+                    }
+                })
+                .catch(function(err){
+                    console.log(err);
+                });
+            },
+            //获取本人信息
+            getSelfInfo() {
+                axios.get(apiAuth.userInfo)
+                .then(function(response) {
+                    if(response.code == 0) {
+                        this.selfInfo = response.data;
+                        console.log(response.msg);
+                    } else {
+                        console.log(response.msg);
+                    }
+                })
+                .catch(function(error) {
+                    console.log(error);
+                })
+            },
             submitForm(formName) {
-                this.$refs[formName].validate((valid) => {
+                var $this = this
+                $this.$refs[formName].validate((valid) => {
                     if (valid) {
                         // localStorage.setItem('ms_username',this.ruleForm.username);
                         // this.$router.push('/');
+                        $this.login($this.ruleForm)
                     } else {
                         console.log('error submit!!');
                         return false;

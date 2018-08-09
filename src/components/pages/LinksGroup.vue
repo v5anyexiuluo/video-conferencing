@@ -97,6 +97,7 @@
 <script>
   import BScroll from 'better-scroll'
   import Scroll from '@/components/common/Scroll.vue'
+  import {apiAuth, apiLinks} from '@/api/index.js'
   export default {
     data() {
       return {
@@ -165,7 +166,7 @@
       },
       //创建群
       createGroup(groupName) {
-        axios.put('/groups/create', {
+        axios.put(apiLinks.create, {
           params: {
             group_name:groupName
           }
@@ -186,7 +187,7 @@
 
       //群组添加用户
       appendGroupUser(groupId, nickname) {
-        axios.put('/groups/append', {
+        axios.put(create.addMember, {
           params: {
             group_id:groupId,
             nickname:nickname
@@ -213,7 +214,7 @@
 
       //删除群组中的用户
       deleteGroupUser(groupId, nickname) {
-        axios.delete('/groups/delete', {
+        axios.delete(apiLinks.deleteMember, {
           params: {
             group_id:groupId,
             nickname:nickname
@@ -234,7 +235,7 @@
       },
       //更新群组名称
       updateGroupName(groupId, newGroupName) {
-        axios.post('/group/update', {
+        axios.post(apiLinks.modifyName, {
           params: {
             group_id: groupId,
             nickname: newGroupName
@@ -260,7 +261,7 @@
       //查找用户的所有群组
       findAllGroup() {
         var $this = this;
-        axios.get('/groups/find_all_group')
+        axios.get(apiLinks.all)
           .then(function(response) {
             if(response.code == 0) {
               var groups = response.data;
@@ -279,7 +280,7 @@
       },
       //查找群组中的所有成员
       findAllMember(groupId) {
-        axios.post('/groups/find_all_member',{
+        axios.post(apiLinks.members,{
           params: {
             group_id: groupId
           }
@@ -296,25 +297,10 @@
           console.log(err)
         })
       },
-      //获取本人信息
-      getSelfInfo() {
-        axios.get('get_self_info')
-        .then(function(response) {
-          if(response.code == 0) {
-            this.selfInfo = response.data;
-            console.log(response.msg);
-          } else {
-            console.log(response.msg);
-          }
-        })
-        .catch(function(error) {
-          console.log(error);
-        })
-      },
 
       //根据昵称获取用户信息
       getUserInfo(nickname) {
-        axios.get('get_user_info', {
+        axios.get(apiAuth.userInfoByNickname, {
           params: {
             nickname:nickname
           }

@@ -6,12 +6,13 @@ import router from './router'
 import Axios from 'axios';
 //vuex
 import store from './store'
+import api from './api'
 import { Row, Col, Container, Aside, Header, Footer, Main, Menu, Submenu, MenuItem, Tooltip, Button, Dropdown, DropdownMenu, DropdownItem, Collapse, CollapseItem, Popover, Tree, Dialog, Form, FormItem, Select, Option, Card, Input } from 'element-ui';
 import 'element-ui/lib/theme-chalk/display.css';
 import "./assets/icon/iconfont.css";
 import "./assets/css/common.css";
 
-Axios.defaults.baseURL = 'http://182.254.146.100:8899/api/';
+// Axios.defaults.baseURL = 'http://182.254.146.100:8899/api/';
 //给Vue原型挂载一个属性
 Vue.prototype.$axios = Axios;
 

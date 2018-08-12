@@ -24,8 +24,14 @@
 .one-third{
 	width: 32%;
 }
+.one-third:not(:first-child) {
+    margin-left: 2%;
+}
 .one-second{
 	width: 48%;
+}
+.one-second:not(:first-child) {
+    margin-left: 2%;
 }
 .margin-b-20{
 	margin-bottom: 20px;

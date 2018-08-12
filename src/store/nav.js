@@ -1,4 +1,4 @@
-import {apiAuth} from '@/api/index.js'
+import {apiAuth} from '@/api/api.js'
 export default {
     state:{
         activePid: 2,

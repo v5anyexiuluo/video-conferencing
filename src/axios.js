@@ -29,15 +29,14 @@ function apiAxios (method, url, params, success, failure) {
   axios({
     method: method,
     url: url,
-    data: (method === 'POST'||method === 'PUT'||method === 'DELETE')? params : null,
+    data: method === 'POST'  ? params : null,
     params: method === 'GET'  ? params : null,
-    // headers:{'Access-Control-Allow-Origin':'*'},
     withCredentials: true
   })
   .then(function (res) {
     console.log(res);
     // return;
-    if (res.data.code == 0) {
+    if (res.code == 0) {
       if (success) {
         success(res)
       }
@@ -50,8 +49,9 @@ function apiAxios (method, url, params, success, failure) {
     }
   })
   .catch(function (err) {
+    let res = err.response
     if (err) {
-      window.alert(err)
+      window.alert('api error, HTTP CODE: ' + res.status)
       return
     }
   })
@@ -64,12 +64,6 @@ export default {
   },
   post: function (url, params, success, failure) {
     return apiAxios('POST', url, params, success, failure)
-  },
-  put: function (url, params, success, failure) {
-    return apiAxios('PUT', url, params, success, failure)
-  },
-  delete: function (url, params, success, failure) {
-    return apiAxios('DELETE', url, params, success, failure)
   }
  
 }

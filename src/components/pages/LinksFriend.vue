@@ -1,7 +1,7 @@
 <template>
 	<div>
 		<div class="main-actions">
-			<a href="javascript:void(0)" @click="dialogFormVisible = true">添加好友</a>
+			<a href="javascript:void(0)" @click="dialogAddFriendVisible = true">添加好友</a>
 		</div>
 		<div>
 			<div class="main-title">
@@ -9,38 +9,20 @@
 			</div>
 			<div style="padding: 20px;">
 				<div class="hidden-sm-and-up card-wrap">
-          <el-card v-for="group in groups" :key="group.id" class="full-width margin-b-20">
+          <!-- <el-card v-for="group in groups" :key="group.id" class="full-width margin-b-20">
             <div slot="header" class="card-title clearfix">
               <span>{{group.label}}</span>
               <el-button style="float: right; padding: 3px 0" type="text"></el-button>
             </div>
-            <!-- <ul class="card-item-wrap" ref="wrapper">
-              <li v-for="item in group.children" :key="item.id" class="card-item">{{item.label}}</li>
-            </ul> -->
             <scroll :data="group.children" style="height: 120px;overflow: hidden;">
               <ul class="card-item-wrap">
                 <li v-for="item in group.children" :key="item.id" class="card-item">{{item.label}}</li>
               </ul>
             </scroll>
-          </el-card>
-        </div>
-        <div class="hidden-lg-and-up hidden-xs-only card-wrap">
-          <el-card v-for="group in groups" :key="group.id" class="one-second margin-b-20">
+          </el-card> -->
+          <el-card class="one-third margin-b-20">
             <div slot="header" class="card-title clearfix">
-              <span>{{group.label}}</span>
-              <el-button style="float: right; padding: 3px 0" type="text">操作按钮</el-button>
-            </div>
-            <scroll :data="group.children" style="height: 120px;overflow: hidden;">
-              <ul class="card-item-wrap">
-                <li v-for="item in group.children" :key="item.id" class="card-item">{{item.label}}</li>
-              </ul>
-            </scroll>
-          </el-card>
-        </div>
-        <div class="hidden-md-and-down card-wrap">
-          <el-card v-for="group in groups" :key="group.id" class="one-third margin-b-20">
-            <div slot="header" class="card-title clearfix">
-              <span>{{group.label}}</span>
+              <span>默认用户组</span>
               <div class="fright card-actions">
                 <i class="el-icon-edit"></i>
                 <i class="el-icon-delete"></i>
@@ -48,16 +30,66 @@
               </div>
               <!-- <el-button style="float: right; padding: 3px 0" type="text"></el-button> -->
             </div>
-            <scroll :data="group.children" style="height: 120px;overflow: hidden;">
+            <scroll :data="friends" style="height: 120px;overflow: hidden;">
               <ul class="card-item-wrap">
-                <li v-for="item in group.children" :key="item.id" class="card-item">{{item.label}}</li>
+                <li v-for="item in friends" :key="item.phone" class="card-item">{{item.nickname}}</li>
+              </ul>
+            </scroll>
+          </el-card>
+        </div>
+        <div class="hidden-lg-and-up hidden-xs-only card-wrap">
+          <el-card class="one-third margin-b-20">
+            <div slot="header" class="card-title clearfix">
+              <span>默认用户组</span>
+              <div class="fright card-actions">
+                <i class="el-icon-edit"></i>
+                <i class="el-icon-delete"></i>
+                <i class="el-icon-circle-plus-outline"></i>
+              </div>
+              <!-- <el-button style="float: right; padding: 3px 0" type="text"></el-button> -->
+            </div>
+            <scroll :data="friends" style="height: 120px;overflow: hidden;">
+              <ul class="card-item-wrap">
+                <li v-for="item in friends" :key="item.phone" class="card-item">{{item.nickname}}</li>
+              </ul>
+            </scroll>
+          </el-card>
+        </div>
+        <div class="hidden-md-and-down card-wrap">
+          <el-card class="one-third margin-b-20">
+            <div slot="header" class="card-title clearfix">
+              <span>默认用户组</span>
+              <div class="fright card-actions">
+                <i class="el-icon-edit"></i>
+                <i class="el-icon-delete"></i>
+                <i class="el-icon-circle-plus-outline"></i>
+              </div>
+              <!-- <el-button style="float: right; padding: 3px 0" type="text"></el-button> -->
+            </div>
+            <scroll :data="friends" style="height: 120px;overflow: hidden;">
+              <ul class="card-item-wrap">
+                <li v-for="item in friends" :key="item.phone" class="card-item">{{item.nickname}}</li>
               </ul>
             </scroll>
           </el-card>
         </div>
 			</div>
 		</div>
-		<el-dialog title="请选择一个群组聊天" width="400px" center :visible.sync="dialogFormVisible">
+    <el-dialog title="新建群组" custom-class="start-meeting" width="400px" center :visible.sync="dialogAddFriendVisible">
+      <el-form :model="formAddFriend" label-width="80px">
+        <el-form-item label="用户名">
+          <el-input v-model="formAddFriend.nickName" @focus="formAddFriend.formError=''"></el-input>
+        </el-form-item>
+        <el-form-item v-if="formAddFriend.formError" center>
+          <span style="color:red;">{{formAddFriend.formError}}</span>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogAddFriendVisible = false">取 消</el-button>
+        <el-button type="primary" @click="handleAddFriend">确 定</el-button>
+      </div>
+    </el-dialog>
+		<!-- <el-dialog title="请选择一个群组聊天" width="400px" center :visible.sync="dialogFormVisible">
 		  <el-form :model="form" label-width="80px">
         <el-form-item label="用户名">
           <el-input></el-input>
@@ -81,55 +113,23 @@
 		    <el-button @click="dialogFormVisible = false">取 消</el-button>
 		    <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
 		  </div>
-		</el-dialog>	
+		</el-dialog> -->
 	</div>
 </template>
 <script>
   import BScroll from 'better-scroll'
   import Scroll from '@/components/common/Scroll.vue'
+  import {apiAuth,apiLinks} from '@/api/api.js'
   export default {
     data() {
       return {
-      	dialogTableVisible: false,
-        dialogFormVisible: false,
-        isCreateGroupShow: false,
+        dialogAddFriendVisible: false,
+        // dialogFormVisible: false,
         pulldown: true,
-        form: {
-          groups: ''
-        },
-        groups: [{
-          label: '一级 1',
-          children: [{
-            label: '二级 1-1'
-          }]
-        }, {
-          label: '一级 2',
-          children: [{
-            label: '二级 2-1'
-          }, {
-            label: '二级 2-2'
-          }]
-        }, {
-          label: '一级 3',
-          children: [{
-            label: '二级 3-1'
-          }, {
-            label: '二级 3-2'
-          }, {
-            label: '二级 3-2'
-          }, {
-            label: '二级 3-2'
-          }, {
-            label: '二级 3-2'
-          }, {
-            label: '二级 3-2'
-          }, {
-            label: '二级 3-2'
-          }]
-        }],
-        defaultProps: {
-          children: 'children',
-          label: 'label'
+        friends: [],
+        formAddFriend: {
+          nickName: '',
+          formError: ''
         }
       };
     },
@@ -137,9 +137,63 @@
     components: {
       scroll: Scroll
     },
+    created: function(){
+      this.refreshFriends();
+    },
     methods: {
-      handleNodeClick(data) {
-        console.log(data);
+      handleAddFriend(){
+        var $this = this;
+        $this.findFriendByNickname($this.formAddFriend.nickName, function(res){
+          $this.addFriend($this.formAddFriend.nickName, function(res){
+            $this.$message({
+              message: '添加好友成功！',
+              type: 'success'
+            });
+            $this.dialogAddFriendVisible=false;
+            $this.refreshFriends();
+          },function(res){
+            $this.$message.error('添加好友失败！'+res.msg);
+          })
+        },function(res){
+          $this.formAddFriend.formError = '用户不存在！'
+        })
+      },
+      
+      refreshFriends(){
+        var $this = this;
+        $this.getAllFriends(function(res){
+          // $this.$message({
+          //   message: '获取好友列表成功！',
+          //   type: 'success'
+          // });
+          $this.friends = res.data.data;
+        },function(res){
+          $this.$message.error('获取好友列表失败！');
+        })
+      },
+
+      addFriend(nickname, cbOk, cbErr) {
+        var self = this;
+        self.$axios.put(apiLinks.friends.addFriend, 
+          {
+            nickname:nickname
+          },
+          cbOk, cbErr
+        )
+      },
+
+      getAllFriends(cbOk, cbErr) {
+        var self = this;
+        self.$axios.get(apiLinks.friends.all, null,cbOk, cbErr)
+      },
+
+      findFriendByNickname(nickname, cbOk, cbErr){
+        var self = this;
+        self.$axios.post(apiAuth.userInfoByNickname,
+          {
+            nickname:nickname
+          }, cbOk, cbErr
+        )
       }
     },
     mounted: function() {
@@ -162,6 +216,9 @@
     text-align: left;
     padding-left: 20px;
     background-color: #f7f7f7;
+  }
+  .el-card{
+    border-width: 0px;
   }
   .card-wrap{
     display: flex;

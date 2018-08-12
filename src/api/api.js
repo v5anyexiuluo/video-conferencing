@@ -1,29 +1,54 @@
 // 配置API接口地址
 var auth = process.env.API_AUTH_ROOT
-var data = process.env.API_DATA_ROOT
+var links = process.env.API_LINKS_ROOT
+var chat = process.env.API_CHAT_ROOT
+var meeting = process.env.API_MEETING_ROOT
+var notify = process.env.API_NOTIFY_ROOT
 
 export var apiAuth = {
 	login: auth+'/users/sign_in',
 	logout: auth+'/users/sign_out',
-	userInfo: data+'user/get_self_info',
-	userInfoByNickname: data+'user/get_user_info'
+	regist: auth+'/users/register',
+	userInfo: links+'/user/get_self_info',
+	userInfoByNickname: links+'/user/get_user_info'
+}
+export var apiChat = {
+	
 }
 export var apiLinks = {
 	friends:{
-
+		addFriend: links+'/friends/friend_add',
+		all: links+'/friends/get_friends_all'
 	},
 	groups:{
-		create: data+'/groups/create',
-		addMember: data+'/groups/append',
-		deleteMember: data+'/groups/delete',
-		modifyName: data+'/group/update',
-		all: data+'/groups/find_all_group',
-		members: data+'/groups/find_all_member',
-		allmember: data + 'groups/get_group_member',
+		create: links+'/groups/create',
+		addMember: links+'/groups/append',
+		addMembers: links+'/groups/append_multi',
+		deleteMember: links+'/groups/delete',
+		deleteMembers: links+'/groups/delete_multi',
+		modifyName: links+'/groups/update',
+		all: links+'/groups/find_all_group',
+		members: links+'/groups/find_all_member',
+		allmember: links + '/groups/get_group_member',
 	}
 }
 export var apiMeeting = {
-	
+	join:{
+		join: meeting+'/meeting/'
+	},
+	order:{
+		create: meeting+'/meetings/create',
+		addMember: meeting+'/meeting/add_member'
+	},
+	history:{
+
+	},
+	miss:{
+
+	},
+	now:{
+
+	}
 }
 export var apiMsg = {
 	

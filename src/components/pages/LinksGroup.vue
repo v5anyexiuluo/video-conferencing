@@ -13,9 +13,9 @@
             <div slot="header" class="card-title clearfix">
               <span>{{group.group_name}}</span>
               <div class="fright card-actions">
-                <i class="el-icon-edit"></i>
-                <i class="el-icon-delete"></i>
-                <i class="el-icon-circle-plus-outline"></i>
+                <i class="el-icon-edit" @click="dialogModifyGroupNameVisible=true;curGroup=group.group_id"></i>
+                <i class="el-icon-delete" @click="dialogDelUserFromGroupVisible=true;curGroup=group.group_id"></i>
+                <i class="el-icon-circle-plus-outline" @click="dialogAddUserToGroupVisible=true;curGroup=group.group_id;fetchFriends();"></i>
               </div>
             </div>
             <scroll :data="group.member" style="height: 120px;overflow: hidden;">
@@ -30,9 +30,9 @@
             <div slot="header" class="card-title clearfix">
               <span>{{group.group_name}}</span>
               <div class="fright card-actions">
-                <i class="el-icon-edit"></i>
-                <i class="el-icon-delete"></i>
-                <i class="el-icon-circle-plus-outline"></i>
+                <i class="el-icon-edit" @click="dialogModifyGroupNameVisible=true;curGroup=group.group_id"></i>
+                <i class="el-icon-delete" @click="dialogDelUserFromGroupVisible=true;curGroup=group.group_id"></i>
+                <i class="el-icon-circle-plus-outline" @click="dialogAddUserToGroupVisible=true;curGroup=group.group_id;fetchFriends();"></i>
               </div>
             </div>
             <scroll :data="group.member" style="height: 120px;overflow: hidden;">
@@ -47,13 +47,13 @@
             <div slot="header" class="card-title clearfix">
               <span>{{group.group_name}}</span>
               <div class="fright card-actions">
-                <i class="el-icon-edit"></i>
-                <i class="el-icon-delete"></i>
-                <i class="el-icon-circle-plus-outline"></i>
+                <i class="el-icon-edit" @click="dialogModifyGroupNameVisible=true;curGroup=group.group_id"></i>
+                <i class="el-icon-delete" @click="dialogDelUserFromGroupVisible=true;curGroup=group.group_id"></i>
+                <i class="el-icon-circle-plus-outline" @click="dialogAddUserToGroupVisible=true;curGroup=group.group_id;fetchFriends();"></i>
               </div>
               <!-- <el-button style="float: right; padding: 3px 0" type="text"></el-button> -->
             </div>
-            <scroll :data="group.member" style="height: 120px;overflow-y: scroll;">
+            <scroll :data="group.member" style="height: 120px;">
               <ul class="card-item-wrap">
                 <li v-for="item in group.member" :key="item.phone" class="card-item">{{item.nickname}}</li>
               </ul>
@@ -64,8 +64,11 @@
 		</div>
 		<el-dialog title="请选择一个群组视频" custom-class="start-meeting" width="400px" center :visible.sync="dialogMakeMeetingVisible">
 		  <el-form :model="formMeeting" label-width="80px">
-		    <el-form-item label="群组">
-		      <el-select v-model="formMeeting.group" placeholder="选择群组">
+		    <el-form-item label="会议名称">
+          <el-input v-model="formMeeting.name"></el-input>
+        </el-form-item>
+        <el-form-item label="群组">
+		      <el-select v-model="formMeeting.groupId" placeholder="选择群组" style="width: 100%;">
             <el-option
               v-for="group in groups"
               :label="group.group_name"
@@ -77,7 +80,7 @@
 		  <div slot="footer" class="dialog-footer">
 		    <el-button @click="dialogMakeMeetingVisible = false">取 消</el-button>
         <router-link to="/frame/meeting/now">
-		      <el-button type="primary" @click="dialogMakeMeetingVisible = false">确 定</el-button>
+		      <el-button type="primary" @click="handleCreateMeeting()">确 定</el-button>
         </router-link>
 		  </div>
 		</el-dialog>
@@ -101,26 +104,88 @@
         <el-button @click="dialogCreateGroupVisible = false">取 消</el-button>
         <el-button type="primary" @click="handleCreateGroup()">确 定</el-button>
       </div>
-    </el-dialog>  
+    </el-dialog>
+    <el-dialog title="修改群名称" custom-class="start-meeting" width="400px" center :visible.sync="dialogModifyGroupNameVisible">
+      <el-form :model="formModifyGroupName" label-width="80px">
+        <el-form-item label="新组名">
+          <el-input v-model="formModifyGroupName.name"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogModifyGroupNameVisible = false">取 消</el-button>
+        <el-button type="primary" @click="handlerModifyGroupName()">确 定</el-button>
+      </div>
+    </el-dialog>
+    <el-dialog title="导入好友" custom-class="start-meeting" width="400px" center :visible.sync="dialogAddUserToGroupVisible">
+      <el-form :model="formAddUser" label-width="80px">
+        <el-form-item label="导入好友">
+          <el-select v-model="formAddUser.friends" multiple collapse-tags style="width: 100%;" placeholder="选择好友">
+            <el-option
+              v-for="(item,index) in filteUsers"
+              :key="item.nickname"
+              :label="item.nickname"
+              :value="item.nickname">
+            </el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogAddUserToGroupVisible = false">取 消</el-button>
+        <el-button type="primary" @click="handlerAddUsers()">确 定</el-button>
+      </div>
+    </el-dialog>
+    <el-dialog title="删除好友" custom-class="start-meeting" width="400px" center :visible.sync="dialogDelUserFromGroupVisible">
+      <el-form :model="formDelUser" label-width="80px">
+        <el-form-item label="删除好友">
+          <el-select v-model="formDelUser.friends" multiple collapse-tags style="width: 100%;" placeholder="选择好友">
+             <el-option
+              v-for="(item,index) in groupMembers"
+              :key="item.nickname"
+              :label="item.nickname"
+              :value="item.nickname">
+            </el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogDelUserFromGroupVisible = false">取 消</el-button>
+        <el-button type="primary" @click="handlerDelUsers()">确 定</el-button>
+      </div>
+    </el-dialog> 
 	</div>
 </template>
 <script>
   import BScroll from 'better-scroll'
   import Scroll from '@/components/common/Scroll.vue'
-  import {apiAuth, apiLinks} from '@/api/api.js'
+  import {apiAuth, apiLinks, apiMeeting} from '@/api/api.js'
   export default {
     data() {
       return {
         dialogMakeMeetingVisible: false,
         dialogCreateGroupVisible: false,
+        dialogAddUserToGroupVisible: false,
+        dialogDelUserFromGroupVisible: false,
+        dialogModifyGroupNameVisible: false,
+        curGroup: 1,
         pulldown: true,
         //所有群
         groups: [],
+        friends: [],
         formMeeting: {
-          group:''
+          groupId:'',
+          name:''
         },
         formNew: {
           name:''
+        },
+        formModifyGroupName: {
+          name:''
+        },
+        formAddUser: {
+          friends:[]
+        },
+        formDelUser: {
+          friends:[]
         }
       }
     },
@@ -129,158 +194,224 @@
       scroll: Scroll
     },
     created: function() {
-      this.findAllMembers(function(data){
-        self.groups = re.data;
-      },function(){
-
-      });
+      var $this = this;
+      $this.refreshGroups();
     },
     methods: {
+      refreshGroups(){
+        var $this = this;
+        $this.findAllMembers(function(res){
+            $this.groups = res.data.data;
+          },function(res){
+            $this.$message.error('获取群组信息失败！');
+          }
+        );
+      },
+
+      fetchFriends(){
+        var $this = this;
+        $this.getAllFriends(function(res){
+          $this.friends = res.data.data;
+        },function(res){
+          $this.$message.error('获取好友列表失败！');
+        })
+      },
+      
       //创建群(已完成)
       handleCreateGroup() {
         var $this = this;
-        $this.dialogCreateGroupVisible = false;
-        $this.createGroup($this.formNew);
+        $this.createGroup($this.formNew.name,function(res){
+          $this.$message({
+            message: '创建群组成功！',
+            type: 'success'
+          });
+          $this.dialogCreateGroupVisible = false;
+          $this.refreshGroups();
+        },function(res){
+          $this.$message.error('创建群组失败！');
+        });
+      },
+
+      handlerModifyGroupName(){
+        var $this = this;
+        $this.updateGroupName($this.curGroup, $this.formModifyGroupName.name,function(res){
+          $this.$message({
+            message: '修改群名称成功！',
+            type: 'success'
+          });
+          $this.dialogModifyGroupNameVisible=false;
+          $this.refreshGroups();
+        },function(res){
+          $this.$message.error('修改群名称失败！');
+        })
+      },
+
+      handleCreateMeeting(){
+        var $this = this;
+        var members = $this.getMembersById($this.formMeeting.groupId);
+        var memTemp = [];
+        for(var i=0;i<members.length;i++){
+          memTemp.push({nickname:members[i].nickname})
+        }
+        $this.createMeeting({
+          meeting_name: $this.formMeeting.name,
+          members: memTemp
+        },function(res){
+          $this.$message({
+            message: '创建会议成功！',
+            type: 'success'
+          });
+          $this.$router.push({name: 'now',params:{meeting: res.data.data}})
+          $this.dialogMakeMeetingVisible=false;
+        },function(res){
+          $this.$message.error('创建会议失败！');
+        })
+      },
+
+      handlerDelUsers(){
+        var $this = this;
+        $this.deleteGroupUsers($this.curGroup, $this.formDelUser.friends,function(res){
+          $this.$message({
+            message: '从组内删除好友成功！',
+            type: 'success'
+          });
+          $this.dialogDelUserFromGroupVisible=false;
+          $this.refreshGroups();
+        },function(res){
+          $this.$message.error('从组内删除好友失败！');
+        })
+      },
+
+      handlerAddUsers(){
+        var $this = this;
+        $this.appendGroupUsers($this.curGroup, $this.formAddUser.friends,function(res){
+          $this.$message({
+            message: '向组内添加好友成功！',
+            type: 'success'
+          });
+          $this.dialogAddUserFromGroupVisible=false;
+          $this.refreshGroups();
+        },function(res){
+          $this.$message.error('向组内添加好友失败！');
+        })
       },
       
       //查找所有群组所有成员(完成)
       findAllMembers(cbOk,cbErr) {
         var self = this;
-        self.$axios.get(apiLinks.groups.allmember)
-        .then(function(response) {
-          var re = response.data;
-          if(re.code == 0) {
-            typeof(cbOk)!="undefined"&&cbOk(re.data);
-            console.log(re.msg);
-          } else {
-            typeof(cbErr)!="undefined"&&cbErr()
-            console.log(re.msg);
-          }
-        })
-        .catch(function(err) {
-          console.log(err);
-        });
+        self.$axios.get(apiLinks.groups.allmember, null, cbOk, cbErr)
       },
 
       //创建群(已完成)
-      createGroup(group) {
+      createGroup(groupName, cbOk, cbErr) {
         var self = this;
-        this.$axios.put(apiLinks.groups.create,
+        self.$axios.put(
+          apiLinks.groups.create,
           {
-            group_name:group.name
-          }
+            group_name:groupName
+          },
+          cbOk,
+          cbErr
         )
-        .then(function(response) {
-          var re = response.data;
-          if(re.code == 0) {
-            self.findAllMembers();
-            console.log(re.msg);
-          } else {
-            console.log(re.msg);
-          }
-        })
-        .catch(function(err){
-          console.log(err);
-        });
       },
       
       //群组添加用户(未测试)
-      appendGroupUser(groupId, nickname) {
+      appendGroupUsers(groupId, members, cbOk, cbErr) {
         var self = this;
-        this.$axios.put(create.addMember, 
+        self.$axios.put(apiLinks.groups.addMembers, 
           {
-            group_id:groupId,
-            nickname:nickname
-          }
+            group_id:groupId.toString(),
+            members:members
+          },
+          cbOk, cbErr
         )
-        .then(function(response) {
-          var re = response.data;
-          if(re.code == 0) {
-            self.groups.push(self.tempInfo);
-            console.log(re.msg);
-          } else {
-            console.log(re.msg);
-          }
-        })
-        .catch(function(err){
-          console.log(err);
-        });
       },
 
       //删除群组中的用户
-      deleteGroupUser(groupId, nickname) {
-        axios.delete(apiLinks.deleteMember, {
-          params: {
-            group_id:groupId,
-            nickname:nickname
-          }
-        })
-        .then(function(response){
-          if(response.code == 0) {
-            var userInfo = getUserInfo(nickname);
-            allMember[groupId].splice(allMember[groupId].indexOf(userInfo));
-            console.log(response.msg);
-          } else {
-            console.log(response.msg);
-          }
-        })
-        .catch(function(err){
-          console.log(err);
-        });
+      deleteGroupUsers(groupId, members, cbOk, cbErr) {
+        var self = this;
+        self.$axios.post(apiLinks.groups.deleteMembers,
+          {
+            group_id:groupId.toString(),
+            members:members
+          },
+          cbOk, cbErr
+        )
       },
       //更新群组名称
-      updateGroupName(groupId, newGroupName) {
-        axios.post(apiLinks.modifyName, {
-          params: {
-            group_id: groupId,
-            nickname: newGroupName
-          }
-        })
-        .then(function(response) {
-          if (response.code == 0) {
-            for(var i = 0; i < allGroups; i++) {
-              if(allGroups[i].id == groupId) {
-                allGroups[i].groupName == newGroupName;
-                break;
-              }
-            }
-            console.log(response.msg);
-          } else {
-            console.log(response.msg);
-          }
-        })
-        .catch(function(err){
-          console.log(err);
-        });
+      updateGroupName(groupId, newGroupName, cbOk, cbErr) {
+        var self = this;
+        self.$axios.post(apiLinks.groups.modifyName,
+          {
+            group_id: groupId.toString(),
+            group_name: newGroupName
+          }, cbOk, cbErr
+        )
+      },
+
+      getAllFriends(cbOk, cbErr) {
+        var self = this;
+        self.$axios.get(apiLinks.friends.all, null,cbOk, cbErr)
       },
 
       //根据昵称获取用户信息(完成)
-      getUserInfo(nickname) {
+      getUserInfo(nickname, cbOk, cbErr) {
         var self = this;
-        this.$axios.get(apiAuth.userInfoByNickname, 
+        self.$axios.get(apiAuth.userInfoByNickname, 
           {
             nickname:nickname
-          }
+          }, cbOk, cbErr
         )
-        .then(function(response){
-          var re = response;
-          if(re.code == 0) {
-            self.tempInfo.id = re.data.phone;
-            self.tempInfo.label = re.data.nickname;
-            console.log(re.msg);
-          } else {
-            console.log(re.msg);
-            response.data
+      },
+
+      createMeeting(meeting, cbOk, cbErr){
+        var self = this;
+        self.$axios.put(apiMeeting.order.create,meeting, cbOk, cbErr
+        )
+      },
+
+      getMembersById(groupId){
+        var $this = this;
+        var member = [];
+        for (var i = 0; i < $this.groups.length; i++) {
+          if($this.groups[i].group_id==groupId){
+            member = $this.groups[i].member;
+            break;
           }
-        })
-        .catch(function(error) {
-          console.log(error);
-          return null;
-        })
+        }
+        return member;
       }
     },
     mounted: function() {
       
+    },
+    computed: {
+      groupMembers: function () {
+        var $this = this;
+        return $this.getMembersById($this.curGroup);
+      },
+      filteUsers: function(){
+        var $this = this;
+        var friends = [];
+        for(var i=0;i<$this.friends.length;i++){
+          var ret = $this.groupMembers.findIndex((value, index, arr) => {
+            return value.nickname == $this.friends[i].nickname;
+          })
+          if(ret==-1){
+            friends.push($this.friends[i])
+          }
+          // for(var j=0;j<$this.groupMembers.lenght;j++){
+          //   if($this.friends[i].nickname==$this.groupMembers[j].nickname){
+          //     isExist = true;
+          //     break;
+          //   }
+          // }
+          // if(!isExist){
+          //   friends.push($this.friends[i])
+          // }
+        }
+        return friends;
+      }
     }
   };
 </script>
@@ -300,10 +431,13 @@
     padding-left: 20px;
     background-color: #f7f7f7;
   }
+  .el-card{
+    border-width: 0px;
+  }
   .card-wrap{
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-between;
+    justify-content: flex-start!important;
   }
   .card-title {
     text-align: left;

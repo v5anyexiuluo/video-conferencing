@@ -24,7 +24,7 @@
 <script>
     import {apiAuth} from '@/api/api.js'
     export default {
-        data: function(){
+        data(){
             return {
                 ruleForm: {
                     username: '',
@@ -52,21 +52,9 @@
                     {
                         nickname: user.username,
                         password: user.password
-                    }
+                    },
+                    cbOk, cbErr
                 )
-                .then(function(response) {
-                    if(response.code == 0) {
-                        typeof(cbOk)!="undefined"&&cbOk()
-                        // sessionStorage.setItem("token", response.data);
-                    } else {
-                        typeof(cbErr)!="undefined"&&cbErr()
-                        console.log(response.msg);
-                    }
-                })
-                .catch(function(err){
-                    $this.$message.error('网络或服务器错误！');
-                    console.log(err);
-                });
             },
             submitForm(formName) {
                 var $this = this
@@ -75,7 +63,7 @@
                         // localStorage.setItem('ms_username',this.ruleForm.username);
                         // this.$router.push('/');
                         $this.login($this.ruleForm, function(){
-                            $this.$router.push({name: 'friends'})
+                            $this.$router.push({name: 'friend'})
                             $this.$message({
                                 message: '登录成功！',
                                 type: 'success'

@@ -11,7 +11,7 @@
             <el-row class="full-height main-wrap">
               <div v-show="!nav.isTabCollapse&&subNavs.subs" class="full-height fleft sidenav-submenu-wrap hidden-xs-only">
                 <sub-nav></sub-nav>
-                <div><button @click="login">登录</button></div>
+                <!-- <div><button @click="login">登录</button></div> -->
               </div>
               <div class="fright content-wrap full-height">
                 <router-view></router-view>
@@ -58,26 +58,6 @@ export default {
     'sub-nav': SubNav
   },
   methods: {
-    login() {
-      alert("登录成功！");
-      this.$axios.post('http://192.168.2.31:8082/api/v1/users/sign_in', 
-          {
-            nickname:"006",
-            password:"weihongkai1995"
-          }
-      )
-      .then(function(response){
-        response=response.data;
-        if(response.code == 0) {
-          console.log(response.msg);
-        } else {
-          console.log(response.msg);
-        }
-      })
-      .catch(function(error) {
-        console.log(error);
-      });
-    }
     // listen(){
     //   var $this = this;
     //   connect.$on('sub-to-parent',function(msg){

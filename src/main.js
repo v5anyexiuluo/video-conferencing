@@ -6,14 +6,13 @@ import router from './router'
 import Axios from '@/api/axios.js';
 //vuex
 import store from './store'
-import api from './api'
+import api from './api/api.js'
 import { Row, Col, Container, Aside, Header, Footer, Main, Menu, Submenu, MenuItem, Tooltip, Button, Dropdown, DropdownMenu, DropdownItem, Collapse, CollapseItem, Popover, Tree, Dialog, Form, FormItem, Select, Option, Card, Input, Message } from 'element-ui';
 import 'element-ui/lib/theme-chalk/display.css';
 import "./assets/icon/iconfont.css";
 import "./assets/css/common.css";
 
 // Axios.defaults.baseURL = 'http://182.254.146.100:8899/api/';
-Axios.defaults.withCredentials=true;
 //给Vue原型挂载一个属性
 Vue.prototype.$axios = Axios;
 
@@ -44,7 +43,7 @@ Vue.component(Select.name, Select);
 Vue.component(Option.name, Option);
 Vue.component(Input.name, Input);
 Vue.component(Card.name, Card);
-Vue.component(Message.name, Message);
+Vue.prototype.$message = Message;
 
 Vue.config.productionTip = false
 Vue.config.debug = true

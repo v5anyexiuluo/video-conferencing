@@ -20,20 +20,20 @@
         <el-dropdown-item>修罗请求添加你</el-dropdown-item>
       </el-dropdown-menu>
     </el-dropdown>
-		<el-dropdown placement="bottom">
+		<el-dropdown placement="bottom"  @command="handleUserCommand">
 		  <span class="el-dropdown-link v-center">
-		    <img src="/static/images/user.jpg" style="height: 40px;width: 40px;border-radius: 20px; margin-right: 6px;" alt="">{{nav.user.nickName}}<i class="el-icon-arrow-down el-icon--right"></i>
+		    <img src="/static/images/user.jpg" style="height: 40px;width: 40px;border-radius: 20px; margin-right: 6px;" alt="">{{nav.user? nav.user.nickname: "用户"}}<i class="el-icon-arrow-down el-icon--right"></i>
 		  </span>
 		  <el-dropdown-menu :popper-append-to-body="false" slot="dropdown">
-		    <el-dropdown-item>用户中心</el-dropdown-item>
-        <el-dropdown-item @click="logout">注销</el-dropdown-item>
+		    <el-dropdown-item command="center">用户中心</el-dropdown-item>
+        <el-dropdown-item command="logout">注销</el-dropdown-item>
 		  </el-dropdown-menu>
 		</el-dropdown>
 	</el-row>
 </template>
 <script>
 import {mapState} from 'vuex';
-import {apiAuth} from '@/api/index.js'
+import {apiAuth} from '@/api/api.js'
 export default {
   data () {
     return {
@@ -41,54 +41,55 @@ export default {
   },
   name: 'head-nav',
   created: function(){
-    this.getSelfInfo(function(){
-      $this.nav.user = response.data;
-    },function(){
+    var $this = this;
+    $this.getSelfInfo(function(res){
+      $this.nav.user = res.data.data;
+    },function(res){
+      $this.$message.error('请先登录！');
       $this.$router.push({name: 'login'})
     });
   },
-  method: {
+  methods: {
+    handleUserCommand(command){
+      var $this = this;
+      switch(command){
+        case 'center':
+          break;
+        case 'logout':
+          $this.logout(function(res){
+            $this.nav.user = null;
+            $this.$message({
+              message: '注销成功！',
+              type: 'success'
+            });
+            $this.$router.push({name: 'login'})
+          },function(res){
+            $this.$message.error('注销失败！');
+          })
+          break;
+      }
+    },
+    // handleLogout(){
+    //   var $this = this;
+    //   $this.logout(function(res){
+    //     $this.nav.user = null;
+    //     $this.$message({
+    //       message: '注销成功！',
+    //       type: 'success'
+    //     });
+    //     $this.$router.push({name: 'login'})
+    //   },function(res){
+    //     $this.$message.error('注销失败！');
+    //   })
+    // },
     //获取本人信息
     getSelfInfo(cbOk, cbErr) {
       var $this = this;
-      axios.get(apiAuth.userInfo)
-      .then(function(response) {
-          if(response.code == 0) {
-            typeof(cbOk)!="undefined"&&cbOk()
-            console.log(response.msg);
-          } else {
-            typeof(cbErr)!="undefined"&&cbErr()
-            console.log(response.msg);
-          }
-      })
-      .catch(function(error) {
-          $this.$message.error('网络或服务器错误！');
-          console.log(error);
-      })
-    },
-    handleLogout(){
-      var $this = this;
-      $this.logout(function(){
-        $this.nav.user = null;
-        $this.$router.push({name: 'login'})
-      })
+      $this.$axios.get(apiAuth.userInfo,null,cbOk,cbErr)
     },
     logout(cbOk, cbErr){
       var $this = this;
-      axios.get(apiAuth.logout)
-      .then(function(response) {
-          if(response.code == 0) {
-            typeof(cbOk)!="undefined"&&cbOk()
-            console.log(response.msg);
-          } else {
-            typeof(cbErr)!="undefined"&&cbErr()
-            console.log(response.msg);
-          }
-      })
-      .catch(function(error) {
-          typeof(cbErr)!="undefined"&&cbErr()
-          console.log(error);
-      })
+      $this.$axios.get(apiAuth.logout,null,cbOk, cbErr)
     }
   },
   computed:{

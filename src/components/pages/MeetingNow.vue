@@ -41,7 +41,7 @@
         </el-form>
         <div slot="footer" class="dialog-footer">
           <el-button @click="dialogInviteFriendVisible = false">取 消</el-button>
-          <el-button type="primary" @click="">确 定</el-button>
+          <el-button type="primary" @click="onMakeCallClicked">确 定</el-button>
         </div>
       </el-dialog>
       <el-dialog title="选择会议" width="400px" center :visible.sync="dialogSelectMeetingVisible">
@@ -97,14 +97,17 @@ export default {
 		var $this = this;
 		// console.log(videoWindows)
 		// console.log(localVideo)
-		$this.meetingjson.fromuser = $this.user.nickname,
-		$this.meetingjson.fromname = $this.user.nickname,
+		$this.meetingjson.fromuser = $this.user.nickname;
+		$this.meetingjson.fromname = $this.user.nickname;
+		//alert($this.user.nickname);
 		$this.getNowMeetings(function(res){
 			if(res.data.data.length<1){
 				$this.$message({
 		            message: '暂无正在进行的会议！',
 		            type: 'success'
 		        });
+		        $this.meetingjson.chatroom = "001";
+		        $this.xchatkit = new XChatKit($this.meetingjson);
 			}else if(res.data.data.length==1){
 				$this.setMeeting(res.data.data);
 				$this.formMeeting.meetingId = res.data.data[0].id;
@@ -116,7 +119,7 @@ export default {
 			}
 		},function(res){
 			$this.$message.error('获取正在进行的会议信息失败！');
-		})
+		});
 		// this.myjson.mgw = "wss://webrtc.myegoo.com.cn/ws";
 		// this.myjson.turn = "turn:webrtc.myegoo.com.cn";
 		// this.myjson.fromuser = this.user;
@@ -141,7 +144,7 @@ export default {
 		//加入会议
 		onJoinConferenceClicked()
 		{
-			// alert("开始会议,会议号:" + this.meetingjson.chatroom);
+			//alert("开始会议,会议号:" + this.meetingjson.chatroom);
 	        this.xchatkit.JoinConference(this.meetingjson);
 		},
 		//离开会议
@@ -164,11 +167,10 @@ export default {
 		onMakeCallClicked()
 		{
 			this.dialogInviteFriendVisible = false
-		    var json = this.meetingjson;
-		    json.touser = this.formInviteFriend.nickName;
-		    json.chatroom = this.room;//会议Id
-		    this.xchatkit.MakeCall(json);
-		    this.addMember(this.room, userNickname);
+			var json = this.meetingjson;
+			json.touser = this.formInviteFriend.nickName;
+			this.xchatkit.MakeCall(json);
+		    this.addMember(this.room, this.formInviteFriend.nickName);
 		},
 		//开始屏幕共享
 		onStartShareClicked()

@@ -1,6 +1,6 @@
 <template>
-  <el-row class="full-height">
-    <el-col :span="24" class="full-height">
+  <div class="full-height">
+    <div class="full-height">
       <el-container class="full-height">
         <side-nav logo="/static/images/logo.png"></side-nav>
         <el-container>
@@ -8,8 +8,8 @@
             <head-nav></head-nav>
           </el-header>
           <el-main class="full-height scroll-hidden">
-            <el-row class="full-height main-wrap">
-              <div v-show="!nav.isTabCollapse&&subNavs.subs" class="full-height fleft sidenav-submenu-wrap hidden-xs-only">
+            <el-row class="full-height main-wrap" style="margin: 0px;">
+              <div v-show="!isTabCollapse&&subNavs.subs" class="full-height fleft sidenav-submenu-wrap hidden-xs-only">
                 <sub-nav></sub-nav>
                 <!-- <div><button @click="login">登录</button></div> -->
               </div>
@@ -20,8 +20,9 @@
           </el-main>
         </el-container>
       </el-container>
-    </el-col>
-  </el-row>
+    </div>
+    <div style="height: 80px;line-height: 80px;background-color: rgb(84, 92, 100);color: white;border-top: 1px solid;">版权所有@西安电子科技大学Mobisys实验室</div>
+  </div>
 </template>
 
 <script>
@@ -35,7 +36,7 @@ import SubNav from '@/components/common/SubNav.vue';
 // import MeetingNow from '@/components/MeetingNow.vue';
 
 // import pinyin from '/static/js/pinyin/bundle.js'
-import {mapState,mapGetters} from 'vuex';
+import {mapState,mapMutations,mapGetters} from 'vuex';
 
 export default {
   data() {
@@ -58,6 +59,13 @@ export default {
     'sub-nav': SubNav
   },
   methods: {
+    ...mapMutations([
+      'changePid',
+      'changeId',
+      'changeTabCollapse',
+      'setUser',
+      'setMeeting',
+    ]),
     // listen(){
     //   var $this = this;
     //   connect.$on('sub-to-parent',function(msg){
@@ -134,7 +142,12 @@ export default {
       nav:state=>state.nav
     }),
     ...mapGetters([
-      'subNavs'
+      'subNavs',
+      'activePid',
+      'activeId',
+      'isTabCollapse',
+      'user',
+      'meeting'
     ])
   }
 }

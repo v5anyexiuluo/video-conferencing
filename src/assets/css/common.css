@@ -1,5 +1,5 @@
 .full-height{
-  height: 100%;
+  min-height: fill-available!important;
 }
 .full-width{
   width: 100%;
@@ -24,17 +24,15 @@
 .one-third{
 	width: 32%;
 }
-.one-third:not(:first-child) {
-    margin-left: 2%;
-}
+
 .one-second{
 	width: 48%;
 }
-.one-second:not(:first-child) {
-    margin-left: 2%;
-}
 .margin-b-20{
 	margin-bottom: 20px;
+}
+.margin-l-2P{
+	margin-left: 2%;
 }
 .inline-ele{
 	display: flex;

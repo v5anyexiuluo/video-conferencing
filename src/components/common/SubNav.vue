@@ -1,14 +1,14 @@
 <template>
   <ul>
     <router-link v-for="(item, index) in subNavs.subs" :key=index :to="{name:item.url}">
-      <li :class="nav.activeId==item.id? 'selected':''" @click="selectSubNav(subNavs.id, item.id)">
+      <li :class="activeId==item.id? 'selected':''" @click="selectSubNav(subNavs.id, item.id)">
         <span>{{item.name}}</span>
       </li>
     </router-link>
   </ul>
 </template>
 <script>
-import {mapState,mapGetters} from 'vuex';
+import {mapState,mapMutations,mapGetters} from 'vuex';
 export default {
   data () {
     return {
@@ -17,15 +17,28 @@ export default {
   name: 'sub-nav',
   methods:{
     selectSubNav(pid, id){
-      this.nav.activeId = id;
-    }
+      // this.nav.activeId = id;
+      this.changeId(id);
+    },
+    ...mapMutations([
+      'changePid',
+      'changeId',
+      'changeTabCollapse',
+      'setUser',
+      'setMeeting',
+    ]),
   },
   computed:{
     ...mapState({
       nav:state=>state.nav
     }),
     ...mapGetters([
-      'subNavs'
+      'subNavs',
+      'activePid',
+      'activeId',
+      'isTabCollapse',
+      'user',
+      'meeting'
     ])
   }
 }

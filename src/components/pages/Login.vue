@@ -69,6 +69,7 @@
                                 type: 'success'
                             });
                         },function(){
+                            $this.$router.push({name: 'login'})
                             $this.$message.error('用户名或密码错误！');
                         })
                     } else {
@@ -86,6 +87,7 @@
         position: relative;
         width:100%;
         height:100%;
+        min-height: fill-available;
         background-color: #324157;
     }
     .ms-title{

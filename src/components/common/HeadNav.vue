@@ -22,7 +22,7 @@
     </el-dropdown>
 		<el-dropdown placement="bottom"  @command="handleUserCommand">
 		  <span class="el-dropdown-link v-center">
-		    <img src="/static/images/user.jpg" style="height: 40px;width: 40px;border-radius: 20px; margin-right: 6px;" alt="">{{nav.user? nav.user.nickname: "用户"}}<i class="el-icon-arrow-down el-icon--right"></i>
+		    <img src="/static/images/user.jpg" style="height: 40px;width: 40px;border-radius: 20px; margin-right: 6px;" alt="">{{user? user.nickname: "用户"}}<i class="el-icon-arrow-down el-icon--right"></i>
 		  </span>
 		  <el-dropdown-menu :popper-append-to-body="false" slot="dropdown">
 		    <el-dropdown-item command="center">用户中心</el-dropdown-item>
@@ -32,7 +32,7 @@
 	</el-row>
 </template>
 <script>
-import {mapState} from 'vuex';
+import {mapState,mapMutations,mapGetters} from 'vuex';
 import {apiAuth} from '@/api/api.js'
 export default {
   data () {
@@ -43,7 +43,7 @@ export default {
   created: function(){
     var $this = this;
     $this.getSelfInfo(function(res){
-      $this.nav.user = res.data.data;
+      $this.setUser(res.data.data);
     },function(res){
       $this.$message.error('请先登录！');
       $this.$router.push({name: 'login'})
@@ -57,7 +57,7 @@ export default {
           break;
         case 'logout':
           $this.logout(function(res){
-            $this.nav.user = null;
+            $this.setUser(null);
             $this.$message({
               message: '注销成功！',
               type: 'success'
@@ -90,12 +90,18 @@ export default {
     logout(cbOk, cbErr){
       var $this = this;
       $this.$axios.get(apiAuth.logout,null,cbOk, cbErr)
-    }
+    },
+    ...mapMutations([
+      'setUser'
+    ]),
   },
   computed:{
     ...mapState({
       nav:state=>state.nav
     }),
+    ...mapGetters([
+      'user'
+    ])
   }
 }
 </script>

@@ -1,12 +1,12 @@
 <template>
-  <el-aside class="full-height hidden-xs-only">
+  <el-aside class="hidden-xs-only">
     <el-row :gutter="10" class="logo-row v-center">
       <el-col :span="18" v-if="!isCollapse"><img :src="logo" style="height: 30px;width: 120px;" alt=""></el-col>
       <el-col :span="isCollapse? 24:6"><div class="grid-content" @click="collapseSideBar"><i class="iconfont el-icon-lg-collapse-on"></i></div></el-col>
     </el-row>
     <el-menu
-      :default-active="nav.activePid.toString()"
-      class="el-menu-vertical-demo full-height"
+      :default-active="activePid.toString()"
+      class="el-menu-vertical-demo"
       @select="handleSelect"
       @open="handleOpen"
       @close="handleClose"
@@ -20,7 +20,7 @@
           placement="right"
           popper-class="sidenav-submenu"
           trigger="hover"
-          :disabled="!nav.isTabCollapse"
+          :disabled="!isTabCollapse"
           v-if="!isCollapse">
             <div class="toolbar"><i @click="collapseTab" class="el-icon-lg-fixed-off fright"></i></div>
             <ul v-for="(subNav, index) in item.subs">
@@ -30,7 +30,7 @@
         </el-popover>
         <i :class="item.icon"></i>
         <span>{{item.name}}</span>
-        <span v-show="item.subs" class="fright" @click="collapseTab"><i :class="[nav.isTabCollapse? 'triangle-left':'triangle-right','triangle']"></i></span>
+        <span v-show="item.subs" class="fright" @click="collapseTab"><i :class="[isTabCollapse? 'triangle-left':'triangle-right','triangle']"></i></span>
       </el-menu-item>
     </el-menu>
   </el-aside>
@@ -38,7 +38,7 @@
 
 <script>
 // import connect from '@/assets/js/connector.js';
-import {mapState} from 'vuex';
+import {mapState,mapMutations,mapGetters} from 'vuex';
 export default {
   data () {
     return {
@@ -58,8 +58,10 @@ export default {
     },
     handleSelect(key, keyPath) {
       console.log(key, keyPath);
-      this.nav.activePid = key;
-      this.nav.activeId = 1;
+      // this.nav.activePid = key;
+      // this.nav.activeId = 1;
+      this.changePid(key);
+      this.changeId(1);
       this.isPopoverShow = false;
       // connect.$emit('sub-to-parent',{activeIndex: key});
     },
@@ -67,14 +69,24 @@ export default {
       this.isCollapse = !this.isCollapse;
     },
     collapseTab(){
-      this.nav.isTabCollapse = !this.nav.isTabCollapse;
+      // this.nav.isTabCollapse = !this.nav.isTabCollapse;
+      this.changeTabCollapse()
       // connect.$emit('sub-to-parent',{isTabCollapse: this.isTabCollapse});
     },
     getNavId(pid, id){
-      this.nav.activePid = pid;
-      this.nav.activeId = id;
+      // this.nav.activePid = pid;
+      // this.nav.activeId = id;
+      this.changePid(pid);
+      this.changeId(id);
       this.isPopoverShow = false;
-    }
+    },
+    ...mapMutations([
+      'changePid',
+      'changeId',
+      'changeTabCollapse',
+      'setUser',
+      'setMeeting',
+    ]),
   },
   filters:{
     // toString: function(value){
@@ -90,6 +102,14 @@ export default {
     ...mapState({
       nav:state=>state.nav
     }),
+    ...mapGetters([
+      'subNavs',
+      'activePid',
+      'activeId',
+      'isTabCollapse',
+      'user',
+      'meeting'
+    ])
   }
 }
 </script>

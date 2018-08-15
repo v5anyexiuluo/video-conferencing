@@ -47,7 +47,7 @@ export var apiMeeting = {
 
 	},
 	now:{
-
+		all: meeting+'/meetings/find_all_meetings_ing'
 	}
 }
 export var apiMsg = {

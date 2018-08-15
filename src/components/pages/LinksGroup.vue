@@ -26,7 +26,7 @@
           </el-card>
         </div>
         <div class="hidden-lg-and-up hidden-xs-only card-wrap">
-          <el-card v-for="group in groups" :key="group.group_id" class="one-second margin-b-20">
+          <el-card v-for="(group, index) in groups" :key="group.group_id" :class="[index%2!=0? 'one-second margin-l-2P margin-b-20':'one-second margin-b-20']">
             <div slot="header" class="card-title clearfix">
               <span>{{group.group_name}}</span>
               <div class="fright card-actions">
@@ -43,7 +43,7 @@
           </el-card>
         </div>
         <div class="hidden-md-and-down card-wrap">
-          <el-card v-for="group in groups" :key="group.group_id" class="one-third margin-b-20">
+          <el-card v-for="(group, index) in groups" :key="group.group_id" :class="[index%3!=0? 'one-third margin-l-2P margin-b-20':'one-third margin-b-20']">
             <div slot="header" class="card-title clearfix">
               <span>{{group.group_name}}</span>
               <div class="fright card-actions">
@@ -79,9 +79,7 @@
 		  </el-form>
 		  <div slot="footer" class="dialog-footer">
 		    <el-button @click="dialogMakeMeetingVisible = false">取 消</el-button>
-        <router-link to="/frame/meeting/now">
-		      <el-button type="primary" @click="handleCreateMeeting()">确 定</el-button>
-        </router-link>
+	      <el-button type="primary" @click="handleCreateMeeting()">确 定</el-button>
 		  </div>
 		</el-dialog>
     <el-dialog title="新建群组" custom-class="start-meeting" width="400px" center :visible.sync="dialogCreateGroupVisible">
@@ -138,7 +136,7 @@
       <el-form :model="formDelUser" label-width="80px">
         <el-form-item label="删除好友">
           <el-select v-model="formDelUser.friends" multiple collapse-tags style="width: 100%;" placeholder="选择好友">
-             <el-option
+            <el-option
               v-for="(item,index) in groupMembers"
               :key="item.nickname"
               :label="item.nickname"
@@ -158,6 +156,7 @@
   import BScroll from 'better-scroll'
   import Scroll from '@/components/common/Scroll.vue'
   import {apiAuth, apiLinks, apiMeeting} from '@/api/api.js'
+  import {mapMutations} from 'vuex';
   export default {
     data() {
       return {
@@ -168,6 +167,8 @@
         dialogModifyGroupNameVisible: false,
         curGroup: 1,
         pulldown: true,
+        // filteUsers: [],
+        groupMembers:[],
         //所有群
         groups: [],
         friends: [],
@@ -261,8 +262,10 @@
             message: '创建会议成功！',
             type: 'success'
           });
-          $this.$router.push({name: 'now',params:{meeting: res.data.data}})
+          $this.setMeeting(res.data.data);
           $this.dialogMakeMeetingVisible=false;
+          // $this.$router.push({path:'/frame/meeting/now'});
+          $this.$router.push({name: 'now'})
         },function(res){
           $this.$message.error('创建会议失败！');
         })
@@ -380,7 +383,11 @@
           }
         }
         return member;
-      }
+      },
+
+      ...mapMutations([
+        'setMeeting',
+      ]),
     },
     mounted: function() {
       
@@ -411,7 +418,7 @@
           // }
         }
         return friends;
-      }
+      },
     }
   };
 </script>

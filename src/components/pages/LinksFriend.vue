@@ -20,7 +20,7 @@
               </ul>
             </scroll>
           </el-card> -->
-          <el-card class="one-third margin-b-20">
+          <el-card class="full-width margin-b-20">
             <div slot="header" class="card-title clearfix">
               <span>默认用户组</span>
               <div class="fright card-actions">
@@ -38,7 +38,7 @@
           </el-card>
         </div>
         <div class="hidden-lg-and-up hidden-xs-only card-wrap">
-          <el-card class="one-third margin-b-20">
+          <el-card class="one-second margin-b-20">
             <div slot="header" class="card-title clearfix">
               <span>默认用户组</span>
               <div class="fright card-actions">

@@ -2,6 +2,7 @@
 	<div>
 		<div class="main-actions">
 			<a href="javascript:void(0)" @click="dialogAddFriendVisible = true">添加好友</a>
+      <a href="javascript:void(0)" @click="dialogAddDepartmentVisible = true">添加分组</a>
 		</div>
 		<div>
 			<div class="main-title">
@@ -56,29 +57,38 @@
           </el-card>
         </div>
         <div class="hidden-md-and-down card-wrap">
-          <el-card class="one-third margin-b-20">
+          <el-card v-for="(department, index) in departments" :key="department.department_id" :class="[index%3!=0? 'one-third margin-l-2P margin-b-20':'one-third margin-b-20']">
             <div slot="header" class="card-title clearfix">
-              <span>默认用户组</span>
+              <span>{{department.department_name}}</span>
               <div class="fright card-actions">
-                <i class="el-icon-edit"></i>
-                <i class="el-icon-delete"></i>
-                <i class="el-icon-circle-plus-outline"></i>
+                <i class="el-icon-edit" @click="dialogModifyDepartmentNameVisible=true;formUpdateDepartmentName.departmentId=department.department_id"></i>
+                <i class="el-icon-delete" @click="handleDelDepartment(department.department_id)"></i>
               </div>
               <!-- <el-button style="float: right; padding: 3px 0" type="text"></el-button> -->
             </div>
-            <scroll :data="friends" style="height: 120px;overflow: hidden;">
+            <scroll :data="department.members" style="height: 120px;overflow: hidden;">
               <ul class="card-item-wrap">
-                <li v-for="item in friends" :key="item.phone" class="card-item">{{item.nickname}}</li>
+                <li v-for="item in department.members" :key="item.phone" class="card-item"><span>{{item.nickname}}</span><span><i @click="dialogMoveFriendToDepartmentVisible=true;formUpdateDepartmentName.departmentId=department.department_id;formUpdateDepartmentName.userId=item.id;">移动</i><i @click="handlerDelFriend(item.id)">删除</i></span></li>
               </ul>
             </scroll>
           </el-card>
         </div>
 			</div>
 		</div>
-    <el-dialog title="新建群组" custom-class="start-meeting" width="400px" center :visible.sync="dialogAddFriendVisible">
+    <el-dialog title="添加好友" custom-class="start-meeting" width="400px" center :visible.sync="dialogAddFriendVisible">
       <el-form :model="formAddFriend" label-width="80px">
         <el-form-item label="用户名">
           <el-input v-model="formAddFriend.nickName" @focus="formAddFriend.formError=''"></el-input>
+        </el-form-item>
+        <el-form-item label="选择分组">
+          <el-select v-model="formAddFriend.departmentId" collapse-tags style="width: 100%;" placeholder="选择分组">
+            <el-option
+              v-for="(item,index) in departments"
+              :key="item.department_id"
+              :label="item.department_name"
+              :value="item.department_id">
+            </el-option>
+          </el-select>
         </el-form-item>
         <el-form-item v-if="formAddFriend.formError" center>
           <span style="color:red;">{{formAddFriend.formError}}</span>
@@ -87,6 +97,46 @@
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogAddFriendVisible = false">取 消</el-button>
         <el-button type="primary" @click="handleAddFriend">确 定</el-button>
+      </div>
+    </el-dialog>
+    <el-dialog title="添加分组" custom-class="start-meeting" width="400px" center :visible.sync="dialogAddDepartmentVisible">
+      <el-form :model="formAddDepartment" label-width="80px">
+        <el-form-item label="组名">
+          <el-input v-model="formAddDepartment.departmentName"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogAddDepartmentVisible = false">取 消</el-button>
+        <el-button type="primary" @click="handleAddDepartment">确 定</el-button>
+      </div>
+    </el-dialog>
+    <el-dialog title="修改好友分组" custom-class="start-meeting" width="400px" center :visible.sync="dialogMoveFriendToDepartmentVisible">
+      <el-form :model="formMoveFriendToDepartment" label-width="80px">
+        <el-form-item label="选择新组">
+          <el-select v-model="formMoveFriendToDepartment.newDepartmentId" multiple collapse-tags style="width: 100%;" placeholder="选择新组">
+            <el-option
+              v-for="(item,index) in filteDepartments"
+              :key="item.department_id"
+              :label="item.department_name"
+              :value="item.department_id">
+            </el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogMoveFriendToDepartmentVisible = false">取 消</el-button>
+        <el-button type="primary" @click="handlerMoveMember">确 定</el-button>
+      </div>
+    </el-dialog>
+    <el-dialog title="修改分组名称" custom-class="start-meeting" width="400px" center :visible.sync="dialogModifyDepartmentNameVisible">
+      <el-form :model="formUpdateDepartmentName" label-width="80px">
+        <el-form-item label="分组名称">
+          <el-input v-model="formUpdateDepartmentName.departmentName"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogModifyDepartmentNameVisible = false">取 消</el-button>
+        <el-button type="primary" @click="handleUpdateDepartmentName">确 定</el-button>
       </div>
     </el-dialog>
 		<!-- <el-dialog title="请选择一个群组聊天" width="400px" center :visible.sync="dialogFormVisible">
@@ -120,17 +170,36 @@
   import BScroll from 'better-scroll'
   import Scroll from '@/components/common/Scroll.vue'
   import {apiAuth,apiLinks} from '@/api/api.js'
+  import utils from '@/assets/js/utils.js'
   export default {
     data() {
       return {
         dialogAddFriendVisible: false,
-        // dialogFormVisible: false,
+        dialogAddDepartmentVisible: false,
+        dialogModifyDepartmentNameVisible: false,
+        dialogMoveFriendToDepartmentVisible: false,
         pulldown: true,
         friends: [],
         formAddFriend: {
           nickName: '',
+          departmentId: '',
           formError: ''
-        }
+        },
+        formAddDepartment: {
+          departmentName: ''
+        },
+        formUpdateDepartmentName: {
+          departmentId: '',
+          departmentName: ''
+        },
+        formMoveFriendToDepartment: {
+          departmentId: '',
+          newDepartmentId: '',
+          userId: ''
+        },
+        departments:null,
+        curDepartment:null,
+
       };
     },
     name: 'FriendsGroup',
@@ -138,13 +207,16 @@
       scroll: Scroll
     },
     created: function(){
-      this.refreshFriends();
+      this.refreshDepartments();
+    },
+    mounted: function() {
+      
     },
     methods: {
       handleAddFriend(){
         var $this = this;
         $this.findFriendByNickname($this.formAddFriend.nickName, function(res){
-          $this.addFriend($this.formAddFriend.nickName, function(res){
+          $this.addFriend($this.formAddFriend, function(res){
             $this.$message({
               message: '添加好友成功！',
               type: 'success'
@@ -158,7 +230,75 @@
           $this.formAddFriend.formError = '用户不存在！'
         })
       },
-      
+
+      handlerDelFriend(userId){
+        var $this = this;
+        $this.deleteFriend(userId, function(res){
+          $this.$message({
+            message: '删除好友成功！',
+            type: 'success'
+          });
+          $this.refreshDepartments();
+        },function(res){
+          $this.$message.error('删除好友失败！');
+        })
+      },
+
+      handleAddDepartment(){
+        var $this = this;
+        $this.addDepartment($this.formAddDepartment.departmentName, function(res){
+          $this.$message({
+            message: '添加分组成功！',
+            type: 'success'
+          });
+          $this.dialogAddDepartmentVisible = false;
+          $this.refreshDepartments();
+        },function(res){
+          $this.$message.error('添加分组失败！');
+        })
+      },
+
+      handleUpdateDepartmentName(){
+        var $this = this;
+        $this.updateDepartment($this.formUpdateDepartmentName.departmentId, $this.formUpdateDepartmentName.departmentName, function(res){
+          $this.$message({
+            message: '修改分组名称成功！',
+            type: 'success'
+          });
+          $this.dialogModifyDepartmentNameVisible = false;
+          $this.refreshDepartments();
+        },function(res){
+          $this.$message.error('修改分组名称失败！');
+        })
+      },
+
+      handleDelDepartment(departmentId){
+        var $this = this;
+        $this.deleteDepartment(departmentId, function(res){
+          $this.$message({
+            message: '删除分组成功！',
+            type: 'success'
+          });
+          $this.refreshDepartments();
+        },function(res){
+          $this.$message.error('删除分组失败！');
+        })
+      },
+
+      handlerMoveMember(){
+        var $this = this;
+        $this.moveMemberToDepartment($this.formMoveFriendToDepartment.departmentId, $this.formMoveFriendToDepartment.newDepartmentId, $this.formMoveFriendToDepartment.userId, function(res){
+          $this.$message({
+            message: '移动分组成功！',
+            type: 'success'
+          });
+          $this.dialogMoveFriendToDepartmentVisible = false;
+          $this.refreshDepartments();
+        },function(res){
+          $this.$message.error('移动分组失败！');
+        })
+      },
+
       refreshFriends(){
         var $this = this;
         $this.getAllFriends(function(res){
@@ -172,19 +312,37 @@
         })
       },
 
-      addFriend(nickname, cbOk, cbErr) {
+
+      refreshDepartments(){
+        var $this = this;
+        $this.getAllDepartments(function(res){
+          $this.departments = res.data.data;
+        },function(res){
+          $this.$message.error('获取用户分组失败！');
+        })
+      },
+
+      addFriend(newFriend, cbOk, cbErr) {
         var self = this;
-        self.$axios.put(apiLinks.friends.addFriend, 
+        self.$axios.put(apiLinks.friends.add, 
           {
-            nickname:nickname
+            nickname: newFriend.nickName,
+            department_id: newFriend.departmentId.toString()
           },
           cbOk, cbErr
         )
       },
 
+      deleteFriend(userId, cbOk, cbErr){
+        var $this = this;
+        $this.$axios.delete(apiLinks.friends.delete, {
+          deleted_user_id: userId
+        }, cbOk, cbErr)
+      },
+
       getAllFriends(cbOk, cbErr) {
         var self = this;
-        self.$axios.get(apiLinks.friends.all, null,cbOk, cbErr)
+        self.$axios.get(apiLinks.friends.all, null, cbOk, cbErr)
       },
 
       findFriendByNickname(nickname, cbOk, cbErr){
@@ -194,10 +352,63 @@
             nickname:nickname
           }, cbOk, cbErr
         )
-      }
+      },
+
+      getAllDepartments(cbOk, cbErr){
+        var $this = this;
+        this.$axios.get(apiLinks.friends.allDepartments, null, cbOk, cbErr)
+      },
+
+      addDepartment(departmentName, cbOk, cbErr){
+        var $this = this;
+        $this.$axios.put(apiLinks.friends.addDepartment, {
+          department_name: departmentName
+        }, cbOk, cbErr)
+      },
+
+      updateDepartment(departmentId, departmentName, cbOk, cbErr){
+        var $this = this;
+        $this.$axios.post(utils.handleParamInUrl(apiLinks.friends.updateDepartment,{
+          department_id: departmentId
+        }), {
+          department_name: departmentName
+        }, cbOk, cbErr)
+      },
+
+      deleteDepartment(departmentId, cbOk, cbErr){
+        var $this = this;
+        $this.$axios.delete(utils.handleParamInUrl(apiLinks.friends.deleteDepartment,{
+          department_id: departmentId
+        }), null, cbOk, cbErr)
+      },
+
+      moveMemberToDepartment(departmentId, newDepartmentId, userId, cbOk, cbErr){
+        var $this = this;
+        $this.$axios.post(utils.updateDepartmentOfFriend(apiLinks.friends.deleteDepartment,{
+          department_id: departmentId
+        }), {
+          new_department_id: newDepartmentId,
+          move_user_id: userId
+        }, cbOk, cbErr)
+      },
+
     },
-    mounted: function() {
-      
+    computed:{
+      filteDepartments: function(){
+        var $this = this;
+        if(!$this.departments){
+          return [];
+        }
+        var departments = $this.departments;
+        var ret = departments.findIndex((value, index, arr) => {
+          return value.department_id == $this.formMoveFriendToDepartment.departmentId;
+        })
+        if(ret!=-1){
+          departments.splice(ret, 1);
+        }
+        // $this.departments.splice(ret, 1);
+        return $this.departments;
+      },
     }
   };
 </script>
@@ -223,7 +434,7 @@
   .card-wrap{
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-between;
+    justify-content: flex-start;
   }
   .card-title {
     text-align: left;
@@ -234,6 +445,18 @@
   }
   .card-actions i{
     margin-left: 10px;
+  }
+  .card-item-wrap li{
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .card-item-wrap li i{
+    cursor: pointer;
+  }
+  .card-item-wrap li i:hover{
+    color: rgb(255, 208, 75);
   }
   .card-item{
     font-size: 14px;

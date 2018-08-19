@@ -1,5 +1,7 @@
 // 引用axios
 import axios from 'axios';
+import store from '@/store'
+console.log(store)
 // 自定义判断元素类型JS
 function toType (obj) {
   return ({}).toString.call(obj).match(/\s([a-zA-Z]+)/)[1].toLowerCase()
@@ -26,6 +28,7 @@ function apiAxios (method, url, params, success, failure) {
   if (params) {
     params = filterNull(params)
   }
+  store.commit('changeLoading', true);
   axios({
     method: method,
     url: url,
@@ -36,7 +39,7 @@ function apiAxios (method, url, params, success, failure) {
   })
   .then(function (res) {
     console.log(res);
-    // return;
+    store.commit('changeLoading', false);
     if (res.data.code == 0) {
       if (success) {
         success(res)
@@ -50,6 +53,7 @@ function apiAxios (method, url, params, success, failure) {
     }
   })
   .catch(function (err) {
+    store.commit('changeLoading', false);
     if (err) {
       window.alert(err)
       return

@@ -1,7 +1,7 @@
 <template>
   <div class="full-height">
     <div class="full-height">
-      <el-container class="full-height">
+      <el-container v-loading="loading" class="full-height">
         <side-nav logo="/static/images/logo.png"></side-nav>
         <el-container>
           <el-header>
@@ -30,7 +30,6 @@
 import SideNav from '@/components/common/SideNav.vue';
 import HeadNav from '@/components/common/HeadNav.vue';
 import SubNav from '@/components/common/SubNav.vue';
-
 // import Frame from '@/components/Frame.vue';
 // import VideoConf from '@/components/VideoConf.vue';
 // import MeetingNow from '@/components/MeetingNow.vue';
@@ -142,6 +141,7 @@ export default {
       nav:state=>state.nav
     }),
     ...mapGetters([
+      'loading',
       'subNavs',
       'activePid',
       'activeId',

@@ -14,13 +14,16 @@
               <span>{{group.group_name}}</span>
               <div class="fright card-actions">
                 <i class="el-icon-edit" @click="dialogModifyGroupNameVisible=true;curGroup=group.group_id"></i>
-                <i class="el-icon-delete" @click="dialogDelUserFromGroupVisible=true;curGroup=group.group_id"></i>
+                <i class="el-icon-remove-outline" @click="dialogDelUserFromGroupVisible=true;curGroup=group.group_id"></i>
                 <i class="el-icon-circle-plus-outline" @click="dialogAddUserToGroupVisible=true;curGroup=group.group_id;fetchFriends();"></i>
+                <i>&nbsp;|&nbsp;</i>
+                <i class="el-icon-delete" @click="handleDelGroup(group.group_id)"></i>
               </div>
+              <!-- <el-button style="float: right; padding: 3px 0" type="text"></el-button> -->
             </div>
-            <scroll :data="group.member" style="height: 120px;overflow: hidden;">
+            <scroll :data="group.member" style="height: 120px;">
               <ul class="card-item-wrap">
-                <li v-for="item in group.member" :key="item.phone" class="card-item">{{item.nickname}}</li>
+                <li v-for="item in group.member" :key="item.phone" class="card-item"><span>{{item.nickname}}</span><span><i @click="handlerDelMember(group.group_id, item.nickname)">删除</i></span></li>
               </ul>
             </scroll>
           </el-card>
@@ -31,13 +34,16 @@
               <span>{{group.group_name}}</span>
               <div class="fright card-actions">
                 <i class="el-icon-edit" @click="dialogModifyGroupNameVisible=true;curGroup=group.group_id"></i>
-                <i class="el-icon-delete" @click="dialogDelUserFromGroupVisible=true;curGroup=group.group_id"></i>
+                <i class="el-icon-remove-outline" @click="dialogDelUserFromGroupVisible=true;curGroup=group.group_id"></i>
                 <i class="el-icon-circle-plus-outline" @click="dialogAddUserToGroupVisible=true;curGroup=group.group_id;fetchFriends();"></i>
+                <i>&nbsp;|&nbsp;</i>
+                <i class="el-icon-delete" @click="handleDelGroup(group.group_id)"></i>
               </div>
+              <!-- <el-button style="float: right; padding: 3px 0" type="text"></el-button> -->
             </div>
-            <scroll :data="group.member" style="height: 120px;overflow: hidden;">
+            <scroll :data="group.member" style="height: 120px;">
               <ul class="card-item-wrap">
-                <li v-for="item in group.member" :key="item.phone" class="card-item">{{item.nickname}}</li>
+                <li v-for="item in group.member" :key="item.phone" class="card-item"><span>{{item.nickname}}</span><span><i @click="handlerDelMember(group.group_id, item.nickname)">删除</i></span></li>
               </ul>
             </scroll>
           </el-card>
@@ -48,14 +54,16 @@
               <span>{{group.group_name}}</span>
               <div class="fright card-actions">
                 <i class="el-icon-edit" @click="dialogModifyGroupNameVisible=true;curGroup=group.group_id"></i>
-                <i class="el-icon-delete" @click="dialogDelUserFromGroupVisible=true;curGroup=group.group_id"></i>
+                <i class="el-icon-remove-outline" @click="dialogDelUserFromGroupVisible=true;curGroup=group.group_id"></i>
                 <i class="el-icon-circle-plus-outline" @click="dialogAddUserToGroupVisible=true;curGroup=group.group_id;fetchFriends();"></i>
+                <i>&nbsp;|&nbsp;</i>
+                <i class="el-icon-delete" @click="handleDelGroup(group.group_id)"></i>
               </div>
               <!-- <el-button style="float: right; padding: 3px 0" type="text"></el-button> -->
             </div>
             <scroll :data="group.member" style="height: 120px;">
               <ul class="card-item-wrap">
-                <li v-for="item in group.member" :key="item.phone" class="card-item">{{item.nickname}}</li>
+                <li v-for="item in group.member" :key="item.phone" class="card-item"><span>{{item.nickname}}</span><span><i @click="handlerDelMember(group.group_id, item.nickname)">删除</i></span></li>
               </ul>
             </scroll>
           </el-card>
@@ -147,7 +155,7 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogDelUserFromGroupVisible = false">取 消</el-button>
-        <el-button type="primary" @click="handlerDelUsers()">确 定</el-button>
+        <el-button type="primary" @click="handlerDelMembers()">确 定</el-button>
       </div>
     </el-dialog> 
 	</div>
@@ -168,7 +176,7 @@
         curGroup: 1,
         pulldown: true,
         // filteUsers: [],
-        groupMembers:[],
+        // groupMembers:[],
         //所有群
         groups: [],
         friends: [],
@@ -247,6 +255,19 @@
         })
       },
 
+      handleDelGroup(group_id){
+        var $this = this;
+        $this.deleteGroup(group_id, function(res){
+          $this.$message({
+            message: '删除组成功！',
+            type: 'success'
+          });
+          $this.refreshGroups();
+        },function(res){
+          $this.$message.error('删除组失败！');
+        })
+      },
+
       handleCreateMeeting(){
         var $this = this;
         var members = $this.getMembersById($this.formMeeting.groupId);
@@ -271,14 +292,27 @@
         })
       },
 
-      handlerDelUsers(){
+      handlerDelMembers(){
         var $this = this;
-        $this.deleteGroupUsers($this.curGroup, $this.formDelUser.friends,function(res){
+        $this.deleteGroupMembers($this.curGroup, $this.formDelUser.friends,function(res){
           $this.$message({
             message: '从组内删除好友成功！',
             type: 'success'
           });
           $this.dialogDelUserFromGroupVisible=false;
+          $this.refreshGroups();
+        },function(res){
+          $this.$message.error('从组内删除好友失败！');
+        })
+      },
+
+      handlerDelMember(groupId, nickname){
+        var $this = this;
+        $this.deleteGroupMember(groupId, nickname,function(res){
+          $this.$message({
+            message: '从组内删除好友成功！',
+            type: 'success'
+          });
           $this.refreshGroups();
         },function(res){
           $this.$message.error('从组内删除好友失败！');
@@ -331,12 +365,22 @@
       },
 
       //删除群组中的用户
-      deleteGroupUsers(groupId, members, cbOk, cbErr) {
+      deleteGroupMembers(groupId, members, cbOk, cbErr) {
         var self = this;
         self.$axios.post(apiLinks.groups.deleteMembers,
           {
             group_id:groupId.toString(),
             members:members
+          },
+          cbOk, cbErr
+        )
+      },
+      deleteGroupMember(groupId, nickname, cbOk, cbErr) {
+        var self = this;
+        self.$axios.post(apiLinks.groups.deleteMember,
+          {
+            group_id:groupId.toString(),
+            nickname:nickname
           },
           cbOk, cbErr
         )
@@ -348,6 +392,14 @@
           {
             group_id: groupId.toString(),
             group_name: newGroupName
+          }, cbOk, cbErr
+        )
+      },
+      deleteGroup(groupId, cbOk, cbErr) {
+        var self = this;
+        self.$axios.post(apiLinks.groups.delete,
+          {
+            group_id: groupId.toString()
           }, cbOk, cbErr
         )
       },
@@ -444,7 +496,7 @@
   .card-wrap{
     display: flex;
     flex-wrap: wrap;
-    justify-content: flex-start!important;
+    justify-content: flex-start;
   }
   .card-title {
     text-align: left;
@@ -453,6 +505,20 @@
     padding: 0px;
     margin: 0px;
   }
+
+  .card-item-wrap li{
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .card-item-wrap li i{
+    cursor: pointer;
+  }
+  .card-item-wrap li i:hover{
+    color: rgb(255, 208, 75);
+  }
+
   .card-actions i{
     margin-left: 10px;
   }

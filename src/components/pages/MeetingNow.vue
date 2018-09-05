@@ -2,6 +2,7 @@
 	<div class="full-height content">
 	  <div class="content-main" style="position: relative;">
 	  	<div v-if="isMaster" ref="videoWindows" id="videoWindows" align="center" style="height:90%; background-color: #145">
+	  		{{shareVideo.src}}
 	  		<video :src="isShare? shareVideo.src:localVideo.src" ref="mainVideo" id="mainVideo" style="width:100%; height:100%;object-fit: fill;" poster="avatar.png" playsinline autoplay controls muted>
 				您的浏览器不支持 video 标签。
 			</video>
@@ -12,7 +13,7 @@
 				<el-option v-for="item in meetingMembers" :key="item.id" :label="item.nickname" :value="item.id">
 				</el-option>
 			</el-select>
-			<video v-if="isShare" :src="localMeeting.src" ref="localVideo" id="localVideo" style="position: absolute;right: 20px;top: 220px;width: 200px;height: 120px;background: gray;" poster="avatar.png" playsinline autoplay controls muted>
+			<video v-if="isShare" :src="localVideo.src" ref="localVideo" id="localVideo" style="position: absolute;right: 20px;top: 220px;width: 200px;height: 120px;background: gray;" poster="avatar.png" playsinline autoplay controls muted>
 				您的浏览器不支持 video 标签。
 			</video>
 		</div>
@@ -22,8 +23,8 @@
 			</video>
 			<video :src="localVideo.src" ref="remoteVideo" id="remoteVideo" style="position: absolute;right: 20px;top: 20px;width: 200px;height: 120px;background: gray;" poster="avatar.png" playsinline autoplay controls muted>
 				您的浏览器不支持 video 标签。
-			</video>
-			<video v-if="isShare" :src="shareVideo.src" ref="localVideo" id="localVideo" style="position: absolute;right: 20px;top: 200px;width: 200px;height: 120px;background: gray;display: none;" poster="avatar.png" playsinline autoplay controls muted>
+			</video>{{isShare}}
+			<video v-if="isShare" :src="shareVideo.src" ref="localVideo" id="localVideo" style="position: absolute;right: 20px;top: 200px;width: 200px;height: 120px;background: gray;" poster="avatar.png" playsinline autoplay controls muted>
 				您的浏览器不支持 video 标签。
 			</video>
 		</div>
@@ -32,11 +33,11 @@
 		<el-row class="btn-group" type="flex" align="middle" justify="space-between" style="position: absolute;left: 0px;bottom: 0px;width:100%;height: 50px;line-height: 50px;background-color: white;">
 			<el-col :span="3"><a @click="dialogSelectMeetingVisible = true" href="javascript:void(0)">切换会议</a></el-col>
 			<el-col :span="3"><a @click="dialogInviteFriendVisible = true" href="javascript:void(0)">邀请+</a></el-col>
-			<el-col :span="3"><a href="#">主持人</a></el-col>
+			<el-col :span="3"><a href="javascript:void(0)">主持人</a></el-col>
 			<el-col :span="3"><a @click="onStartShareClicked" href="javascript:void(0)">共享桌面</a></el-col>
-			<el-col :span="3"><a @click="onStopShareClicked" href="javascript:void(0)">停止</a></el-col>
-			<el-col :span="3"><a href="#">聊天</a></el-col>
-			<el-col :span="3"><a href="#">设置</a></el-col>
+			<el-col :span="3"><a @click="onStopShareClicked" href="javascript:void(0)">停止共享</a></el-col>
+			<el-col :span="3"><a href="javascript:void(0)">聊天</a></el-col>
+			<el-col :span="3"><a href="javascript:void(0)">设置</a></el-col>
 			<el-col :span="3"></el-col>
 			<el-col :span="3"></el-col>
 			<el-col :span="3"><a @click="onJoinConferenceClicked" href="javascript:void(0)">开始</a></el-col>
@@ -57,7 +58,7 @@
         </el-form>
         <div slot="footer" class="dialog-footer">
           <el-button @click="dialogInviteFriendVisible = false">取 消</el-button>
-          <el-button type="primary" @click="onMakeCallClicked">确 定</el-button>
+          <el-button type="primary" @click="onInviteFriendClicked">确 定</el-button>
         </div>
       </el-dialog>
       <el-dialog title="选择会议" width="400px" center :visible.sync="dialogSelectMeetingVisible">
@@ -142,6 +143,8 @@ export default {
 				},function(res){
 					$this.$message.error('获取会议信息失败！'+res.msg);
 				});
+				$this.meetingjson.fromuser = $this.user.id;
+				$this.meetingjson.fromname = $this.user.nickname;
 				$this.meetingjson.chatroom = $this.formMeeting.meetingId;
 				$this.xchatkit = new XChatKit($this.meetingjson);
 				$this.dialogSelectMeetingVisible = false;
@@ -222,33 +225,69 @@ export default {
 		},
 
 		//邀请人
-		onMakeCallClicked()
+		onInviteFriendClicked()
 		{
-			this.dialogInviteFriendVisible = false
-			var json = this.meetingjson;
-			json.touser = this.formInviteFriend.nickName;
-			this.xchatkit.MakeCall(json);
+			this.dialogInviteFriendVisible = false;
 		    this.addMember(this.room, this.formInviteFriend.nickName);
+		},
+
+		onHoldCallClicked()
+		{
+			var $this = this;
+			$this.meetingjson.chatroom = '';
+	        $this.xchatkit.HoldCall($this.meetingjson);
+		},
+
+		onRetrieveCallClicked()
+		{
+			var $this = this;
+			$this.meetingjson.chatroom = '';
+	        this.xchatkit.RetrieveCall($this.meetingjson);
+		},
+
+		onMakeCallClick(){
+			var json = myjson;
+	        json.touser = '';//对方Id
+	        json.chatroom = '';//会议Id
+	        this.xchatkit.MakeCall ( json );
+		},
+		onReleaseCallClick(){
+			var json = myjson;
+	        json.touser = '';
+	        json.chatroom = '';
+	        this.xchatkit.ReleaseCall ( json );
 		},
 
 		//开始屏幕共享
 		onStartShareClicked()
 		{
-		    this.xchatkit.StartShare();
+			var $this = this;
+			$this.isShare = true;
+		    $this.xchatkit.StartShare();
+		    // this.shareVideo.src=window.URL.createObjectURL(json.stream);
 		},
 
 		//停止屏幕共享
 		onStopShareClicked()
 		{
-		    this.localVideo.src = window.URL.createObjectURL(this.xchatkit.GetLocalStream());
-		    this.xchatkit.StopShare();
+			var $this = this;
+			$this.isShare = false;
+		    $this.xchatkit.StopShare();
+		    $this.localVideo.src = window.URL.createObjectURL($this.xchatkit.GetLocalStream());
 		},
 
 		//本地流事件
 		onEventLocalStream(json)
 		{
 			// this.$refs.localVideo.srcObject = json.stream;
-			this.localVideo.src=window.URL.createObjectURL(json.stream);
+			var $this = this;
+			if($this.isShare){
+				$this.localVideo.src=window.URL.createObjectURL($this.xchatkit.GetLocalStream());
+				$this.shareVideo.src=window.URL.createObjectURL(json.stream);
+			}else{
+				$this.localVideo.src=window.URL.createObjectURL(json.stream);
+			}
+			// $this.localVideo.src=window.URL.createObjectURL(json.stream);
 		},
 
 		//加入会议事件
@@ -277,20 +316,77 @@ export default {
           	}
 		},
 
+		onEventSendChat(){
+			var json = JSON.parse ( "{}" );
+		    json.chatroom = '';
+		    json.content = '';
+		    this.xchatkit.SendInput ( json );
+		},
+		onEventRevieveChat(json){
+
+		},
+		onEventSendGroupChat(){
+			var json = JSON.parse ( "{}" );
+		    json.chatroom = '';
+		    json.content = '';
+		    this.xchatkit.SendText ( json );
+		},
+		onEventRevieveGroupChat(json){
+
+		},
+
+
+		//启用摄像头
+		onEnableCameraClicked()
+		{
+			var $this = this;
+	        $this.localVideo.src = window.URL.createObjectURL($this.xchatkit.GetLocalStream());
+	        var json = $this.meetingjson;
+	        json.chatroom = '';
+	        xchatkit.EnableCamera(json);
+		},
+		//禁用摄像头
+		onDisableCameraClicked()
+		{
+	        $this.localVideo.src = '';
+	        localVideo.poster = "avatar.png";
+	        json = $this.meetingjson;
+	        json.chatroom = '';
+	        xchatkit.DisableCamera(json);
+		},
+
+		//启用麦克风
+		onDisableMicphoneClicked()
+		{
+	        var $this = this;
+	        $this.xchatkit.EnableMicphone();
+		},
+		//禁用麦克风
+		onDisableMicphoneClicked()
+		{
+	        var $this = this;
+	        $this.xchatkit.DisableMicphone();
+		},
+
+
 		onEventRDPEnabled(json)
 		{
-		    
+	        
 		},
 		onEventRDPDisabled(json)
 		{
 		    
 		},
 
+		//启动录像
 		onEventPartyConnected(json){
-
+			var $this = this;
+			$this.xchatkit.StartRecording(json.fromuser);
 		},
+		//停止录像
 		onEventPartyDisconnected(json){
-
+			var $this = this;
+			$this.StopRecording(json.fromuser);
 		},
 
 		//回调函数
@@ -311,6 +407,10 @@ export default {
 		        this.onEventPartyConnected ( json );
 		    else if ( "EventPartyDisconnected" === json.msgtype )
 		        this.onEventPartyDisconnected ( json );
+		    else if ( "text" === json.msgtype )
+		    	this.onEventRevieveGroupChat(json);
+		    else if ( "onText" === json.msgtype )
+		    	this.onEventRevieveChat(json);
 		},
 
 

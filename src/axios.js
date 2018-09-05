@@ -1,9 +1,11 @@
 // 引用axios
 import axios from 'axios';
 // 自定义判断元素类型JS
+
 function toType (obj) {
   return ({}).toString.call(obj).match(/\s([a-zA-Z]+)/)[1].toLowerCase()
 }
+
 // 参数过滤函数
 function filterNull (o) {
   for (var key in o) {

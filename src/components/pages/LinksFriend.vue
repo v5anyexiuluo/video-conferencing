@@ -66,9 +66,9 @@
               </div>
               <!-- <el-button style="float: right; padding: 3px 0" type="text"></el-button> -->
             </div>
-            <scroll :data="department.members" style="height: 120px;overflow: hidden;">
+            <scroll :data="department.departmemt_members" style="height: 120px;overflow: hidden;">
               <ul class="card-item-wrap">
-                <li v-for="item in department.members" :key="item.phone" class="card-item"><span>{{item.nickname}}</span><span><i @click="dialogMoveFriendToDepartmentVisible=true;formUpdateDepartmentName.departmentId=department.department_id;formUpdateDepartmentName.userId=item.id;">移动</i><i @click="handlerDelFriend(item.id)">删除</i></span></li>
+                <li v-for="item in department.departmemt_members" :key="item.phone" class="card-item"><span>{{item.nickname}}</span><span><i @click="dialogMoveFriendToDepartmentVisible=true;formMoveFriendToDepartment.departmentId=department.department_id;formMoveFriendToDepartment.userId=item.id;">移动</i>&nbsp;<i @click="handlerDelFriend(item.id)">删除</i>&nbsp;</span></li>
               </ul>
             </scroll>
           </el-card>
@@ -113,7 +113,7 @@
     <el-dialog title="修改好友分组" custom-class="start-meeting" width="400px" center :visible.sync="dialogMoveFriendToDepartmentVisible">
       <el-form :model="formMoveFriendToDepartment" label-width="80px">
         <el-form-item label="选择新组">
-          <el-select v-model="formMoveFriendToDepartment.newDepartmentId" multiple collapse-tags style="width: 100%;" placeholder="选择新组">
+          <el-select v-model="formMoveFriendToDepartment.newDepartmentId" collapse-tags style="width: 100%;" placeholder="选择新组">
             <el-option
               v-for="(item,index) in filteDepartments"
               :key="item.department_id"
@@ -222,7 +222,7 @@
               type: 'success'
             });
             $this.dialogAddFriendVisible=false;
-            $this.refreshFriends();
+            $this.refreshDepartments();
           },function(res){
             $this.$message.error('添加好友失败！'+res.msg);
           })
@@ -336,7 +336,7 @@
       deleteFriend(userId, cbOk, cbErr){
         var $this = this;
         $this.$axios.delete(apiLinks.friends.delete, {
-          deleted_user_id: userId
+          deleted_user_id: userId.toString()
         }, cbOk, cbErr)
       },
 
@@ -384,11 +384,11 @@
 
       moveMemberToDepartment(departmentId, newDepartmentId, userId, cbOk, cbErr){
         var $this = this;
-        $this.$axios.post(utils.updateDepartmentOfFriend(apiLinks.friends.deleteDepartment,{
+        $this.$axios.post(utils.handleParamInUrl(apiLinks.friends.updateDepartmentOfFriend,{
           department_id: departmentId
         }), {
-          new_department_id: newDepartmentId,
-          move_user_id: userId
+          new_department_id: newDepartmentId.toString(),
+          move_user_id: userId.toString()
         }, cbOk, cbErr)
       },
 
@@ -399,15 +399,13 @@
         if(!$this.departments){
           return [];
         }
-        var departments = $this.departments;
-        var ret = departments.findIndex((value, index, arr) => {
-          return value.department_id == $this.formMoveFriendToDepartment.departmentId;
-        })
-        if(ret!=-1){
-          departments.splice(ret, 1);
+        var departments = [];
+        for (var i = 0; i < $this.departments.length; i++) {
+          if($this.departments[i].department_id!=$this.formMoveFriendToDepartment.departmentId){
+            departments.push($this.departments[i])
+          }
         }
-        // $this.departments.splice(ret, 1);
-        return $this.departments;
+        return departments;
       },
     }
   };

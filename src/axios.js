@@ -11,14 +11,14 @@ function toType (obj) {
 function filterNull (o) {
   for (var key in o) {
     if (o[key] === null) {
-      delete o[key]
+      delete o[key];
     }
     if (toType(o[key]) === 'string') {
-      o[key] = o[key].trim()
+      o[key] = o[key].trim();
     } else if (toType(o[key]) === 'object') {
-      o[key] = filterNull(o[key])
+      o[key] = filterNull(o[key]);
     } else if (toType(o[key]) === 'array') {
-      o[key] = filterNull(o[key])
+      o[key] = filterNull(o[key]);
     }
   }
   return o;

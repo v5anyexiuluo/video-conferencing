@@ -21,7 +21,7 @@ function filterNull (o) {
       o[key] = filterNull(o[key])
     }
   }
-  return o
+  return o;
 }
  
 function apiAxios (method, url, params, success, failure) {

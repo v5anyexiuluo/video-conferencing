@@ -277,7 +277,8 @@
         }
         $this.createMeeting({
           meeting_name: $this.formMeeting.name,
-          members: memTemp
+          members: memTemp,
+          start_time: 0
         },function(res){
           $this.$message({
             message: '创建会议成功！',

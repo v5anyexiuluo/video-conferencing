@@ -48,8 +48,8 @@
 	  	<ul>
 			<li v-for="item in MessageList">{{item}}</li>
 		</ul>
-        <input type="text" v-model="msg"/>
-        <button v-on:click="handleBtnClick">发送</button>
+        <el-input v-model="msg" placeholder="请输入内容"></el-input>
+        <el-button type="primary" @click="onEventSendGroupChat">发送</el-button>
 	  </div>
 	  <el-dialog title="邀请好友" custom-class="start-meeting" width="400px" center :visible.sync="dialogInviteFriendVisible">
         <el-form :model="formInviteFriend" label-width="80px">

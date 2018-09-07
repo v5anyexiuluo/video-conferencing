@@ -45,7 +45,11 @@
 		</el-row>
 	  </div>
 	  <div class="content-right">
-	  	
+	  	<ul>
+			<li v-for="item in MessageList">{{item}}</li>
+		</ul>
+        <input type="text" v-model="msg"/>
+        <button v-on:click="handleBtnClick">发送</button>
 	  </div>
 	  <el-dialog title="邀请好友" custom-class="start-meeting" width="400px" center :visible.sync="dialogInviteFriendVisible">
         <el-form :model="formInviteFriend" label-width="80px">
@@ -120,7 +124,9 @@ export default {
 				src: ''
 			},
 			meetingMembers: [],
-			remoteResources: []
+			remoteResources: [],
+			msg: '',
+			MessageList: []
 		}
 	},
 	created(){
@@ -275,7 +281,7 @@ export default {
 		    $this.xchatkit.StopShare();
 		    $this.localVideo.src = window.URL.createObjectURL($this.xchatkit.GetLocalStream());
 		},
-
+		//回调函数
 		//本地流事件
 		onEventLocalStream(json)
 		{
@@ -325,14 +331,19 @@ export default {
 		onEventRevieveChat(json){
 
 		},
+		//发送消息
 		onEventSendGroupChat(){
+			var $this = this;
 			var json = JSON.parse ( "{}" );
-		    json.chatroom = '';
-		    json.content = '';
+		    json.chatroom = $this.meetingjson.chatroom;
+		    json.content = $this.msg;
 		    this.xchatkit.SendText ( json );
 		},
+		//将消息添加到消息列表
 		onEventRevieveGroupChat(json){
-
+			var $this = this;
+			this.MessageList.push(json.content);
+			alert(json.content);
 		},
 
 

@@ -44,12 +44,23 @@
 			<el-col :span="3"><a @click="onLeaveConferenceClicked" href="javascript:void(0)">会议结束</a></el-col>
 		</el-row>
 	  </div>
-	  <div class="content-right">
-	  	<ul>
-			<li v-for="item in MessageList">{{item}}</li>
-		</ul>
-        <el-input v-model="msg" placeholder="请输入内容"></el-input>
-        <el-button type="primary" @click="onEventSendGroupChat">发送</el-button>
+	  <div class="content-right" style="position: relative;">
+	  	<div style="height:470px; outline: none;" >
+		  	<div style="height:100%; overflow-y: scroll; outline: none;">
+		  		<ul>
+					<li v-for="item in MessageList">{{item}}</li>
+				</ul>
+		  	</div>
+	  	</div>
+		<div vertical-align="text-bottom" style="position: absolute; bottom: 0">
+	        <el-input
+			  type="textarea"
+			  :rows="3"
+			  placeholder="请输入内容"
+			  v-model="msg">
+			</el-input>
+	        <el-button style="float:right" type="primary" @click="onEventSendGroupChat">发送</el-button>
+        </div>
 	  </div>
 	  <el-dialog title="邀请好友" custom-class="start-meeting" width="400px" center :visible.sync="dialogInviteFriendVisible">
         <el-form :model="formInviteFriend" label-width="80px">
@@ -536,6 +547,9 @@ export default {
 }
 </script>
 <style scoped>
+	li{
+		list-style:none；
+	}
 	.el-main{
 		width: 100%;
 		height: 100%;

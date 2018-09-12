@@ -23,7 +23,7 @@
 			</video>
 			<video :src="localVideo.src" ref="remoteVideo" id="remoteVideo" style="position: absolute;right: 20px;top: 20px;width: 200px;height: 120px;background: gray;" poster="avatar.png" playsinline autoplay controls muted>
 				您的浏览器不支持 video 标签。
-			</video>{{isShare}}
+			</video>
 			<video v-if="isShare" :src="shareVideo.src" ref="localVideo" id="localVideo" style="position: absolute;right: 20px;top: 200px;width: 200px;height: 120px;background: gray;" poster="avatar.png" playsinline autoplay controls muted>
 				您的浏览器不支持 video 标签。
 			</video>

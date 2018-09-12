@@ -347,7 +347,7 @@ export default {
 			var $this = this;
 			var json = JSON.parse ( "{}" );
 		    json.chatroom = $this.meetingjson.chatroom;
-		    json.content = $this.msg;
+		    json.content = $this.meetingjson.fromuser+":"+$this.msg;
 		    this.xchatkit.SendText ( json );
 		},
 		//将消息添加到消息列表

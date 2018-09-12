@@ -45,14 +45,14 @@
 		</el-row>
 	  </div>
 	  <div class="content-right" style="position: relative;">
-	  	<div style="height:470px; outline: none;" >
+	  	<div style="height: 80%; outline: none;" >
 		  	<div style="height:100%; overflow-y: scroll; outline: none;">
 		  		<ul>
 					<li v-for="item in MessageList">{{item}}</li>
 				</ul>
 		  	</div>
 	  	</div>
-		<div vertical-align="text-bottom" style="position: absolute; bottom: 0">
+		<div vertical-align="text-bottom" style="height: 20%; position: absolute; bottom: 0">
 	        <el-input
 			  type="textarea"
 			  :rows="3"

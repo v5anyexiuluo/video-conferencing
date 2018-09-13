@@ -11,7 +11,6 @@
             <el-row class="full-height main-wrap" style="margin: 0px;">
               <div v-show="!isTabCollapse&&subNavs.subs" class="full-height fleft sidenav-submenu-wrap hidden-xs-only">
                 <sub-nav></sub-nav>
-                <!-- <div><button @click="login">登录</button></div> -->
               </div>
               <div class="fright content-wrap full-height">
                 <router-view></router-view>
@@ -21,7 +20,7 @@
         </el-container>
       </el-container>
     </div>
-    <div style="height: 80px;line-height: 80px;background-color: rgb(84, 92, 100);color: white;border-top: 1px solid;">版权所有@西安电子科技大学Mobisys实验室</div>
+    <div style="height: 50px;line-height: 50px;background-color: rgb(84, 92, 100);color: white;border-top: 1px solid;">版权所有@西安电子科技大学Mobisys实验室</div>
   </div>
 </template>
 

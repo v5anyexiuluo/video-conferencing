@@ -1,5 +1,6 @@
 .full-height{
-  min-height: fill-available!important;
+  /*min-height: fill-available!important;*/
+  height: 100%;
 }
 .full-width{
   width: 100%;

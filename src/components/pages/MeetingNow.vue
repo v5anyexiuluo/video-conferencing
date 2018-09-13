@@ -23,7 +23,8 @@
 			</video>
 			<video :src="localVideo.src" ref="remoteVideo" id="remoteVideo" style="position: absolute;right: 20px;top: 20px;width: 200px;height: 120px;background: gray;" poster="avatar.png" playsinline autoplay controls muted>
 				您的浏览器不支持 video 标签。
-			</video>{{isShare}}
+			</video>
+			<!-- {{isShare}} -->
 			<video v-if="isShare" :src="shareVideo.src" ref="localVideo" id="localVideo" style="position: absolute;right: 20px;top: 200px;width: 200px;height: 120px;background: gray;" poster="avatar.png" playsinline autoplay controls muted>
 				您的浏览器不支持 video 标签。
 			</video>
@@ -33,19 +34,32 @@
 		<el-row class="btn-group" type="flex" align="middle" justify="space-between" style="position: absolute;left: 0px;bottom: 0px;width:100%;height: 50px;line-height: 50px;background-color: white;">
 			<el-col :span="3"><a @click="dialogSelectMeetingVisible = true" href="javascript:void(0)">切换会议</a></el-col>
 			<el-col :span="3"><a @click="dialogInviteFriendVisible = true" href="javascript:void(0)">邀请+</a></el-col>
-			<el-col :span="3"><a href="javascript:void(0)">主持人</a></el-col>
-			<el-col :span="3"><a @click="onStartShareClicked" href="javascript:void(0)">共享桌面</a></el-col>
-			<el-col :span="3"><a @click="onStopShareClicked" href="javascript:void(0)">停止共享</a></el-col>
-			<el-col :span="3"><a href="javascript:void(0)">聊天</a></el-col>
+			<!-- <el-col :span="3"><a href="javascript:void(0)">主持人</a></el-col> -->
+			<el-col :span="3"><a @click="onStartOrEndShare" href="javascript:void(0)">{{Share}}</a></el-col>
+			<!-- <el-col :span="3"><a href="javascript:void(0)">聊天</a></el-col> -->
 			<el-col :span="3"><a href="javascript:void(0)">设置</a></el-col>
 			<el-col :span="3"></el-col>
 			<el-col :span="3"></el-col>
-			<el-col :span="3"><a @click="onJoinConferenceClicked" href="javascript:void(0)">开始</a></el-col>
-			<el-col :span="3"><a @click="onLeaveConferenceClicked" href="javascript:void(0)">会议结束</a></el-col>
+			<el-col :span="3"></el-col>
+			<el-col :span="3"><a @click="onStartOrEndConference" href="javascript:void(0)">{{Conference}}</a></el-col>
 		</el-row>
 	  </div>
 	  <div class="content-right">
-	  	
+	  	<div style="position: relative; height: 100%">
+		  	<div ref="scro" style="height: 480px; overflow-y: auto;">
+				<p style="word-break:break-all; text-align: left" v-for="item in MessageList">{{item}}</p>
+		  	</div>
+			<div style="position: absolute; bottom: 0">
+		        <el-input
+				  type="textarea"
+				  :rows="3"
+				  placeholder="请输入内容"
+				  v-model="msg"
+				  @keyup.enter.native="onEventSendGroupChat">
+				</el-input>
+		        <el-button style="float:right" type="primary" size="mini" @click="onEventSendGroupChat">发送</el-button>
+	        </div>
+	    </div>
 	  </div>
 	  <el-dialog title="邀请好友" custom-class="start-meeting" width="400px" center :visible.sync="dialogInviteFriendVisible">
         <el-form :model="formInviteFriend" label-width="80px">
@@ -120,7 +134,11 @@ export default {
 				src: ''
 			},
 			meetingMembers: [],
-			remoteResources: []
+			remoteResources: [],
+			msg: '',
+			MessageList: [],
+			Conference: '开始会议',
+			Share: '共享桌面'
 		}
 	},
 	created(){
@@ -128,6 +146,9 @@ export default {
 	},
 	mounted() {
 		this.dialogSelectMeetingVisible=true;
+	},
+	updated() {
+		this.$refs.scro.scrollTop = this.$refs.scro.scrollHeight;
 	},
 	methods:{
 		handleSelectMeeting(){
@@ -178,7 +199,20 @@ export default {
 			})
 		},
 
-		//加入会议
+		//开始会议与结束会议
+		onStartOrEndConference()
+		{
+			var $this = this;
+			if($this.Conference == '开始会议') {
+				$this.onJoinConferenceClicked();
+				$this.Conference = '结束会议';
+			} else {
+				$this.onLeaveConferenceClicked();
+				$this.Conference = '开始会议';
+			}
+		},
+
+		//开始会议
 		onJoinConferenceClicked()
 		{
 			var $this = this;
@@ -196,7 +230,7 @@ export default {
 				})
 			}
 		},
-		//离开会议
+		//结束
 		onLeaveConferenceClicked()
 		{
 			var $this = this;
@@ -258,6 +292,19 @@ export default {
 	        this.xchatkit.ReleaseCall ( json );
 		},
 
+		//共享桌面与停止共享
+		onStartOrEndShare()
+		{
+			var $this = this;
+			if($this.Share == '共享桌面') {
+				$this.onStartShareClicked();
+				$this.Share = '停止共享';
+			} else {
+				$this.onStopShareClicked();
+				$this.Share = '共享桌面';
+			}
+		},
+
 		//开始屏幕共享
 		onStartShareClicked()
 		{
@@ -275,7 +322,7 @@ export default {
 		    $this.xchatkit.StopShare();
 		    $this.localVideo.src = window.URL.createObjectURL($this.xchatkit.GetLocalStream());
 		},
-
+		//回调函数
 		//本地流事件
 		onEventLocalStream(json)
 		{
@@ -325,14 +372,19 @@ export default {
 		onEventRevieveChat(json){
 
 		},
+		//发送消息
 		onEventSendGroupChat(){
+			var $this = this;
 			var json = JSON.parse ( "{}" );
-		    json.chatroom = '';
-		    json.content = '';
+		    json.chatroom = $this.meetingjson.chatroom;
+		    json.content = $this.meetingjson.fromname+":"+$this.msg;
 		    this.xchatkit.SendText ( json );
+		    $this.msg = "";
 		},
+		//将消息添加到消息列表
 		onEventRevieveGroupChat(json){
-
+			var $this = this;
+			$this.MessageList.push(json.content);
 		},
 
 
@@ -525,6 +577,7 @@ export default {
 }
 </script>
 <style scoped>
+
 	.el-main{
 		width: 100%;
 		height: 100%;

@@ -2,7 +2,7 @@
   <div class="full-height">
     <div class="full-height">
       <el-container v-loading="loading" class="full-height">
-        <side-nav logo="@/assets/images/logo.png"></side-nav>
+        <side-nav :logo="logo"></side-nav>
         <el-container>
           <el-header>
             <head-nav></head-nav>
@@ -39,6 +39,7 @@ import {mapState,mapMutations,mapGetters} from 'vuex';
 export default {
   data() {
     return {
+      logo: require("@/assets/images/logo.png")
       // isTabCollapse: true,
       // activeIndex: 1,
       // subIndex: 1,

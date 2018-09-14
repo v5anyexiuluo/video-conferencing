@@ -2,7 +2,7 @@
   <div class="full-height">
     <div class="full-height">
       <el-container v-loading="loading" class="full-height">
-        <side-nav logo="/static/images/logo.png"></side-nav>
+        <side-nav logo="@/assets/images/logo.png"></side-nav>
         <el-container>
           <el-header>
             <head-nav></head-nav>

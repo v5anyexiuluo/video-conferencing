@@ -22,7 +22,7 @@
     </el-dropdown>
 		<el-dropdown placement="bottom"  @command="handleUserCommand">
 		  <span class="el-dropdown-link v-center">
-		    <img src="/static/images/user.jpg" style="height: 40px;width: 40px;border-radius: 20px; margin-right: 6px;" alt="">{{user? user.nickname: "用户"}}<i class="el-icon-arrow-down el-icon--right"></i>
+		    <img src="@/assets/images/user.jpg" style="height: 40px;width: 40px;border-radius: 20px; margin-right: 6px;" alt="">{{user? user.nickname: "用户"}}<i class="el-icon-arrow-down el-icon--right"></i>
 		  </span>
 		  <el-dropdown-menu :popper-append-to-body="false" slot="dropdown">
 		    <el-dropdown-item command="center">用户中心</el-dropdown-item>

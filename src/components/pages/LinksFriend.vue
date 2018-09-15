@@ -1,45 +1,62 @@
 <template>
 	<div>
-		<div class="main-actions">
+		<!-- <div class="main-actions">
 			<a href="javascript:void(0)" @click="dialogAddFriendVisible = true">添加好友</a>
       <a href="javascript:void(0)" @click="dialogAddDepartmentVisible = true">添加分组</a>
-		</div>
+		</div> -->
 		<div>
 			<div class="main-title">
-				<span>我的好友</span>
+				<span>我的好友</span>&nbsp;&nbsp;&nbsp;&nbsp;
+        <span v-if="!showGroupsMng">
+          <span class="action-btn" @click="showGroupsMng=true">管理分组</span>
+        </span>
+        <span v-else>
+          <span class="action-btn" @click="dialogAddFriendVisible = true">添加好友</span>
+          <span>|</span>
+          <span class="action-btn" @click="dialogAddDepartmentVisible = true">添加分组</span>
+          <span>|</span>
+          <span class="action-btn" @click="showGroupsMng=false">完成</span>
+        </span>
 			</div>
 			<div style="padding: 20px;">
-				<div class="hidden-sm-and-up card-wrap">
-          <el-card v-for="department in departments" :key="department_id" class="full-width margin-b-20">
+        <div class="hidden-sm-and-up card-wrap">
+          <el-card v-for="(department, index) in departments" :key="department.department_id" class="full-width margin-b-20">
             <div slot="header" class="card-title clearfix">
               <span>{{department.department_name}}</span>
-              <div class="fright card-actions">
-                <i class="el-icon-edit" @click="dialogModifyDepartmentNameVisible=true;formUpdateDepartmentName.departmentId=department.department_id"></i>
-                <i class="el-icon-delete" @click="handleDelDepartment(department.department_id)"></i>
+              <div v-if="!showGroupsMng" class="fright card-actions">
+                <div v-if="!showMembersMng" class="fright card-actions action-btn" @click="showMembersMng=true">成员管理</div>
+                <div v-else class="fright card-actions action-btn" @click="showMembersMng=false">完成</div>
+              </div>
+              <div v-if="showGroupsMng" class="fright card-actions">
+                <i class="el-icon-edit action-btn" @click="dialogModifyDepartmentNameVisible=true;formUpdateDepartmentName.departmentId=department.department_id"></i>
+                <i class="el-icon-delete action-btn" @click="handleDelDepartment(department.department_id)"></i>
               </div>
               <!-- <el-button style="float: right; padding: 3px 0" type="text"></el-button> -->
             </div>
             <scroll :data="department.departmemt_members" style="height: 120px;overflow: hidden;">
               <ul class="card-item-wrap">
-                <li v-for="item in department.departmemt_members" :key="item.phone" class="card-item"><span>{{item.nickname}}</span><span><i @click="dialogMoveFriendToDepartmentVisible=true;formMoveFriendToDepartment.departmentId=department.department_id;formMoveFriendToDepartment.userId=item.id;">移动</i>&nbsp;<i @click="handlerDelFriend(item.id)">删除</i>&nbsp;</span></li>
+                <li v-for="item in department.departmemt_members" :key="item.phone" class="card-item"><span>{{item.nickname}}</span><span class="action-btn" v-if="showMembersMng"><i @click="dialogMoveFriendToDepartmentVisible=true;formMoveFriendToDepartment.departmentId=department.department_id;formMoveFriendToDepartment.userId=item.id;">移动</i>&nbsp;<i @click="handlerDelFriend(item.id)">删除</i>&nbsp;</span></li>
               </ul>
             </scroll>
           </el-card>
         </div>
         <div class="hidden-lg-and-up hidden-xs-only card-wrap">
-          <el-card v-for="(department, index) in departments" :key="department.department_id" :class="[index%2!=0? 'one-second margin-l-2P margin-b-20':'one-second margin-b-20']">
-          <!-- <el-card class="one-second margin-b-20"> -->
+          <el-card v-for="(department, index) in departments" :key="department.department_id" :class="[index%2!=0? 'one-second margin-l-2P margin-b-20':'one-third margin-b-20']">
             <div slot="header" class="card-title clearfix">
               <span>{{department.department_name}}</span>
-              <div class="fright card-actions">
-                <i class="el-icon-edit" @click="dialogModifyDepartmentNameVisible=true;formUpdateDepartmentName.departmentId=department.department_id"></i>
-                <i class="el-icon-delete" @click="handleDelDepartment(department.department_id)"></i>
+              <div v-if="!showGroupsMng" class="fright card-actions">
+                <div v-if="!showMembersMng" class="fright card-actions action-btn" @click="showMembersMng=true">成员管理</div>
+                <div v-else class="fright card-actions action-btn" @click="showMembersMng=false">完成</div>
+              </div>
+              <div v-if="showGroupsMng" class="fright card-actions">
+                <i class="el-icon-edit action-btn" @click="dialogModifyDepartmentNameVisible=true;formUpdateDepartmentName.departmentId=department.department_id"></i>
+                <i class="el-icon-delete action-btn" @click="handleDelDepartment(department.department_id)"></i>
               </div>
               <!-- <el-button style="float: right; padding: 3px 0" type="text"></el-button> -->
             </div>
             <scroll :data="department.departmemt_members" style="height: 120px;overflow: hidden;">
               <ul class="card-item-wrap">
-                <li v-for="item in department.departmemt_members" :key="item.phone" class="card-item"><span>{{item.nickname}}</span><span><i @click="dialogMoveFriendToDepartmentVisible=true;formMoveFriendToDepartment.departmentId=department.department_id;formMoveFriendToDepartment.userId=item.id;">移动</i>&nbsp;<i @click="handlerDelFriend(item.id)">删除</i>&nbsp;</span></li>
+                <li v-for="item in department.departmemt_members" :key="item.phone" class="card-item"><span>{{item.nickname}}</span><span class="action-btn" v-if="showMembersMng"><i @click="dialogMoveFriendToDepartmentVisible=true;formMoveFriendToDepartment.departmentId=department.department_id;formMoveFriendToDepartment.userId=item.id;">移动</i>&nbsp;<i @click="handlerDelFriend(item.id)">删除</i>&nbsp;</span></li>
               </ul>
             </scroll>
           </el-card>
@@ -48,15 +65,23 @@
           <el-card v-for="(department, index) in departments" :key="department.department_id" :class="[index%3!=0? 'one-third margin-l-2P margin-b-20':'one-third margin-b-20']">
             <div slot="header" class="card-title clearfix">
               <span>{{department.department_name}}</span>
-              <div class="fright card-actions">
-                <i class="el-icon-edit" @click="dialogModifyDepartmentNameVisible=true;formUpdateDepartmentName.departmentId=department.department_id"></i>
-                <i class="el-icon-delete" @click="handleDelDepartment(department.department_id)"></i>
+              <div v-if="!showGroupsMng" class="fright card-actions">
+                <span v-if="!showMembersMng" class="action-btn" @click="showMembersMng=true">成员管理</span>
+                <span v-else class="action-btn" @click="showMembersMng=false">完成</span>
+              </div>
+              <div v-if="showGroupsMng" class="fright card-actions">
+                <el-tooltip class="item" effect="dark" content="重命名组名称" placement="top">
+                  <i class="el-icon-edit action-btn" @click="dialogModifyDepartmentNameVisible=true;formUpdateDepartmentName.departmentId=department.department_id"></i>
+                </el-tooltip>
+                <el-tooltip class="item" effect="dark" content="删除分组" placement="top">
+                  <i class="el-icon-delete action-btn" @click="handleDelDepartment(department.department_id)"></i>
+                </el-tooltip>
               </div>
               <!-- <el-button style="float: right; padding: 3px 0" type="text"></el-button> -->
             </div>
             <scroll :data="department.departmemt_members" style="height: 120px;overflow: hidden;">
               <ul class="card-item-wrap">
-                <li v-for="item in department.departmemt_members" :key="item.phone" class="card-item"><span>{{item.nickname}}</span><span><i @click="dialogMoveFriendToDepartmentVisible=true;formMoveFriendToDepartment.departmentId=department.department_id;formMoveFriendToDepartment.userId=item.id;">移动</i>&nbsp;<i @click="handlerDelFriend(item.id)">删除</i>&nbsp;</span></li>
+                <li v-for="item in department.departmemt_members" :key="item.phone" class="card-item"><span>{{item.nickname}}</span><span class="action-btn" v-if="showMembersMng"><i @click="dialogMoveFriendToDepartmentVisible=true;formMoveFriendToDepartment.departmentId=department.department_id;formMoveFriendToDepartment.userId=item.id;">移动</i>&nbsp;<i @click="handlerDelFriend(item.id)">删除</i>&nbsp;</span></li>
               </ul>
             </scroll>
           </el-card>
@@ -166,6 +191,8 @@
         dialogAddDepartmentVisible: false,
         dialogModifyDepartmentNameVisible: false,
         dialogMoveFriendToDepartmentVisible: false,
+        showGroupsMng: false,
+        showMembersMng: false,
         pulldown: true,
         friends: [],
         formAddFriend: {
@@ -462,5 +489,14 @@
   }
   .clearfix:after {
     clear: both
+  }
+
+  .action-btn{
+    color: #3b7fa7;
+    cursor: pointer;
+  }
+  .action-btn:hover{
+    color: #00a1ff;
+    cursor: pointer;
   }
 </style>

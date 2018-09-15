@@ -49,6 +49,9 @@ export default {
       $this.$router.push({name: 'login'})
     });
   },
+  mounted: function(){
+    var $this = this;
+  },
   methods: {
     handleUserCommand(command){
       var $this = this;
@@ -102,6 +105,8 @@ export default {
     ...mapGetters([
       'user'
     ])
+  },
+  watch: {
   }
 }
 </script>

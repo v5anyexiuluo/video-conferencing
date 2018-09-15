@@ -146,6 +146,7 @@ export default {
 	},
 	mounted() {
 		this.dialogSelectMeetingVisible=true;
+
 	},
 	updated() {
 		this.$refs.scro.scrollTop = this.$refs.scro.scrollHeight;

@@ -1,11 +1,21 @@
 <template>
 	<div>
-		<div class="main-actions">
+		<!-- <div class="main-actions">
 			<a href="javascript:void(0)" @click="dialogMakeMeetingVisible = true">发起会议</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="javascript:void(0)" @click="dialogCreateGroupVisible = true">新建群组</a>
-		</div>
+		</div> -->
 		<div>
 			<div class="main-title">
-				<span>我的群组</span>
+				<span>我的群组</span>&nbsp;&nbsp;&nbsp;&nbsp;
+        <span v-if="!showGroupsMng">
+          <span class="action-btn" @click="showGroupsMng=true">管理群组</span>
+        </span>
+        <span v-else>
+          <span class="action-btn" @click="dialogCreateGroupVisible = true">新建群组</span>
+          <span>|</span>
+          <span class="action-btn" @click="dialogMakeMeetingVisible = true">新建会议</span>
+          <span>|</span>
+          <span class="action-btn" @click="showGroupsMng=false">完成</span>
+        </span>
 			</div>
 			<div style="padding: 20px;">
 				<div class="hidden-sm-and-up card-wrap">
@@ -52,18 +62,33 @@
           <el-card v-for="(group, index) in groups" :key="group.group_id" :class="[index%3!=0? 'one-third margin-l-2P margin-b-20':'one-third margin-b-20']">
             <div slot="header" class="card-title clearfix">
               <span>{{group.group_name}}</span>
-              <div class="fright card-actions">
-                <i class="el-icon-edit" @click="dialogModifyGroupNameVisible=true;curGroup=group.group_id"></i>
-                <i class="el-icon-remove-outline" @click="dialogDelUserFromGroupVisible=true;curGroup=group.group_id"></i>
-                <i class="el-icon-circle-plus-outline" @click="dialogAddUserToGroupVisible=true;curGroup=group.group_id;fetchFriends();"></i>
+              <div v-if="!showGroupsMng" class="fright card-actions">
+                <span v-if="!showMembersMng" class="action-btn" @click="showMembersMng=true">成员管理</span>
+                <span v-else class="action-btn" @click="showMembersMng=false">完成</span>
+              </div>
+              <div v-if="showGroupsMng" class="fright card-actions">
+                <el-tooltip class="item" effect="dark" content="从组中删除好友" placement="top">
+                  <i class="el-icon-remove-outline action-btn" @click="dialogDelUserFromGroupVisible=true;curGroup=group.group_id"></i>
+                </el-tooltip>
+                <el-tooltip class="item" effect="dark" content="添加好友到组" placement="top">
+                  <i class="el-icon-circle-plus-outline action-btn" @click="dialogAddUserToGroupVisible=true;curGroup=group.group_id;fetchFriends();"></i>
+                </el-tooltip>
                 <i>&nbsp;|&nbsp;</i>
-                <i class="el-icon-delete" @click="handleDelGroup(group.group_id)"></i>
+                <el-tooltip class="item" effect="dark" content="重命名组" placement="top">
+                  <i class="el-icon-edit action-btn" @click="dialogModifyGroupNameVisible=true;curGroup=group.group_id"></i>
+                </el-tooltip>
+                <el-tooltip class="item" effect="dark" content="删除组" placement="top">
+                  <i class="el-icon-delete" @click="handleDelGroup(group.group_id)"></i>
+                </el-tooltip>
               </div>
               <!-- <el-button style="float: right; padding: 3px 0" type="text"></el-button> -->
             </div>
             <scroll :data="group.member" style="height: 120px;">
               <ul class="card-item-wrap">
-                <li v-for="item in group.member" :key="item.phone" class="card-item"><span>{{item.nickname}}</span><span><i @click="handlerDelMember(group.group_id, item.nickname)">删除</i></span></li>
+                <li v-for="item in group.member" :key="item.phone" class="card-item">
+                  <span>{{item.nickname}}</span>
+                  <span class="action-btn" v-if="showMembersMng"><i @click="handlerDelMember(group.group_id, item.nickname)">删除</i></span>
+                </li>
               </ul>
             </scroll>
           </el-card>
@@ -173,6 +198,8 @@
         dialogAddUserToGroupVisible: false,
         dialogDelUserFromGroupVisible: false,
         dialogModifyGroupNameVisible: false,
+        showGroupsMng: false,
+        showMembersMng: false,
         curGroup: 1,
         pulldown: true,
         // filteUsers: [],
@@ -538,5 +565,14 @@
   }
   .clearfix:after {
     clear: both
+  }
+
+  .action-btn{
+    color: #3b7fa7;
+    cursor: pointer;
+  }
+  .action-btn:hover{
+    color: #00a1ff;
+    cursor: pointer;
   }
 </style>

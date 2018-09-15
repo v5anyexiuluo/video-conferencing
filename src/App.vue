@@ -5,11 +5,20 @@
 </template>
 
 <script>
-export default {
-  name: 'App'
-}
-</script>
+  export default {
+    name: 'App',
+    created: function(){
 
+    },
+    mounted: function(){
+      
+    },
+    methods:{
+    },
+    computed:{
+    },
+  }
+</script>
 <style>
 #app {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;

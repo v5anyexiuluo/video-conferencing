@@ -7,7 +7,7 @@ import Axios from '@/api/axios.js';
 //vuex
 import store from './store'
 import api from './api/api.js'
-import { Row, Col, Container, Aside, Header, Footer, Main, Menu, Submenu, MenuItem, Tooltip, Button, Dropdown, DropdownMenu, DropdownItem, Collapse, CollapseItem, Popover, Tree, Dialog, Form, FormItem, Select, Option, Card, Input, Message, Loading } from 'element-ui';
+import { Row, Col, Container, Aside, Header, Footer, Main, Menu, Submenu, MenuItem, Tooltip, Button, Dropdown, DropdownMenu, DropdownItem, Collapse, CollapseItem, Popover, Tree, Dialog, Form, FormItem, Select, Option, Card, Input, Message, MessageBox, Loading, Notification } from 'element-ui';
 import 'element-ui/lib/theme-chalk/display.css';
 import "./assets/icon/iconfont.css";
 import "./assets/css/common.css";
@@ -46,15 +46,17 @@ Vue.component(Card.name, Card);
 Vue.use(Loading.directive);
 Vue.prototype.$loading = Loading.service;
 Vue.prototype.$message = Message;
+Vue.prototype.$notify = Notification;
+Vue.prototype.$confirm = MessageBox.confirm;
 
 Vue.config.productionTip = false
 Vue.config.debug = true
 
 /* eslint-disable no-new */
 new Vue({
-  el: '#app',
-  router,
-  store,
-  components: { App },
-  template: '<App/>'
+	el: '#app',
+	router,
+	store,
+	components: { App },
+	template: '<App/>'
 })

@@ -7,7 +7,7 @@ import Axios from '@/api/axios.js';
 //vuex
 import store from './store'
 import api from './api/api.js'
-import { Row, Col, Container, Aside, Header, Footer, Main, Menu, Submenu, MenuItem, Tooltip, Button, Dropdown, DropdownMenu, DropdownItem, Collapse, CollapseItem, Popover, Tree, Dialog, Form, FormItem, Select, Option, Card, Input, Message, Loading } from 'element-ui';
+import { Row, Col, Container, Aside, Header, Footer, Main, Menu, Submenu, MenuItem, Tooltip, Button, Dropdown, DropdownMenu, DropdownItem, Collapse, CollapseItem, Popover, Tree, Dialog, Form, FormItem, Select, Option, OptionGroup, Card, Input, Message, Loading, DatePicker, TimePicker, Cascader, Tag, Table, TableColumn, Checkbox} from 'element-ui';
 import 'element-ui/lib/theme-chalk/display.css';
 import "./assets/icon/iconfont.css";
 import "./assets/css/common.css";
@@ -41,8 +41,16 @@ Vue.component(Form.name, Form);
 Vue.component(FormItem.name, FormItem);
 Vue.component(Select.name, Select);
 Vue.component(Option.name, Option);
+Vue.component(OptionGroup.name, OptionGroup);
 Vue.component(Input.name, Input);
 Vue.component(Card.name, Card);
+Vue.component(DatePicker.name, DatePicker);
+Vue.component(TimePicker.name, TimePicker);
+Vue.component(Cascader.name, Cascader);
+Vue.component(Tag.name, Tag);
+Vue.component(Table.name, Table);
+Vue.component(TableColumn.name, TableColumn);
+Vue.component(Checkbox.name, Checkbox);
 Vue.use(Loading.directive);
 Vue.prototype.$loading = Loading.service;
 Vue.prototype.$message = Message;

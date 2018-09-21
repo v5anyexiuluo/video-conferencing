@@ -46,7 +46,7 @@
 	  </div>
 	  <div class="content-right">
 	  	<div style="position: relative; height: 100%">
-		  	<div ref="scro" style="height: 480px; overflow-y: auto;">
+		  	<div ref="scro" style="height: 430px; overflow-y: auto;">
 				<p style="word-break:break-all; text-align: left" v-for="item in MessageList">{{item}}</p>
 		  	</div>
 			<div style="position: absolute; bottom: 0">
@@ -55,6 +55,7 @@
 				  :rows="3"
 				  placeholder="请输入内容"
 				  v-model="msg"
+				  style="width: 100%"
 				  @keyup.enter.native="onEventSendGroupChat">
 				</el-input>
 		        <el-button style="float:right" type="primary" size="mini" @click="onEventSendGroupChat">发送</el-button>

@@ -1,0 +1,116 @@
+<template>
+	<div>
+		<el-menu
+			:default-active="activeIndex"
+			class="el-menu-demo"
+			mode="horizontal"
+			@select="handleSelect"
+			background-color="#545c64"
+			text-color="#fff"
+			active-text-color="#ffd04b"
+		>
+			<el-menu-item index="1" class="custom-center">全部会议</el-menu-item>
+			<el-menu-item index="2" class="custom-center">我发起的</el-menu-item>
+			<el-menu-item index="3" class="custom-center">我收到的</el-menu-item>
+		</el-menu>
+		<div style="width: 100%">
+			<el-table
+				:data="tableData"
+				max-height="500"
+				style="width: 100%; text-align: center !important;"
+				border
+				stripe
+			>
+				<el-table-column
+					prop="id"
+					label="会议ID"
+				>
+				</el-table-column>
+				<el-table-column
+					prop="start_time"
+					label="开始时间"
+				>
+				</el-table-column>
+				<el-table-column
+					prop="duration"
+					label="经历时长">
+				</el-table-column>
+				<el-table-column
+					prop="founder_id"
+					label="主持人">
+				</el-table-column>
+				<el-table-column
+					prop="member"
+					label="参与者">
+				</el-table-column>
+				<el-table-column
+					prop="video_path"
+					label="会议视频">
+				</el-table-column>
+				<el-table-column
+					prop="reviewtime"
+					label="回放次数">
+				</el-table-column>
+				<el-table-column
+					prop="edit"
+					label="编辑">
+					<template slot-scope="scope">
+						<el-button
+							size="mini"
+							type="danger"
+							@click="handleDelete(scope.$index, scope.row)"
+						>
+							删除
+						</el-button>
+					</template>
+				</el-table-column>
+			</el-table>
+		</div>
+	</div>
+</template>
+<script>
+export default {
+	data() {
+		return {
+			activeIndex: '1',
+			tableData: [
+				{
+					id: 2116,
+					start_time: '2018-9-10',
+					duration: '1h 12m 23s',
+					founder_id: '002',
+					member: '参会人员',
+					video_path:'url',
+					reviewtime:45,
+					edit:'edit'
+				},
+				{
+					id: 2116,
+					start_time: '2018-9-11',
+					duration: '1h 12m 23s',
+					founder_id: '002',
+					member: '参会人员',
+					video_path:'url',
+					reviewtime:77,
+					edit:'edit'
+				}
+			],
+		}
+	},
+	name: 'MeetingHistory',
+	methods: {
+		handleSelect(key, keyPath) {
+	        console.log(key, keyPath);
+	    },
+	    handleDelete(index, row) {
+			this.tableData.splice(index, 1);
+		}
+	}
+}
+</script>
+<style>
+	.custom-center {
+		width: 200px;
+		text-align: center !important;
+	}
+</style>

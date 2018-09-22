@@ -8,7 +8,7 @@
       <div class="text item">
         会议名称：{{item.meetingName}}<br>
         会议时间：<span v-text="timestampToTime(item.createTime)"></span><br>
-        主持人：{{item.founderId}}<br>
+        主持人：{{item.founder_user_nickname}}<br>
         视频回放：<a href="https://www.baidu.com" class="el-icon-caret-right"></a>
         <!-- "item.videoPath" -->
       </div>

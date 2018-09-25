@@ -10,7 +10,7 @@
 			</div>
 			<div style="padding: 20px;">
 				<div class="hidden-sm-and-up card-wrap">
-          <el-card v-for="department in departments" :key="department_id" class="full-width margin-b-20">
+          <el-card v-for="department in departments" :key="department.department_id" class="full-width margin-b-20">
             <div slot="header" class="card-title clearfix">
               <span>{{department.department_name}}</span>
               <div class="fright card-actions">

@@ -1,135 +1,97 @@
 <template>
-	<div>
-		<!-- <div class="main-actions">
-			<a href="javascript:void(0)" @click="dialogMakeMeetingVisible = true">发起会议</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="javascript:void(0)" @click="dialogCreateGroupVisible = true">新建群组</a>
-		</div> -->
-		<div>
-			<div class="main-title">
-				<span>我的群组</span>&nbsp;&nbsp;&nbsp;&nbsp;
-        <span v-if="!showGroupsMng">
-          <span class="action-btn" @click="showGroupsMng=true">管理群组</span>
-        </span>
-        <span v-else>
-          <span class="action-btn" @click="dialogCreateGroupVisible = true">新建群组</span>
-          <span>|</span>
-          <span class="action-btn" @click="dialogMakeMeetingVisible = true">新建会议</span>
-          <span>|</span>
-          <span class="action-btn" @click="showGroupsMng=false">完成</span>
-        </span>
-			</div>
-			<div style="padding: 20px;">
-				<div class="hidden-sm-and-up card-wrap">
-          <el-card v-for="group in groups" :key="group.group_id" class="full-width margin-b-20">
-            <div slot="header" class="card-title clearfix">
-              <span>{{group.group_name}}</span>
-              <div class="fright card-actions">
-                <i class="el-icon-edit" @click="dialogModifyGroupNameVisible=true;curGroup=group.group_id"></i>
-                <i class="el-icon-remove-outline" @click="dialogDelUserFromGroupVisible=true;curGroup=group.group_id"></i>
-                <i class="el-icon-circle-plus-outline" @click="dialogAddUserToGroupVisible=true;curGroup=group.group_id;fetchFriends();"></i>
-                <i>&nbsp;|&nbsp;</i>
-                <i class="el-icon-delete" @click="handleDelGroup(group.group_id)"></i>
-              </div>
-              <!-- <el-button style="float: right; padding: 3px 0" type="text"></el-button> -->
-            </div>
-            <scroll :data="group.member" style="height: 120px;">
-              <ul class="card-item-wrap">
-                <li v-for="item in group.member" :key="item.phone" class="card-item"><span>{{item.nickname}}</span><span><i @click="handlerDelMember(group.group_id, item.nickname)">删除</i></span></li>
-              </ul>
-            </scroll>
-          </el-card>
-        </div>
-        <div class="hidden-lg-and-up hidden-xs-only card-wrap">
-          <el-card v-for="(group, index) in groups" :key="group.group_id" :class="[index%2!=0? 'one-second margin-l-2P margin-b-20':'one-second margin-b-20']">
-            <div slot="header" class="card-title clearfix">
-              <span>{{group.group_name}}</span>
-              <div class="fright card-actions">
-                <i class="el-icon-edit" @click="dialogModifyGroupNameVisible=true;curGroup=group.group_id"></i>
-                <i class="el-icon-remove-outline" @click="dialogDelUserFromGroupVisible=true;curGroup=group.group_id"></i>
-                <i class="el-icon-circle-plus-outline" @click="dialogAddUserToGroupVisible=true;curGroup=group.group_id;fetchFriends();"></i>
-                <i>&nbsp;|&nbsp;</i>
-                <i class="el-icon-delete" @click="handleDelGroup(group.group_id)"></i>
-              </div>
-              <!-- <el-button style="float: right; padding: 3px 0" type="text"></el-button> -->
-            </div>
-            <scroll :data="group.member" style="height: 120px;">
-              <ul class="card-item-wrap">
-                <li v-for="item in group.member" :key="item.phone" class="card-item"><span>{{item.nickname}}</span><span><i @click="handlerDelMember(group.group_id, item.nickname)">删除</i></span></li>
-              </ul>
-            </scroll>
-          </el-card>
-        </div>
-        <div class="hidden-md-and-down card-wrap">
-          <el-card v-for="(group, index) in groups" :key="group.group_id" :class="[index%3!=0? 'one-third margin-l-2P margin-b-20':'one-third margin-b-20']">
-            <div slot="header" class="card-title clearfix">
-              <span>{{group.group_name}}</span>
-              <div v-if="!showGroupsMng" class="fright card-actions">
-                <span v-if="!showMembersMng" class="action-btn" @click="showMembersMng=true">成员管理</span>
-                <span v-else class="action-btn" @click="showMembersMng=false">完成</span>
-              </div>
-              <div v-if="showGroupsMng" class="fright card-actions">
-                <el-tooltip class="item" effect="dark" content="从组中删除好友" placement="top">
-                  <i class="el-icon-remove-outline action-btn" @click="dialogDelUserFromGroupVisible=true;curGroup=group.group_id"></i>
-                </el-tooltip>
-                <el-tooltip class="item" effect="dark" content="添加好友到组" placement="top">
-                  <i class="el-icon-circle-plus-outline action-btn" @click="dialogAddUserToGroupVisible=true;curGroup=group.group_id;fetchFriends();"></i>
-                </el-tooltip>
-                <i>&nbsp;|&nbsp;</i>
-                <el-tooltip class="item" effect="dark" content="重命名组" placement="top">
-                  <i class="el-icon-edit action-btn" @click="dialogModifyGroupNameVisible=true;curGroup=group.group_id"></i>
-                </el-tooltip>
-                <el-tooltip class="item" effect="dark" content="删除组" placement="top">
-                  <i class="el-icon-delete" @click="handleDelGroup(group.group_id)"></i>
-                </el-tooltip>
-              </div>
-              <!-- <el-button style="float: right; padding: 3px 0" type="text"></el-button> -->
-            </div>
-            <scroll :data="group.member" style="height: 120px;">
-              <ul class="card-item-wrap">
-                <li v-for="item in group.member" :key="item.phone" class="card-item">
-                  <span>{{item.nickname}}</span>
-                  <span class="action-btn" v-if="showMembersMng"><i @click="handlerDelMember(group.group_id, item.nickname)">删除</i></span>
-                </li>
-              </ul>
-            </scroll>
-          </el-card>
-        </div>
-			</div>
-		</div>
-		<el-dialog title="请选择一个群组视频" custom-class="start-meeting" width="400px" center :visible.sync="dialogMakeMeetingVisible">
-		  <el-form :model="formMeeting" label-width="80px">
-		    <el-form-item label="会议名称">
-          <el-input v-model="formMeeting.name"></el-input>
-        </el-form-item>
-        <el-form-item label="群组">
-		      <el-select v-model="formMeeting.groupId" placeholder="选择群组" style="width: 100%;">
-            <el-option
-              v-for="group in groups"
-              :label="group.group_name"
-              :value="group.group_id">
-            </el-option>
-		      </el-select>
-		    </el-form-item>
-		  </el-form>
-		  <div slot="footer" class="dialog-footer">
-		    <el-button @click="dialogMakeMeetingVisible = false">取 消</el-button>
-	      <el-button type="primary" @click="handleCreateMeeting()">确 定</el-button>
-		  </div>
-		</el-dialog>
+	<div class="item-container full-width full-height">
+		<div class="item-list fleft full-height v-full-container">
+      <div class="list-search">
+        <el-input placeholder="请输入内容" class="input-with-select">
+          <el-button slot="append" icon="el-icon-search"></el-button>
+        </el-input>
+      </div>
+      <ul class="full-element">
+        <li v-for="(group, index) in groups" @click="curGroup=group" class="item">
+          <img src="https://picsum.photos/30/30" alt="头像">
+          <span>{{group.group_name}}</span>
+        </li>
+      </ul>
+      <div class="list-action" @click="dialogCreateGroupVisible=true;">添加</div>
+    </div>
+    <div class="item-detail full-height">
+      <el-tabs v-model="activeTab" @tab-click="handlerGetMembers">
+        <el-tab-pane label="基本信息" name="first" class="h-full-container">
+          <img src="https://picsum.photos/200/200" alt="">
+          <div class="group-info">
+            <p><span>群名称:</span><span>{{curGroup? (curGroup.group_name? curGroup.group_name:''):''}}</span></p>
+            <p><span>群主:</span><span>{{curGroup? (curGroup.founderId? curGroup.founderId:''):''}}</span></p>
+            <p><span>创建时间:</span><span>{{curGroup? (curGroup.create_time? curGroup.create_time:''):''}}</span></p>
+            <p><span>群简介:</span><span>暂无</span></p>
+            <p>
+              <el-button v-if="curGroup.is_builder" type="text" @click="handleDelGroup">解散群</el-button>
+              <el-button v-else type="text" @click="handleQuitGroup">退出群</el-button>
+              <el-button v-if="curGroup.is_builder" type="text" @click="dialogModifyGroupNameVisible=true;">修改群信息</el-button>
+            </p>
+          </div>
+        </el-tab-pane>
+        <el-tab-pane label="群成员" name="second">
+          <el-table
+            :data="curGroup.members"
+            style="width: 100%">
+            <el-table-column
+              fixed
+              prop="nickname"
+              label="昵称"
+              width="180">
+              <template slot-scope="scope">
+                <img src="https://picsum.photos/20/20" alt="">
+                <span style="margin-left: 10px">{{ scope.row.nickname }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column
+              prop="phone"
+              label="电话">
+            </el-table-column>
+            <el-table-column
+              prop="realname"
+              label="真名">
+            </el-table-column>
+            <el-table-column
+              prop="email"
+              label="电子邮件">
+            </el-table-column>
+            <el-table-column
+              fixed="right"
+              label="操作"
+              width="120">
+              <template slot-scope="scope">
+                <el-button
+                  @click.native.prevent="deleteRow(scope.$index, tableData4)"
+                  type="text"
+                  size="small">
+                  移除
+                </el-button>
+                <el-button
+                  @click.native.prevent="deleteRow(scope.$index, tableData4)"
+                  type="text"
+                  size="small">
+                  移动
+                </el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+          <div style="text-align: left;padding-top: 10px;">
+            <el-button type="text">添加群成员</el-button>
+          </div>
+        </el-tab-pane>
+      </el-tabs>
+      <div class="group-actions">
+        <el-button type="primary">进入群聊</el-button>
+        <el-button type="primary">马上开会</el-button>
+        <el-button type="primary">预约会议</el-button>
+      </div>
+    </div>
     <el-dialog title="新建群组" custom-class="start-meeting" width="400px" center :visible.sync="dialogCreateGroupVisible">
-      <el-form :model="formNew" label-width="80px">
+      <el-form :model="formNewGroup" label-width="80px">
         <el-form-item label="组名">
-          <el-input v-model="formNew.name"></el-input>
+          <el-input v-model="formNewGroup.name"></el-input>
         </el-form-item>
-        <!-- <el-form-item label="导入好友">
-          <el-select v-model="formNew.friends" multiple collapse-tags style="width: 100%;" placeholder="选择群组">
-            <el-option
-              v-for="(item,index) in groups"
-              :key="item.label"
-              :label="item.label"
-              :value="index.toString()">
-            </el-option>
-          </el-select>
-        </el-form-item> -->
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogCreateGroupVisible = false">取 消</el-button>
@@ -147,96 +109,41 @@
         <el-button type="primary" @click="handlerModifyGroupName()">确 定</el-button>
       </div>
     </el-dialog>
-    <el-dialog title="导入好友" custom-class="start-meeting" width="400px" center :visible.sync="dialogAddUserToGroupVisible">
-      <el-form :model="formAddUser" label-width="80px">
-        <el-form-item label="导入好友">
-          <el-select v-model="formAddUser.friends" multiple collapse-tags style="width: 100%;" placeholder="选择好友">
-            <el-option
-              v-for="(item,index) in filteUsers"
-              :key="item.nickname"
-              :label="item.nickname"
-              :value="item.nickname">
-            </el-option>
-          </el-select>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogAddUserToGroupVisible = false">取 消</el-button>
-        <el-button type="primary" @click="handlerAddUsers()">确 定</el-button>
-      </div>
-    </el-dialog>
-    <el-dialog title="删除好友" custom-class="start-meeting" width="400px" center :visible.sync="dialogDelUserFromGroupVisible">
-      <el-form :model="formDelUser" label-width="80px">
-        <el-form-item label="删除好友">
-          <el-select v-model="formDelUser.friends" multiple collapse-tags style="width: 100%;" placeholder="选择好友">
-            <el-option
-              v-for="(item,index) in groupMembers"
-              :key="item.nickname"
-              :label="item.nickname"
-              :value="item.nickname">
-            </el-option>
-          </el-select>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogDelUserFromGroupVisible = false">取 消</el-button>
-        <el-button type="primary" @click="handlerDelMembers()">确 定</el-button>
-      </div>
-    </el-dialog> 
 	</div>
 </template>
 <script>
   import BScroll from 'better-scroll'
   import Scroll from '@/components/common/Scroll.vue'
-  import {apiAuth, apiLinks, apiMeeting} from '@/api/api.js'
-  import {mapMutations} from 'vuex';
+  import {apiAuth, apiLinks, apiMeeting} from '@/properties/api.js'
+  import {mapGetters} from 'vuex';
   export default {
     data() {
       return {
-        dialogMakeMeetingVisible: false,
+        groups:[],
+        curGroup:{},
+        activeTab: 'first',
         dialogCreateGroupVisible: false,
-        dialogAddUserToGroupVisible: false,
-        dialogDelUserFromGroupVisible: false,
+        formNewGroup: {
+          name:''
+        },
         dialogModifyGroupNameVisible: false,
-        showGroupsMng: false,
-        showMembersMng: false,
-        curGroup: 1,
-        pulldown: true,
-        // filteUsers: [],
-        // groupMembers:[],
-        //所有群
-        groups: [],
-        friends: [],
-        formMeeting: {
-          groupId:'',
-          name:''
-        },
-        formNew: {
-          name:''
-        },
         formModifyGroupName: {
           name:''
-        },
-        formAddUser: {
-          friends:[]
-        },
-        formDelUser: {
-          friends:[]
         }
       }
     },
     name: 'FriendsGroup',
     components: {
-      scroll: Scroll
+      
     },
     created: function() {
-      var $this = this;
-      $this.refreshGroups();
+      this.refreshGroups();
     },
     methods: {
+      //####
       refreshGroups(){
         var $this = this;
-        $this.findAllMembers(function(res){
+        $this.findAllGroups(function(res){
             $this.groups = res.data.data;
           },function(res){
             $this.$message.error('获取群组信息失败！');
@@ -244,19 +151,23 @@
         );
       },
 
-      fetchFriends(){
+      handlerGetMembers(){
         var $this = this;
-        $this.getAllFriends(function(res){
-          $this.friends = res.data.data;
-        },function(res){
-          $this.$message.error('获取好友列表失败！');
-        })
+        // $this.curGroup = $this.groups.find((value, index, arr) => {
+        //   return value.group_id == groupId;
+        // })
+        if($this.activeTab=="second"){
+          $this.findMembersByGroupId($this.curGroup.group_id,function(res){
+            $this.curGroup["members"]=res.data.data;
+          },function(res){
+            $this.$message.error('获取群组成员失败失败！');
+          })
+        }
       },
       
-      //创建群(已完成)
       handleCreateGroup() {
         var $this = this;
-        $this.createGroup($this.formNew.name,function(res){
+        $this.createGroup($this.formNewGroup.name,function(res){
           $this.$message({
             message: '创建群组成功！',
             type: 'success'
@@ -268,9 +179,35 @@
         });
       },
 
+      handleDelGroup(){
+        var $this = this;
+        $this.deleteGroup($this.curGroup.group_id, function(res){
+          $this.$message({
+            message: '删除组成功！',
+            type: 'success'
+          });
+          $this.refreshGroups();
+        },function(res){
+          $this.$message.error('删除组失败！');
+        })
+      },
+
+      handleQuitGroup(){
+        var $this = this;
+        $this.deleteGroupMember($this.curGroup.group_id, $this.user.nickname, function(res){
+          $this.$message({
+            message: '退群成功！',
+            type: 'success'
+          });
+          $this.refreshGroups();
+        },function(res){
+          $this.$message.error('退群失败！');
+        })
+      },
+
       handlerModifyGroupName(){
         var $this = this;
-        $this.updateGroupName($this.curGroup, $this.formModifyGroupName.name,function(res){
+        $this.updateGroupName($this.curGroup.group_id, $this.formModifyGroupName.name,function(res){
           $this.$message({
             message: '修改群名称成功！',
             type: 'success'
@@ -282,95 +219,21 @@
         })
       },
 
-      handleDelGroup(group_id){
-        var $this = this;
-        $this.deleteGroup(group_id, function(res){
-          $this.$message({
-            message: '删除组成功！',
-            type: 'success'
-          });
-          $this.refreshGroups();
-        },function(res){
-          $this.$message.error('删除组失败！');
-        })
-      },
-
-      handleCreateMeeting(){
-        var $this = this;
-        var members = $this.getMembersById($this.formMeeting.groupId);
-        var memTemp = [];
-        for(var i=0;i<members.length;i++){
-          memTemp.push({nickname:members[i].nickname})
-        }
-        $this.createMeeting({
-          meeting_name: $this.formMeeting.name,
-          members: memTemp,
-          start_time: "0"
-        },function(res){
-          $this.$message({
-            message: '创建会议成功！',
-            type: 'success'
-          });
-          $this.setMeeting(res.data.data);
-          $this.dialogMakeMeetingVisible=false;
-          // $this.$router.push({path:'/frame/meeting/now'});
-          $this.$router.push({name: 'now'})
-        },function(res){
-          $this.$message.error('创建会议失败！');
-        })
-      },
-
-      handlerDelMembers(){
-        var $this = this;
-        $this.deleteGroupMembers($this.curGroup, $this.formDelUser.friends,function(res){
-          $this.$message({
-            message: '从组内删除好友成功！',
-            type: 'success'
-          });
-          $this.dialogDelUserFromGroupVisible=false;
-          $this.refreshGroups();
-        },function(res){
-          $this.$message.error('从组内删除好友失败！');
-        })
-      },
-
-      handlerDelMember(groupId, nickname){
-        var $this = this;
-        $this.deleteGroupMember(groupId, nickname,function(res){
-          $this.$message({
-            message: '从组内删除好友成功！',
-            type: 'success'
-          });
-          $this.refreshGroups();
-        },function(res){
-          $this.$message.error('从组内删除好友失败！');
-        })
-      },
-
-      handlerAddUsers(){
-        var $this = this;
-        $this.appendGroupUsers($this.curGroup, $this.formAddUser.friends,function(res){
-          $this.$message({
-            message: '向组内添加好友成功！',
-            type: 'success'
-          });
-          $this.dialogAddUserFromGroupVisible=false;
-          $this.refreshGroups();
-        },function(res){
-          $this.$message.error('向组内添加好友失败！');
-        })
-      },
-      
-      //查找所有群组所有成员(完成)
-      findAllMembers(cbOk,cbErr) {
+      findAllGroups(cbOk,cbErr){
         var self = this;
-        self.$axios.get(apiLinks.groups.allmember, null, cbOk, cbErr)
+        self.$axios.get(apiLinks.groups.all, null, cbOk, cbErr)
       },
 
-      //创建群(已完成)
+      findMembersByGroupId(groupId,cbOk,cbErr){
+        var $this = this;
+        $this.$axios.post(apiLinks.groups.members, {
+          group_id: groupId
+        }, cbOk, cbErr)
+      },
+
       createGroup(groupName, cbOk, cbErr) {
-        var self = this;
-        self.$axios.put(
+        var $this = this;
+        $this.$axios.put(
           apiLinks.groups.create,
           {
             group_name:groupName
@@ -379,30 +242,16 @@
           cbErr
         )
       },
-      
-      //群组添加用户(未测试)
-      appendGroupUsers(groupId, members, cbOk, cbErr) {
-        var self = this;
-        self.$axios.put(apiLinks.groups.addMembers, 
+
+      deleteGroup(groupId, cbOk, cbErr) {
+        var $this = this;
+        $this.$axios.post(apiLinks.groups.delete,
           {
-            group_id:groupId.toString(),
-            members:members
-          },
-          cbOk, cbErr
+            group_id: groupId.toString()
+          }, cbOk, cbErr
         )
       },
 
-      //删除群组中的用户
-      deleteGroupMembers(groupId, members, cbOk, cbErr) {
-        var self = this;
-        self.$axios.post(apiLinks.groups.deleteMembers,
-          {
-            group_id:groupId.toString(),
-            members:members
-          },
-          cbOk, cbErr
-        )
-      },
       deleteGroupMember(groupId, nickname, cbOk, cbErr) {
         var self = this;
         self.$axios.post(apiLinks.groups.deleteMember,
@@ -413,6 +262,7 @@
           cbOk, cbErr
         )
       },
+
       //更新群组名称
       updateGroupName(groupId, newGroupName, cbOk, cbErr) {
         var self = this;
@@ -422,61 +272,19 @@
             group_name: newGroupName
           }, cbOk, cbErr
         )
-      },
-      deleteGroup(groupId, cbOk, cbErr) {
-        var self = this;
-        self.$axios.post(apiLinks.groups.delete,
-          {
-            group_id: groupId.toString()
-          }, cbOk, cbErr
-        )
-      },
-
-      getAllFriends(cbOk, cbErr) {
-        var self = this;
-        self.$axios.get(apiLinks.friends.all, null,cbOk, cbErr)
-      },
-
-      //根据昵称获取用户信息(完成)
-      getUserInfo(nickname, cbOk, cbErr) {
-        var self = this;
-        self.$axios.get(apiAuth.userInfoByNickname, 
-          {
-            nickname:nickname
-          }, cbOk, cbErr
-        )
-      },
-
-      createMeeting(meeting, cbOk, cbErr){
-        var self = this;
-        self.$axios.put(apiMeeting.order.create,meeting, cbOk, cbErr
-        )
-      },
-
-      getMembersById(groupId){
-        var $this = this;
-        var member = [];
-        for (var i = 0; i < $this.groups.length; i++) {
-          if($this.groups[i].group_id==groupId){
-            member = $this.groups[i].member;
-            break;
-          }
-        }
-        return member;
-      },
-
-      ...mapMutations([
-        'setMeeting',
-      ]),
+      }
     },
     mounted: function() {
       
     },
     computed: {
-      groupMembers: function () {
-        var $this = this;
-        return $this.getMembersById($this.curGroup);
-      },
+      // groupMembers: function () {
+      //   var $this = this;
+      //   return $this.getMembersById($this.curGroup);
+      // },
+      ...mapGetters([
+        'user'
+      ]),
       filteUsers: function(){
         var $this = this;
         var friends = [];
@@ -502,77 +310,75 @@
     }
   };
 </script>
-<style>
-  .main-actions{
+<style scoped>
+  .item-container{
+    position: relative;
+  }
+  .item-list{
+    /*width: 200px;
+    position: absolute;
+    left: 0px;
+    right: 0px;*/
+    /*margin-right: 20px;*/
+    min-width: 160px;
+    border-right: 1px solid rgb(84, 92, 100);
+    height: 100%;
+  }
+  .list-search, .list-action{
     height: 40px;
     line-height: 40px;
-    border-bottom: 2px solid gray;
-    text-align: right;
-    padding-right: 20px;
-    background-color: #ebeef5;
+    padding: 10px;
+    background-color: #f5f7fa;
+    cursor: pointer;
   }
-  .main-title{
-    height: 40x;
+  .list-search{
+    border-bottom: 1px solid #dcdfe6;
+  }
+  .list-action{
+    border-top: 1px solid #dcdfe6;
+  }
+  .item-list ul {
+    flex-wrap: wrap;
+    overflow-y: auto;
+  }
+  li.item{
+    height: 40px;
     line-height: 40px;
     text-align: left;
-    padding-left: 20px;
-    background-color: #f7f7f7;
-  }
-  .el-card{
-    border-width: 0px;
-  }
-  .card-wrap{
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-start;
-  }
-  .card-title {
-    text-align: left;
-  }
-  .card-item-wrap{
-    padding: 0px;
-    margin: 0px;
-  }
-
-  .card-item-wrap li{
-    display: flex;
-    flex-wrap: nowrap;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .card-item-wrap li i{
+    padding: 10px;
+    border-bottom: 1px dashed #dcdfe6;
     cursor: pointer;
   }
-  .card-item-wrap li i:hover{
-    color: rgb(255, 208, 75);
-  }
-
-  .card-actions i{
-    margin-left: 10px;
-  }
-  .card-item{
-    font-size: 14px;
+  .item img{
     height: 30px;
-    line-height: 30px;
-    list-style: none;
+    width: 30px;
+    vertical-align: middle;
+  }
+  .item span{
+    margin-left: 10px;
+    color: #606266;
+  }
+  .item-detail{
+    overflow: hidden;
+    padding: 20px;
+    /*margin-left: 200px;*/
+  }
+  .cell{
     text-align: left;
   }
-
-  .clearfix:before,
-  .clearfix:after {
-    display: table;
-    content: "";
+  .group-actions{
+    padding: 30px 0px;
+    text-align: center;
   }
-  .clearfix:after {
-    clear: both
+  .group-info{
+    padding: 10px 20px;
+    text-align: left;
   }
-
-  .action-btn{
-    color: #3b7fa7;
-    cursor: pointer;
+  .group-info p{
+    height: 40px;
   }
-  .action-btn:hover{
-    color: #00a1ff;
-    cursor: pointer;
+  .group-info p span:first-child{
+    color: gray;
+    padding-right: 10px;
   }
 </style>

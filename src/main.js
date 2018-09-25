@@ -2,12 +2,13 @@
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue'
 import App from './App'
-import router from './router'
-import Axios from '@/api/axios.js';
 //vuex
 import store from './store'
-import api from './api/api.js'
-import { Row, Col, Container, Aside, Header, Footer, Main, Menu, Submenu, MenuItem, Tooltip, Button, Dropdown, DropdownMenu, DropdownItem, Collapse, CollapseItem, Popover, Tree, Dialog, Form, FormItem, Select, Option, Card, Input, Message, MessageBox, Loading, Notification } from 'element-ui';
+import router from './router'
+import Axios from '@/properties/axios.js';
+import api from './properties/api.js'
+import properties from './properties/properties.js'
+import { Row, Col, Container, Aside, Header, Footer, Main, Menu, Submenu, MenuItem, Tooltip, Table, TableColumn, Tabs, TabPane, Pagination, Button, Dropdown, DropdownMenu, DropdownItem, Collapse, CollapseItem, Popover, Tree, Dialog, Form, FormItem, Select, Option, Card, Input, Tag, Checkbox, CheckboxGroup, TimePicker, DatePicker, Transfer, Message, MessageBox, Loading, Notification } from 'element-ui';
 import 'element-ui/lib/theme-chalk/display.css';
 import "./assets/icon/iconfont.css";
 import "./assets/css/common.css";
@@ -28,6 +29,11 @@ Vue.component(Menu.name, Menu);
 Vue.component(Submenu.name, Submenu);
 Vue.component(MenuItem.name, MenuItem);
 Vue.component(Tooltip.name, Tooltip);
+Vue.component(Table.name, Table);
+Vue.component(TableColumn.name, TableColumn);
+Vue.component(Tabs.name, Tabs);
+Vue.component(TabPane.name, TabPane);
+Vue.component(Pagination.name, Pagination);
 Vue.component(Button.name, Button);
 Vue.component(Dropdown.name, Dropdown);
 Vue.component(DropdownMenu.name, DropdownMenu);
@@ -42,6 +48,12 @@ Vue.component(FormItem.name, FormItem);
 Vue.component(Select.name, Select);
 Vue.component(Option.name, Option);
 Vue.component(Input.name, Input);
+Vue.component(Tag.name, Tag);
+Vue.component(CheckboxGroup.name, CheckboxGroup);
+Vue.component(Checkbox.name, Checkbox);
+Vue.component(DatePicker.name, DatePicker);
+Vue.component(TimePicker.name, TimePicker);
+Vue.component(Transfer.name, Transfer);
 Vue.component(Card.name, Card);
 Vue.use(Loading.directive);
 Vue.prototype.$loading = Loading.service;

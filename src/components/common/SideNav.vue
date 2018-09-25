@@ -5,8 +5,9 @@
       <el-col :span="isCollapse? 24:6"><div class="grid-content" @click="collapseSideBar"><i class="iconfont el-icon-lg-collapse-on"></i></div></el-col>
     </el-row>
     <el-menu
-      :default-active="activePid.toString()"
-      class="el-menu-vertical-demo"
+      :default-active="activeIndex"
+      class="el-menu-vertical-demo full-height"
+      unique-opened
       @select="handleSelect"
       @open="handleOpen"
       @close="handleClose"
@@ -14,24 +15,25 @@
       background-color="#545c64"
       text-color="#fff"
       active-text-color="#ffd04b">
-      <el-menu-item v-for="(item, index) in nav.sideNavs" :index="item.id.toString()" :key=index>
-        <el-popover
-          v-show="item.subs"
-          placement="right"
-          popper-class="sidenav-submenu"
-          trigger="hover"
-          :disabled="!isTabCollapse"
-          v-if="!isCollapse">
-            <div class="toolbar"><i @click="collapseTab" class="el-icon-lg-fixed-off fright"></i></div>
-            <ul v-for="(subNav, index) in item.subs">
-              <li @click="getNavId(item.id, subNav.id)">{{subNav.name}}</li>
-            </ul>
-            <span slot="reference" style="display: inline-block;width: 96%;height: 100%;position: absolute;left: 0px;"></span>
-        </el-popover>
-        <i :class="item.icon"></i>
-        <span>{{item.name}}</span>
-        <span v-show="item.subs" class="fright" @click="collapseTab"><i :class="[isTabCollapse? 'triangle-left':'triangle-right','triangle']"></i></span>
-      </el-menu-item>
+      <template v-for="(item, index) in sideNavs">
+        <el-submenu v-if="item.subs" :index="item.id.toString()">
+          <template slot="title">
+            <i :class="item.icon"></i>
+            <span>{{item.title}}</span>
+          </template>
+          <router-link v-for="(subItem, subIndex) in item.subs" :to="{name: subItem.name}" class="a-navmenu">
+            <el-menu-item :index="subItem.id.toString()" style="padding-left: 54px;">
+              <span>{{subItem.title}}</span>
+            </el-menu-item>
+          </router-link>
+        </el-submenu>
+        <el-menu-item v-else :index="item.id.toString()">
+          <router-link :to="{name: item.name}" class="a-navmenu">
+            <i :class="item.icon"></i>
+            <span>{{item.title}}</span>
+          </router-link>
+        </el-menu-item>
+      </template>
     </el-menu>
   </el-aside>
 </template>
@@ -39,12 +41,13 @@
 <script>
 // import connect from '@/assets/js/connector.js';
 import {mapState,mapMutations,mapGetters} from 'vuex';
+import properties from '@/properties/properties.js';
 export default {
   data () {
     return {
       isCollapse: false,
+      sideNavs: properties.sideNavs
       // isTabCollapse: true,
-      // activeIndex: '1',
     };
   },
   name: 'side-nav',
@@ -60,30 +63,12 @@ export default {
       console.log(key, keyPath);
       // this.nav.activePid = key;
       // this.nav.activeId = 1;
-      this.changePid(key);
-      this.changeId(1);
-      this.isPopoverShow = false;
       // connect.$emit('sub-to-parent',{activeIndex: key});
     },
     collapseSideBar(){
       this.isCollapse = !this.isCollapse;
     },
-    collapseTab(){
-      // this.nav.isTabCollapse = !this.nav.isTabCollapse;
-      this.changeTabCollapse()
-      // connect.$emit('sub-to-parent',{isTabCollapse: this.isTabCollapse});
-    },
-    getNavId(pid, id){
-      // this.nav.activePid = pid;
-      // this.nav.activeId = id;
-      this.changePid(pid);
-      this.changeId(id);
-      this.isPopoverShow = false;
-    },
     ...mapMutations([
-      'changePid',
-      'changeId',
-      'changeTabCollapse',
       'setUser',
       'setMeeting',
     ]),
@@ -103,10 +88,7 @@ export default {
       nav:state=>state.nav
     }),
     ...mapGetters([
-      'subNavs',
-      'activePid',
-      'activeId',
-      'isTabCollapse',
+      'activeIndex',
       'user',
       'meeting'
     ])
@@ -117,6 +99,7 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style>
 .el-menu-vertical-demo:not(.el-menu--collapse) {
+  /*min-width: 54px;*/
   width: 200px;
   min-height: 100%;
 }
@@ -130,7 +113,8 @@ export default {
 .el-aside {
   color: #333;
   overflow: hidden;
-  max-width: 200px;
+  /*min-width: 54px;*/
+  width: 200px;
   width: auto!important;
 }
 .logo-row .grid-content {
@@ -145,59 +129,19 @@ export default {
   font-size: 14px;
   cursor: pointer;
 }
-.el-aside .el-menu{
-  padding: 20px 0!important;
-}
-.is-active .triangle{
-    display: inline-block;
-    height: 0;
-    width: 0;
-    border-top: 15px solid transparent;
-    border-bottom: 15px solid transparent;
-}
-.is-active .triangle-right{
-    border-right: 15px solid #ebeef5;
-}
-.is-active .triangle-left{
-    border-right: 15px solid rgb(255, 208, 75);
-}
-.is-active .triangle:after{
-    content: '';
-}
 
-.el-menu-item {
-  text-align: left!important;
-  padding-right: 0!important;
+.el-menu {
+  border-right-width: 0px;
+  text-align: left;
+  /*text-overflow:ellipsis;
+  white-space: nowrap;
+  overflow: hidden;*/
 }
-/*.el-menu-item.is-active {
-  background-color: rgb(173, 173, 173) !important;
-}*/
-.sidenav-submenu{
-  padding: 0px;
-
+.a-navmenu{
+  color: white;
+  text-decoration: none;
 }
-.sidenav-submenu .toolbar{
-  height: 30px;
-  width: 100%;
-  margin-bottom: 10px;
-  border-bottom: 1px solid #ebeef5;
+.a-navmenu:hover{
+  color: rgba(255, 208, 72, 1);
 }
-.sidenav-submenu .toolbar i{
-  padding-right: 10px;
-  color: #ebeef5;
-  font-size: 30px;
-  font-weight: 500;
-}
-.sidenav-submenu ul{
-  list-style: none;
-}
-.sidenav-submenu li{
-  height: 40px;
-  line-height: 40px;
-  cursor: pointer;
-}
-.sidenav-submenu li:hover{
-  color: rgb(255, 208, 75);
-}
-
 </style>

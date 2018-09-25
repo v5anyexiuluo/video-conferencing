@@ -22,7 +22,7 @@
 </template>
 
 <script>
-    import {apiAuth} from '@/api/api.js'
+    import {apiAuth} from '@/properties/api.js'
     export default {
         data(){
             return {

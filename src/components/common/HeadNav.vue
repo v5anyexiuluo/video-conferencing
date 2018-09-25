@@ -20,7 +20,7 @@
         <el-dropdown-item>修罗请求添加你</el-dropdown-item>
       </el-dropdown-menu>
     </el-dropdown>
-		<el-dropdown placement="bottom"  @command="handleUserCommand">
+		<el-dropdown placement="bottom" style="cursor: pointer;" @command="handleUserCommand">
 		  <span class="el-dropdown-link v-center">
 		    <img src="@/assets/images/user.jpg" style="height: 40px;width: 40px;border-radius: 20px; margin-right: 6px;" alt="">{{user? user.nickname: "用户"}}<i class="el-icon-arrow-down el-icon--right"></i>
 		  </span>
@@ -33,7 +33,7 @@
 </template>
 <script>
 import {mapState,mapMutations,mapGetters} from 'vuex';
-import {apiAuth} from '@/api/api.js'
+import {apiAuth} from '@/properties/api.js'
 export default {
   data () {
     return {

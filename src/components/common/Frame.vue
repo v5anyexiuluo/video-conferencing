@@ -1,6 +1,6 @@
 <template>
-  <div class="full-height">
-    <div class="full-height">
+  <div class="full-height v-full-container">
+    <div class="full-element full-element">
       <el-container v-loading="loading" class="full-height">
         <side-nav :logo="logo"></side-nav>
         <el-container>
@@ -9,9 +9,6 @@
           </el-header>
           <el-main class="full-height scroll-hidden">
             <el-row class="full-height main-wrap" style="margin: 0px;">
-              <div v-show="!isTabCollapse&&subNavs.subs" class="full-height fleft sidenav-submenu-wrap hidden-xs-only">
-                <sub-nav></sub-nav>
-              </div>
               <div class="fright content-wrap full-height">
                 <router-view></router-view>
               </div>
@@ -36,7 +33,7 @@
 // import connect from '@/assets/js/connector.js';
 import SideNav from '@/components/common/SideNav.vue';
 import HeadNav from '@/components/common/HeadNav.vue';
-import SubNav from '@/components/common/SubNav.vue';
+// import SubNav from '@/components/common/SubNav.vue';
 import CircleMenu from 'vue-circle-menu';
 // import Frame from '@/components/Frame.vue';
 // import VideoConf from '@/components/VideoConf.vue';
@@ -70,7 +67,7 @@ export default {
       type: 'warning'
       }).then(() => {
         $this.setFirstInit(false)
-        $this.$router.push({name:'now'});
+        $this.$router.push({name:'current'});
       }).catch(() => {
                 
       });
@@ -79,16 +76,10 @@ export default {
   components: {
     'side-nav': SideNav,
     'head-nav': HeadNav,
-    'sub-nav': SubNav,
     'circle-menu': CircleMenu
   },
   methods: {
     ...mapMutations([
-      'changePid',
-      'changeId',
-      'changeTabCollapse',
-      'setUser',
-      'setMeeting',
       'setFirstInit'
     ]),
     // listen(){
@@ -168,12 +159,6 @@ export default {
     }),
     ...mapGetters([
       'loading',
-      'subNavs',
-      'activePid',
-      'activeId',
-      'isTabCollapse',
-      'user',
-      'meeting',
       'firstInit'
     ])
   },
@@ -232,6 +217,28 @@ export default {
   padding-bottom: 0%;
   height: 100%;
 }
+
+#backBox{
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    background: #000;
+    top: 0;
+    z-index: 1000;
+    opacity: 0.6;
+}
+.imgs{
+    opacity: 1;
+    position: absolute;
+    top:0;
+    // right:1167px
+}
+.btn{
+    bottom: 20px;
+    right: 500px;
+    position: absolute;
+}
+
 .el-header {
   background-color: #3b7fa7;
   color: #333;

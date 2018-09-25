@@ -1,35 +1,19 @@
-import {apiAuth} from '@/api/api.js'
+import {apiAuth} from '@/properties/api.js'
 export default {
     state:{
-        activePid: '',
-        activeId: '',
-        isTabCollapse: false,
         loading: false,
         user: null,
         meeting: null,
-        sideNavs: [
-            {id:1, name: '视频会议', icon:'el-icon-view', image: '', component: 'VideoConf', url:'', subs:[{id: 1, name: '新建会议', icon:'', image:'', url: 'order', component:''},{id: 2, name: '历史会议', icon:'', image:'', url: 'history', component:''},{id: 3, name: '待参加会议', icon:'', image:'', url: 'miss', component:''},{id: 5, name: '进入会议', icon:'', image:'', url: 'now', component:'MeetingNow'}]},
-			{id:2, name: '通讯录', icon:'el-icon-tickets', image: '', component: '', subs:[{id: 1, name: '我的好友', icon:'', image:'', url: 'friend', component:''},{id: 2, name: '我的群组', icon:'', image:'', url: 'group', component:''}]},
-            {id:3, name: '会话', icon:'el-icon-service', image: '', component: ''},
-			{id:4, name: '通知', icon:'el-icon-bell', image: '', component: '', subs:[{id: 1, name: '会议通知', icon:'', image:'', component:''},{id: 2, name: '好友通知', icon:'', image:'', component:''}]}
-		],
+        activeIndex: "1",
         firstInit: true
     },
     mutations:{
+        setActiveIndex(state, index){
+            state.activeIndex = index;
+            sessionStorage.setItem('activeIndex', index)
+        },
         changeLoading(state, loading){
             state.loading = loading
-        },
-        changePid(state, pid){//这里的state对应着上面这个state
-            state.activePid = pid;
-            sessionStorage.setItem('activePid', pid)
-        },
-        changeId(state, id){
-        	state.activeId = id;
-        	sessionStorage.setItem('activeId', id)
-        },
-        changeTabCollapse(state){
-        	state.isTabCollapse = !state.isTabCollapse;
-        	sessionStorage.setItem('isTabCollapse', state.isTabCollapse)
         },
         setUser(state, user){
         	state.user = user;
@@ -47,45 +31,11 @@ export default {
         loading(state){
             return state.loading;
         },
-    	subNavs(state){//这里的state对应着上面这个state
-            if(!state.activePid){
-                state.activePid=sessionStorage.getItem('activePid')
-                if(!state.activePid){
-                    state.activePid = 1;
-                }
+        activeIndex(state){
+            if(sessionStorage.getItem('meeting')){
+                state.activeIndex = sessionStorage.getItem('meeting')
             }
-			for(var i=0;i<state.sideNavs.length;i++){
-				if(state.sideNavs[i].id==state.activePid){
-					return state.sideNavs[i]
-				}
-			}
-        },
-        activePid(state){
-        	if(!state.activePid){
-        		state.activePid=sessionStorage.getItem('activePid')
-                if(!state.activePid){
-                    state.activePid = 1;
-                }
-        	}
-        	return state.activePid;
-        },
-        activeId(state){
-        	if(!state.activeId){
-        		state.activeId=sessionStorage.getItem('activeId')
-                if(!state.activeId){
-                    state.activeId = 1;
-                }
-        	}
-        	return state.activeId;
-        },
-        isTabCollapse(state){
-        	// if(!state.isTabCollapse){
-        	// 	state.isTabCollapse=sessionStorage.getItem('isTabCollapse')
-         //        if(!state.isTabCollapse){
-         //            state.isTabCollapse = false;
-         //        }
-        	// }
-        	return state.isTabCollapse;
+            return state.activeIndex;
         },
         user(state){
         	if(!state.user){

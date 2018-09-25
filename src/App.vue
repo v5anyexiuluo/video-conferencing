@@ -1,19 +1,23 @@
 <template>
-  <div id="app" style="margin: 0px;height: 100%;">
+  <div id="app" class="full-height" style="margin: 0px;">
     <router-view></router-view>
   </div>
 </template>
 
 <script>
+  import Frame from '@/components/common/Frame';
+  import properties from '@/properties/properties.js';
   export default {
     name: 'App',
     created: function(){
+      
 
     },
     mounted: function(){
-      
+      console.log(this.$router)
     },
     methods:{
+      
     },
     computed:{
     },

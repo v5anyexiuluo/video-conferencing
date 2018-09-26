@@ -7,41 +7,44 @@
         </el-input>
       </div>
       <ul class="full-element">
-        <li v-for="(group, index) in groups" @click="curGroup=group" class="item">
+        <li v-for="(department, index) in departments" @click="curDepartment=department;depMembers=department.departmemt_members" class="item" :class="{'selected':department.department_id==curDepartment.department_id}">
           <img src="https://picsum.photos/30/30" alt="头像">
-          <span>{{group.group_name}}</span>
+          <span>{{department.department_name}}</span>
         </li>
       </ul>
-      <div class="list-action" @click="dialogCreateGroupVisible=true;">添加</div>
+      <div class="list-action">
+        <el-button type="text" @click="dialogAddFriendVisible=true;">添加好友</el-button>
+        <el-button type="text" @click="dialogAddDepartmentVisible=true;">添加分组</el-button>
+      </div>
     </div>
     <div class="item-detail full-height">
-      <el-tabs v-model="activeTab" @tab-click="handlerGetMembers">
+      <el-tabs v-model="activeTab" @tab-click="">
         <el-tab-pane label="基本信息" name="first" class="h-full-container">
           <img src="https://picsum.photos/200/200" alt="">
           <div class="group-info">
-            <p><span>群名称:</span><span>{{curGroup? (curGroup.group_name? curGroup.group_name:''):''}}</span></p>
-            <p><span>群主:</span><span>{{curGroup? (curGroup.founderId? curGroup.founderId:''):''}}</span></p>
-            <p><span>创建时间:</span><span>{{curGroup? (curGroup.create_time? curGroup.create_time:''):''}}</span></p>
-            <p><span>群简介:</span><span>暂无</span></p>
+            <p><span>群名称:</span><span>{{curDepartment? (curDepartment.department_name? curDepartment.department_name:''):''}}</span></p>
+            <p><span>创建时间:</span><span></span></p>
+            <p><span>分组简介:</span><span>暂无</span></p>
             <p>
-              <el-button v-if="curGroup.is_builder" type="text" @click="handleDelGroup">解散群</el-button>
-              <el-button v-else type="text" @click="handleQuitGroup">退出群</el-button>
-              <el-button v-if="curGroup.is_builder" type="text" @click="dialogModifyGroupNameVisible=true;">修改群信息</el-button>
+              <el-button type="text" @click="handleDelDepartment">删除分组</el-button>
+              <el-button type="text" @click="dialogModifyDepartmentNameVisible=true;">修改分组信息</el-button>
             </p>
           </div>
         </el-tab-pane>
-        <el-tab-pane label="群成员" name="second">
+        <el-tab-pane label="组内成员" name="second">
           <el-table
-            :data="curGroup.members"
-            style="width: 100%">
+            :data="depMembers"
+            style="width: 100%;text-align: left;">
             <el-table-column
               fixed
               prop="nickname"
               label="昵称"
               width="180">
               <template slot-scope="scope">
-                <img src="https://picsum.photos/20/20" alt="">
-                <span style="margin-left: 10px">{{ scope.row.nickname }}</span>
+                <router-link :to="{name:'member',params:{id: scope.row.id}}" style="cursor: pointer;text-decoration: none;color: inherit;">
+                  <img :src="scope.row.headimg? scope.row.headimg:'https://picsum.photos/20/20'" alt="">
+                  <span style="margin-left: 10px">{{ scope.row.nickname }}</span>
+                </router-link>
               </template>
             </el-table-column>
             <el-table-column
@@ -62,13 +65,13 @@
               width="120">
               <template slot-scope="scope">
                 <el-button
-                  @click.native.prevent="deleteRow(scope.$index, tableData4)"
+                  @click="handlerDelFriend(scope.row.id)"
                   type="text"
                   size="small">
                   移除
                 </el-button>
                 <el-button
-                  @click.native.prevent="deleteRow(scope.$index, tableData4)"
+                  @click="dialogMoveFriendToDepartmentVisible=true;formMoveFriendToDepartment.userId=scope.row.id;"
                   type="text"
                   size="small">
                   移动
@@ -77,36 +80,73 @@
             </el-table-column>
           </el-table>
           <div style="text-align: left;padding-top: 10px;">
-            <el-button type="text">添加群成员</el-button>
+            <el-button type="text" @click="dialogAddFriendVisible=true">添加群成员</el-button>
           </div>
         </el-tab-pane>
       </el-tabs>
-      <div class="group-actions">
-        <el-button type="primary">进入群聊</el-button>
-        <el-button type="primary">马上开会</el-button>
-        <el-button type="primary">预约会议</el-button>
-      </div>
     </div>
-    <el-dialog title="新建群组" custom-class="start-meeting" width="400px" center :visible.sync="dialogCreateGroupVisible">
-      <el-form :model="formNewGroup" label-width="80px">
+    <el-dialog title="添加分组" custom-class="start-meeting" width="400px" center :visible.sync="dialogAddDepartmentVisible">
+      <el-form :model="formAddDepartment" label-width="80px">
         <el-form-item label="组名">
-          <el-input v-model="formNewGroup.name"></el-input>
+          <el-input v-model="formAddDepartment.departmentName"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogCreateGroupVisible = false">取 消</el-button>
-        <el-button type="primary" @click="handleCreateGroup()">确 定</el-button>
+        <el-button @click="dialogAddDepartmentVisible = false">取 消</el-button>
+        <el-button type="primary" @click="handleAddDepartment">确 定</el-button>
       </div>
     </el-dialog>
-    <el-dialog title="修改群名称" custom-class="start-meeting" width="400px" center :visible.sync="dialogModifyGroupNameVisible">
-      <el-form :model="formModifyGroupName" label-width="80px">
-        <el-form-item label="新组名">
-          <el-input v-model="formModifyGroupName.name"></el-input>
+        <el-dialog title="修改分组名称" custom-class="start-meeting" width="400px" center :visible.sync="dialogModifyDepartmentNameVisible">
+      <el-form :model="formUpdateDepartmentName" label-width="80px">
+        <el-form-item label="分组名称">
+          <el-input v-model="formUpdateDepartmentName.departmentName"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogModifyGroupNameVisible = false">取 消</el-button>
-        <el-button type="primary" @click="handlerModifyGroupName()">确 定</el-button>
+        <el-button @click="dialogModifyDepartmentNameVisible = false">取 消</el-button>
+        <el-button type="primary" @click="handleUpdateDepartmentName">确 定</el-button>
+      </div>
+    </el-dialog>
+    <el-dialog title="修改好友分组" custom-class="start-meeting" width="400px" center :visible.sync="dialogMoveFriendToDepartmentVisible">
+      <el-form :model="formMoveFriendToDepartment" label-width="80px">
+        <el-form-item label="选择新组">
+          <el-select v-model="formMoveFriendToDepartment.newDepartmentId" collapse-tags style="width: 100%;" placeholder="选择新组">
+            <el-option
+              v-for="(item,index) in filteDepartments"
+              :key="item.department_id"
+              :label="item.department_name"
+              :value="item.department_id">
+            </el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogMoveFriendToDepartmentVisible = false">取 消</el-button>
+        <el-button type="primary" @click="handlerMoveMember">确 定</el-button>
+      </div>
+    </el-dialog>
+    <el-dialog title="添加好友" custom-class="start-meeting" width="400px" center :visible.sync="dialogAddFriendVisible">
+      <el-form :model="formAddFriend" label-width="80px">
+        <el-form-item label="用户名">
+          <el-input v-model="formAddFriend.nickName" @focus="formAddFriend.formError=''"></el-input>
+        </el-form-item>
+        <el-form-item label="选择分组">
+          <el-select v-model="formAddFriend.departmentId" collapse-tags style="width: 100%;" placeholder="选择分组">
+            <el-option
+              v-for="(item,index) in departments"
+              :key="item.department_id"
+              :label="item.department_name"
+              :value="item.department_id">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item v-if="formAddFriend.formError" center>
+          <span style="color:red;">{{formAddFriend.formError}}</span>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogAddFriendVisible = false">取 消</el-button>
+        <el-button type="primary" @click="handleAddFriend">确 定</el-button>
       </div>
     </el-dialog>
 	</div>
@@ -116,20 +156,37 @@
   import Scroll from '@/components/common/Scroll.vue'
   import {apiAuth, apiLinks, apiMeeting} from '@/properties/api.js'
   import {mapGetters} from 'vuex';
+  import utils from '@/assets/js/utils.js'
   export default {
     data() {
       return {
-        groups:[],
-        curGroup:{},
+        departments:[],
+        curDepartment:{},
+        depMembers:[],
         activeTab: 'first',
-        dialogCreateGroupVisible: false,
-        formNewGroup: {
-          name:''
+        dialogAddDepartmentVisible: false,
+        formAddDepartment: {
+          departmentName:''
         },
-        dialogModifyGroupNameVisible: false,
-        formModifyGroupName: {
-          name:''
-        }
+        dialogModifyDepartmentNameVisible: false,
+        formUpdateDepartmentName: {
+          departmentName:''
+        },
+        dialogMoveFriendToDepartmentVisible: false,
+        formMoveFriendToDepartment:{
+          newDepartmentId: '',
+          userId: ''
+        },
+        dialogAddFriendVisible: false,
+        formAddFriend:{
+          nickName: '',
+          departmentId: '',
+          formError: ''
+        },
+        friends:[],
+        formAddUser: {
+          friends:[]
+        },
       }
     },
     name: 'FriendsGroup',
@@ -137,175 +194,197 @@
       
     },
     created: function() {
-      this.refreshGroups();
+      this.refreshDepartments();
     },
     methods: {
-      //####
-      refreshGroups(){
+      refreshDepartments(){
         var $this = this;
-        $this.findAllGroups(function(res){
-            $this.groups = res.data.data;
-          },function(res){
-            $this.$message.error('获取群组信息失败！');
-          }
-        );
+        $this.getAllDepartments(function(res){
+          $this.departments = res.data.data;
+        },function(res){
+          $this.$message.error('获取用户分组失败！');
+        })
       },
 
-      handlerGetMembers(){
+      handleAddDepartment(){
         var $this = this;
-        // $this.curGroup = $this.groups.find((value, index, arr) => {
-        //   return value.group_id == groupId;
-        // })
-        if($this.activeTab=="second"){
-          $this.findMembersByGroupId($this.curGroup.group_id,function(res){
-            $this.curGroup["members"]=res.data.data;
-          },function(res){
-            $this.$message.error('获取群组成员失败失败！');
-          })
+        $this.addDepartment($this.formAddDepartment.departmentName, function(res){
+          $this.$message({
+            message: '添加分组成功！',
+            type: 'success'
+          });
+          $this.dialogAddDepartmentVisible = false;
+          $this.refreshDepartments();
+        },function(res){
+          $this.$message.error('添加分组失败！');
+        })
+      },
+
+      handleDelDepartment(){
+        var $this = this;
+        if(Object.keys($this.curDepartment).length==0){
+          return;
         }
-      },
-      
-      handleCreateGroup() {
-        var $this = this;
-        $this.createGroup($this.formNewGroup.name,function(res){
+        $this.deleteDepartment($this.curDepartment.department_id, function(res){
           $this.$message({
-            message: '创建群组成功！',
+            message: '删除分组成功！',
             type: 'success'
           });
-          $this.dialogCreateGroupVisible = false;
-          $this.refreshGroups();
+          $this.refreshDepartments();
         },function(res){
-          $this.$message.error('创建群组失败！');
-        });
-      },
-
-      handleDelGroup(){
-        var $this = this;
-        $this.deleteGroup($this.curGroup.group_id, function(res){
-          $this.$message({
-            message: '删除组成功！',
-            type: 'success'
-          });
-          $this.refreshGroups();
-        },function(res){
-          $this.$message.error('删除组失败！');
+          $this.$message.error('删除分组失败！');
         })
       },
 
-      handleQuitGroup(){
+      handleUpdateDepartmentName(){
         var $this = this;
-        $this.deleteGroupMember($this.curGroup.group_id, $this.user.nickname, function(res){
+        if(Object.keys($this.curDepartment).length==0){
+          return;
+        }
+        $this.updateDepartment($this.curDepartment.department_id, $this.formUpdateDepartmentName.departmentName, function(res){
           $this.$message({
-            message: '退群成功！',
+            message: '修改分组名称成功！',
             type: 'success'
           });
-          $this.refreshGroups();
+          $this.dialogModifyDepartmentNameVisible = false;
+          $this.refreshDepartments();
         },function(res){
-          $this.$message.error('退群失败！');
+          $this.$message.error('修改分组名称失败！');
         })
       },
 
-      handlerModifyGroupName(){
+      handlerMoveMember(){
         var $this = this;
-        $this.updateGroupName($this.curGroup.group_id, $this.formModifyGroupName.name,function(res){
+        $this.moveMemberToDepartment($this.curDepartment.department_id, $this.formMoveFriendToDepartment.newDepartmentId, $this.formMoveFriendToDepartment.userId, function(res){
           $this.$message({
-            message: '修改群名称成功！',
+            message: '移动分组成功！',
             type: 'success'
           });
-          $this.dialogModifyGroupNameVisible=false;
-          $this.refreshGroups();
+          $this.dialogMoveFriendToDepartmentVisible = false;
+          $this.refreshDepartments();
         },function(res){
-          $this.$message.error('修改群名称失败！');
+          $this.$message.error('移动分组失败！');
         })
       },
 
-      findAllGroups(cbOk,cbErr){
-        var self = this;
-        self.$axios.get(apiLinks.groups.all, null, cbOk, cbErr)
+      handleAddFriend(){
+        var $this = this;
+        $this.findFriendByNickname($this.formAddFriend.nickName, function(res){
+          $this.addFriend($this.formAddFriend, function(res){
+            $this.$message({
+              message: '添加好友成功！',
+              type: 'success'
+            });
+            $this.dialogAddFriendVisible=false;
+            $this.refreshDepartments();
+          },function(res){
+            $this.$message.error('添加好友失败！'+res.msg);
+          })
+        },function(res){
+          $this.formAddFriend.formError = '用户不存在！'
+        })
       },
 
-      findMembersByGroupId(groupId,cbOk,cbErr){
+      handlerDelFriend(userId){
         var $this = this;
-        $this.$axios.post(apiLinks.groups.members, {
-          group_id: groupId
+        $this.deleteFriend(userId, function(res){
+          $this.$message({
+            message: '删除好友成功！',
+            type: 'success'
+          });
+          $this.refreshDepartments();
+        },function(res){
+          $this.$message.error('删除好友失败！');
+        })
+      },
+
+      getAllDepartments(cbOk, cbErr){
+        var $this = this;
+        this.$axios.get(apiLinks.friends.allDepartments, null, cbOk, cbErr)
+      },
+
+      addDepartment(departmentName, cbOk, cbErr){
+        var $this = this;
+        $this.$axios.put(apiLinks.friends.addDepartment, {
+          department_name: departmentName
         }, cbOk, cbErr)
       },
 
-      createGroup(groupName, cbOk, cbErr) {
+      deleteDepartment(departmentId, cbOk, cbErr){
         var $this = this;
-        $this.$axios.put(
-          apiLinks.groups.create,
-          {
-            group_name:groupName
-          },
-          cbOk,
-          cbErr
-        )
+        $this.$axios.delete(utils.handleParamInUrl(apiLinks.friends.deleteDepartment,{
+          department_id: departmentId
+        }), null, cbOk, cbErr)
       },
 
-      deleteGroup(groupId, cbOk, cbErr) {
+      updateDepartment(departmentId, departmentName, cbOk, cbErr){
         var $this = this;
-        $this.$axios.post(apiLinks.groups.delete,
+        $this.$axios.post(utils.handleParamInUrl(apiLinks.friends.updateDepartment,{
+          department_id: departmentId
+        }), {
+          department_name: departmentName
+        }, cbOk, cbErr)
+      },
+
+      findFriendByNickname(nickname, cbOk, cbErr){
+        var $this = this;
+        $this.$axios.post(apiAuth.userInfoByNickname,
           {
-            group_id: groupId.toString()
+            nickname:nickname
           }, cbOk, cbErr
         )
       },
 
-      deleteGroupMember(groupId, nickname, cbOk, cbErr) {
-        var self = this;
-        self.$axios.post(apiLinks.groups.deleteMember,
+      moveMemberToDepartment(departmentId, newDepartmentId, userId, cbOk, cbErr){
+        var $this = this;
+        $this.$axios.post(utils.handleParamInUrl(apiLinks.friends.updateDepartmentOfFriend,{
+          department_id: departmentId
+        }), {
+          new_department_id: newDepartmentId.toString(),
+          move_user_id: userId.toString()
+        }, cbOk, cbErr)
+      },
+
+      addFriend(newFriend, cbOk, cbErr) {
+        var $this = this;
+        $this.$axios.put(apiLinks.friends.add, 
           {
-            group_id:groupId.toString(),
-            nickname:nickname
+            nickname: newFriend.nickName,
+            department_id: newFriend.departmentId.toString()
           },
           cbOk, cbErr
         )
       },
 
-      //更新群组名称
-      updateGroupName(groupId, newGroupName, cbOk, cbErr) {
-        var self = this;
-        self.$axios.post(apiLinks.groups.modifyName,
-          {
-            group_id: groupId.toString(),
-            group_name: newGroupName
-          }, cbOk, cbErr
-        )
-      }
+      deleteFriend(userId, cbOk, cbErr){
+        var $this = this;
+        $this.$axios.delete(apiLinks.friends.delete, {
+          deleted_user_id: userId.toString()
+        }, cbOk, cbErr)
+      },
     },
     mounted: function() {
       
     },
+    watch:{
+
+    },
     computed: {
-      // groupMembers: function () {
-      //   var $this = this;
-      //   return $this.getMembersById($this.curGroup);
-      // },
       ...mapGetters([
         'user'
       ]),
-      filteUsers: function(){
+      filteDepartments: function(){
         var $this = this;
-        var friends = [];
-        for(var i=0;i<$this.friends.length;i++){
-          var ret = $this.groupMembers.findIndex((value, index, arr) => {
-            return value.nickname == $this.friends[i].nickname;
-          })
-          if(ret==-1){
-            friends.push($this.friends[i])
-          }
-          // for(var j=0;j<$this.groupMembers.lenght;j++){
-          //   if($this.friends[i].nickname==$this.groupMembers[j].nickname){
-          //     isExist = true;
-          //     break;
-          //   }
-          // }
-          // if(!isExist){
-          //   friends.push($this.friends[i])
-          // }
+        if(!$this.departments){
+          return [];
         }
-        return friends;
+        var departments = [];
+        for (var i = 0; i < $this.departments.length; i++) {
+          if($this.departments[i].department_id!=$this.curDepartment.department_id){
+            departments.push($this.departments[i])
+          }
+        }
+        return departments;
       },
     }
   };
@@ -348,6 +427,9 @@
     padding: 10px;
     border-bottom: 1px dashed #dcdfe6;
     cursor: pointer;
+  }
+  li.item.selected{
+    background-color: aliceblue;
   }
   .item img{
     height: 30px;

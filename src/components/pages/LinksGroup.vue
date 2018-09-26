@@ -7,12 +7,12 @@
         </el-input>
       </div>
       <ul class="full-element">
-        <li v-for="(group, index) in groups" @click="curGroup=group" class="item">
+        <li v-for="(group, index) in groups" @click="curGroup=group" class="item" :class="{'selected':group.group_id==curGroup.group_id}">
           <img src="https://picsum.photos/30/30" alt="头像">
           <span>{{group.group_name}}</span>
         </li>
       </ul>
-      <div class="list-action" @click="dialogCreateGroupVisible=true;">添加</div>
+      <div class="list-action" @click="dialogCreateGroupVisible=true;">添加分组</div>
     </div>
     <div class="item-detail full-height">
       <el-tabs v-model="activeTab" @tab-click="handlerGetMembers">
@@ -32,16 +32,16 @@
         </el-tab-pane>
         <el-tab-pane label="群成员" name="second">
           <el-table
-            :data="curGroup.members"
-            style="width: 100%">
+            :data="groupMembers"
+            style="width: 100%;text-align: left;">
             <el-table-column
               fixed
               prop="nickname"
               label="昵称"
               width="180">
               <template slot-scope="scope">
-                <img src="https://picsum.photos/20/20" alt="">
-                <span style="margin-left: 10px">{{ scope.row.nickname }}</span>
+                <router-link :to="{name:'member',params:{id: scope.row.id}}" style="cursor: pointer;text-decoration: none;color: inherit;"><img :src="scope.row.headimg? scope.row.headimg:'https://picsum.photos/20/20'" alt="">
+                <span style="margin-left: 10px;">{{ scope.row.nickname }}</span></router-link>
               </template>
             </el-table-column>
             <el-table-column
@@ -62,7 +62,7 @@
               width="120">
               <template slot-scope="scope">
                 <el-button
-                  @click.native.prevent="deleteRow(scope.$index, tableData4)"
+                  @click="handlerDelMember(scope.row.nickname)"
                   type="text"
                   size="small">
                   移除
@@ -77,7 +77,7 @@
             </el-table-column>
           </el-table>
           <div style="text-align: left;padding-top: 10px;">
-            <el-button type="text">添加群成员</el-button>
+            <el-button type="text" @click="fetchFriends();dialogAddUserToGroupVisible=true;">添加群成员</el-button>
           </div>
         </el-tab-pane>
       </el-tabs>
@@ -109,6 +109,24 @@
         <el-button type="primary" @click="handlerModifyGroupName()">确 定</el-button>
       </div>
     </el-dialog>
+    <el-dialog title="添加好友到组" custom-class="start-meeting" width="400px" center :visible.sync="dialogAddUserToGroupVisible">
+      <el-form :model="formAddUser" label-width="80px">
+        <el-form-item label="选择好友">
+          <el-select v-model="formAddUser.friends" multiple collapse-tags style="width: 100%;" placeholder="选择好友">
+            <el-option
+              v-for="(item,index) in filteUsers"
+              :key="item.nickname"
+              :label="item.nickname"
+              :value="item.nickname">
+            </el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogAddUserToGroupVisible = false">取 消</el-button>
+        <el-button type="primary" @click="handlerAddUsers()">确 定</el-button>
+      </div>
+    </el-dialog>
 	</div>
 </template>
 <script>
@@ -121,6 +139,7 @@
       return {
         groups:[],
         curGroup:{},
+        groupMembers:[],
         activeTab: 'first',
         dialogCreateGroupVisible: false,
         formNewGroup: {
@@ -129,7 +148,12 @@
         dialogModifyGroupNameVisible: false,
         formModifyGroupName: {
           name:''
-        }
+        },
+        dialogAddUserToGroupVisible: false,
+        friends:[],
+        formAddUser: {
+          friends:[]
+        },
       }
     },
     name: 'FriendsGroup',
@@ -156,9 +180,14 @@
         // $this.curGroup = $this.groups.find((value, index, arr) => {
         //   return value.group_id == groupId;
         // })
+        if(Object.keys($this.curGroup).length==0){
+          return;
+        }
         if($this.activeTab=="second"){
           $this.findMembersByGroupId($this.curGroup.group_id,function(res){
-            $this.curGroup["members"]=res.data.data;
+            // $this.curGroup["members"]=res.data.data;
+            $this.groupMembers=res.data.data;
+            console.log($this.curGroup.members);
           },function(res){
             $this.$message.error('获取群组成员失败失败！');
           })
@@ -181,6 +210,9 @@
 
       handleDelGroup(){
         var $this = this;
+        if(Object.keys($this.curGroup).length==0){
+          return;
+        }
         $this.deleteGroup($this.curGroup.group_id, function(res){
           $this.$message({
             message: '删除组成功！',
@@ -194,6 +226,9 @@
 
       handleQuitGroup(){
         var $this = this;
+        if(Object.keys($this.curGroup).length==0){
+          return;
+        }
         $this.deleteGroupMember($this.curGroup.group_id, $this.user.nickname, function(res){
           $this.$message({
             message: '退群成功！',
@@ -207,6 +242,9 @@
 
       handlerModifyGroupName(){
         var $this = this;
+        if(Object.keys($this.curGroup).length==0){
+          return;
+        }
         $this.updateGroupName($this.curGroup.group_id, $this.formModifyGroupName.name,function(res){
           $this.$message({
             message: '修改群名称成功！',
@@ -219,6 +257,65 @@
         })
       },
 
+      handlerAddUsers(){
+        var $this = this;
+        if(Object.keys($this.curGroup).length==0){
+          return;
+        }
+        $this.appendGroupUsers($this.curGroup.group_id, $this.formAddUser.friends, function(res){
+          $this.$message({
+            message: '向组内添加好友成功！',
+            type: 'success'
+          });
+          $this.dialogAddUserFromGroupVisible=false;
+          $this.refreshGroups();
+        },function(res){
+          $this.$message.error('向组内添加好友失败！');
+        })
+      },
+
+      fetchFriends(){
+        var $this = this;
+        $this.getAllFriends(function(res){
+          $this.friends = res.data.data;
+        },function(res){
+          $this.$message.error('获取好友列表失败！');
+        })
+      },
+
+      handlerDelMembers(){
+        var $this = this;
+        if(Object.keys($this.curGroup).length==0){
+          return;
+        }
+        $this.deleteGroupMembers($this.curGroup.group_id, [] ,function(res){
+          $this.$message({
+            message: '从组内删除好友成功！',
+            type: 'success'
+          });
+          $this.dialogDelUserFromGroupVisible=false;
+          $this.refreshGroups();
+        },function(res){
+          $this.$message.error('从组内删除好友失败！');
+        })
+      },
+
+      handlerDelMember(nickname){
+        var $this = this;
+        if(Object.keys($this.curGroup).length==0){
+          return;
+        }
+        $this.deleteGroupMember($this.curGroup.group_id, nickname,function(res){
+          $this.$message({
+            message: '从组内删除好友成功！',
+            type: 'success'
+          });
+          $this.refreshGroups();
+        },function(res){
+          $this.$message.error('从组内删除好友失败！');
+        })
+      },
+
       findAllGroups(cbOk,cbErr){
         var self = this;
         self.$axios.get(apiLinks.groups.all, null, cbOk, cbErr)
@@ -227,7 +324,7 @@
       findMembersByGroupId(groupId,cbOk,cbErr){
         var $this = this;
         $this.$axios.post(apiLinks.groups.members, {
-          group_id: groupId
+          group_id: groupId.toString()
         }, cbOk, cbErr)
       },
 
@@ -272,16 +369,70 @@
             group_name: newGroupName
           }, cbOk, cbErr
         )
-      }
+      },
+
+      appendGroupUsers(groupId, members, cbOk, cbErr) {
+        var self = this;
+        self.$axios.put(apiLinks.groups.addMembers, 
+          {
+            group_id:groupId.toString(),
+            members:members
+          },
+          cbOk, cbErr
+        )
+      },
+
+      getAllFriends(cbOk, cbErr) {
+        var $this = this;
+        $this.$axios.get(apiLinks.friends.all, null,cbOk, cbErr)
+      },
+
+      //删除群组中的用户
+      deleteGroupMembers(groupId, members, cbOk, cbErr) {
+        var self = this;
+        self.$axios.post(apiLinks.groups.deleteMembers,
+          {
+            group_id:groupId.toString(),
+            members:members
+          },
+          cbOk, cbErr
+        )
+      },
+
+      deleteGroupMember(groupId, nickname, cbOk, cbErr) {
+        var self = this;
+        self.$axios.post(apiLinks.groups.deleteMember,
+          {
+            group_id:groupId.toString(),
+            nickname:nickname
+          },
+          cbOk, cbErr
+        )
+      },
     },
     mounted: function() {
       
+    },
+    watch:{
+      groupId:function(newValue, oldValue){
+        var $this = this;
+        if(newValue){
+          $this.handlerGetMembers();
+        }
+      },
     },
     computed: {
       // groupMembers: function () {
       //   var $this = this;
       //   return $this.getMembersById($this.curGroup);
       // },
+      groupId: function(){
+        var $this = this;
+        if(Object.keys($this.curGroup).length==0){
+          return null;
+        }
+        return $this.curGroup.group_id;
+      },
       ...mapGetters([
         'user'
       ]),
@@ -348,6 +499,9 @@
     padding: 10px;
     border-bottom: 1px dashed #dcdfe6;
     cursor: pointer;
+  }
+  li.item.selected{
+    background-color: aliceblue;
   }
   .item img{
     height: 30px;

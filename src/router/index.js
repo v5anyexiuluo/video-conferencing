@@ -9,6 +9,7 @@ import MeetingCurrent from '@/components/pages/MeetingCurrent'
 import MeetingNow from '@/components/pages/MeetingNow'
 import LinksGroup from '@/components/pages/LinksGroup'
 import LinksFriend from '@/components/pages/LinksFriend'
+import Member from '@/components/pages/Member'
 import NotFound from '@/components/pages/NotFound'
 import properties from '@/properties/properties.js';
 import store from '@/store/'
@@ -80,6 +81,18 @@ const router = new Router({
       name: 'regist',
       path: '/regist',
       component: Regist
+    },
+    {
+      name: 'frame',
+      path: '/frame',
+      component: Frame,
+      children:[
+        {
+          name: 'member',
+          path: '/member/:id',
+          component: Member
+        }
+      ]
     },
     { path:'*' , component:NotFound}
   ]

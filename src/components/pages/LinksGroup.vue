@@ -82,9 +82,14 @@
         </el-tab-pane>
       </el-tabs>
       <div class="group-actions">
-        <el-button type="primary">进入群聊</el-button>
-        <el-button type="primary">马上开会</el-button>
-        <el-button type="primary">预约会议</el-button>
+        <el-button
+          type="primary"
+          @click="handleJoinChat"
+        >
+          进入群聊
+        </el-button>
+        <el-button type="primary" @click="handleNowMeeting">马上开会</el-button>
+        <el-button type="primary" @click="handleOrderMeeting">预约会议</el-button>
       </div>
     </div>
     <el-dialog title="新建群组" custom-class="start-meeting" width="400px" center :visible.sync="dialogCreateGroupVisible">
@@ -133,7 +138,7 @@
   import BScroll from 'better-scroll'
   import Scroll from '@/components/common/Scroll.vue'
   import {apiAuth, apiLinks, apiMeeting} from '@/properties/api.js'
-  import {mapGetters} from 'vuex';
+  import {mapGetters, mapMutations} from 'vuex';
   export default {
     data() {
       return {
@@ -409,6 +414,26 @@
           cbOk, cbErr
         )
       },
+      handleNowMeeting() {
+        // this.$store.state.nav.commit('setgroupname', this.curGroup.group_name)
+        // this.$store.state.nav.groupinfo = {id:this.curGroup.group_id, name:this.curGroup.group_name}
+        this.setGroupName(this.curGroup.group_name);
+        this.$router.push('/meeting/now');
+      },
+      handleOrderMeeting() {
+        // this.$store.state.nav.commit('setgroupname', this.curGroup.group_name)
+        // this.$store.state.nav.groupinfo = {id:this.curGroup.group_id, name:this.curGroup.group_name}
+        this.setGroupName({id:this.curGroup.group_id, name:this.curGroup.group_name});
+        this.$router.push('/meeting/order');
+      },
+      handleJoinChat() {
+        this.addChatItem({
+          name:this.curGroup.group_name,
+          abstract:"摘要内容"
+        });
+        this.$router.push('/chats');
+      },
+      ...mapMutations(['setGroupName', 'addChatItem'])
     },
     mounted: function() {
       

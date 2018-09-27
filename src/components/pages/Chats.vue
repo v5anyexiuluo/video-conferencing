@@ -7,11 +7,19 @@
         </el-input>
       </div>
       <ul class="full-element">
-        <router-link to="/#" tag="li" class="item h-full-container">
+        <router-link
+          to="/#"
+          tag="li"
+          class="item h-full-container"
+          v-for="chat in chatList"
+        >
           <img src="https://picsum.photos/40/40" alt="头像">
-          <div style="margin-left: 10px;line-height: initial;" class="full-element">
-            <h4>用户组名称</h4>
-            <router-link to="/regist" tag="p" style="font-size: 14px;" class="item h-full-container">讨论摘要</router-link>
+          <div
+            style="margin-left: 10px;line-height: initial;"
+            class="full-element"
+          >
+            <h4>{{chat.name}}</h4>
+            <router-link to="/regist" tag="p" style="font-size: 14px;" class="item h-full-container">{{chat.abstract}}</router-link>
           </div>
         </router-link>
       </ul>
@@ -19,7 +27,7 @@
     <div class="item-detail full-height">
       <el-tabs v-model="activeTab" type="border-card" style="height: 100%;">
         <el-tab-pane label="聊天" name="first" class="full-height" style="position: relative;">
-          <chat-message></chat-message>
+          <chat-message :chatname="chatNow"></chat-message>
           <chat-text></chat-text>
         </el-tab-pane>
         <el-tab-pane label="文件" name="second">
@@ -36,7 +44,9 @@
           </div>
         </el-tab-pane>
         <el-tab-pane label="音视频" name="third">
-          
+
+          <div>音视频</div>
+        
         </el-tab-pane>
       </el-tabs>
     </div>
@@ -46,12 +56,22 @@
   import ChatMessage from "@/components/common/ChatMessage.vue"
   import ChatText from "@/components/common/ChatText.vue"
   export default {
+    name: 'LinksFriend',
     data(){
       return {
-        activeTab: 'first'
+        activeTab: 'first',
+        chatNow:"",
+        // chatList: []
+        chatList: ["第一个群组","第二个群组","第三个群组"]
       }
     },
-    name: 'LinksFriend',
+    methods: {
+
+    },
+    mounted() {
+      this.chatList = this.$store.state.nav.chatList
+      this.chatNow = this.chatList[0]
+    },
     components: {
       'chat-message': ChatMessage,
       'chat-text': ChatText

@@ -1,31 +1,16 @@
 <template>
-	<div style="height: 480px; overflow-y: scroll;">
-		<el-form class="once" :rules="rules" ref="form" :model="form" label-width="30%">
-			<el-form-item label="会议名称：" prop="meeting_name">
-				<el-input v-model="form.meeting_name" placeholder="请输入主题" clearable></el-input>
-			</el-form-item>
-
-			<el-form-item label="开始时间：" >
-        <div class="block">
-			    <el-date-picker
-			      v-model="form.start_time"
-			      type="datetime"
-			      placeholder="选择日期时间"
-			      style="width: 100%"
-			      value-format="timestamp"
-            clearable
-			    >
-			    </el-date-picker>
-			  </div>
+  <div>
+    <el-form class="once" :rules="rules" ref="form" :model="form" label-width="30%">
+      <el-form-item label="会议名称：" prop="meeting_name">
+        <el-input v-model="form.meeting_name" placeholder="请输入主题" clearable></el-input>
       </el-form-item>
 
-			<el-form-item label="主持人：" prop="founder_id">
-				<el-input v-model="form.founder_id" placeholder="请输入主持人" clearable></el-input>
-			</el-form-item>
+      <el-form-item label="主持人：" prop="founder_id">
+        <el-input v-model="form.founder_id" placeholder="请输入主持人" clearable></el-input>
+      </el-form-item>
 
-			<el-form-item label="参会人员：" prop="founder_member">
-        <select-member></select-member>
-				<!-- <el-col :span="20" >
+      <el-form-item label="参会人员：" prop="founder_member">
+        <el-col :span="20" >
           <div class="mmember">
               <div v-if="tempMember.length==0 && tempGroup.length==0">
                 <div style="color: #bcbcbc">请选择参会人员</div>
@@ -35,45 +20,36 @@
                 <el-tag v-for="gro in tempGroup">{{gro.group_name}}</el-tag>
               </div>
           </div>
-				</el-col>
-				<el-col :span="4">
-					<el-button type="primary" @click="selectDialogVisible = true">选择</el-button>
-				</el-col> -->
-			</el-form-item>
-
-			<el-form-item label="通知方式：" prop="founder_member">
-        <el-checkbox v-model="c_email">发送邮件</el-checkbox>
-        <el-checkbox v-model="c_message">发送短信</el-checkbox>
-      </el-form-item>
-      <el-form-item label="通知时间：" prop="founder_member">
-        <el-checkbox v-model="c_once">立即发送</el-checkbox>
-        <el-checkbox v-model="c_five">前五分钟</el-checkbox>
+        </el-col>
+        <el-col :span="4">
+          <el-button type="primary" @click="selectDialogVisible = true">选择</el-button>
+        </el-col>
       </el-form-item>
 
       <el-form-item>
-				<el-button type="primary" @click="handleCreateMeeting">预约会议</el-button>
-				<el-button>取消会议</el-button>
-			</el-form-item>
-		</el-form>
+        <el-button type="primary" @click="handleCreateMeeting">马上开会</el-button>
+        <el-button>取消会议</el-button>
+      </el-form-item>
+    </el-form>
 
-		<el-dialog
-		  :visible.sync="selectDialogVisible"
-		  title="选择会议成员"
-		  width="70%"
-		>
+    <el-dialog
+      :visible.sync="selectDialogVisible"
+      title="选择会议成员"
+      width="70%"
+    >
       <el-row>
         <el-col :span='8'>
-  				<el-card class="list">
-  					<el-collapse v-model="activeNames" @change="handleChange" style="text-align: left;">
-  					  <el-collapse-item title="我的好友" name="1">
-  					    <el-collapse class="s_list" v-model="activeNames1" @change="handleChange">
-  					  		<el-collapse-item 
+          <el-card class="list">
+            <el-collapse v-model="activeNames" @change="handleChange" style="text-align: left;">
+              <el-collapse-item title="我的好友" name="1">
+                <el-collapse class="s_list" v-model="activeNames1" @change="handleChange">
+                  <el-collapse-item 
                     v-for="(department, index) of departments"
                     :key="department.department_id" 
                     :title="department.department_name" 
                     :name="department.department_id"
                   >
-  					  			<div 
+                    <div 
                       v-for="item in department.departmemt_members"
                       :key="item.phone"
                     >
@@ -85,11 +61,11 @@
                       >
                       </i>
                     </div>
-  					  		</el-collapse-item>
-  					  	</el-collapse>
-  					  </el-collapse-item>
-  					  <el-collapse-item title="我的群组" name="2">
-  					    <div
+                  </el-collapse-item>
+                </el-collapse>
+              </el-collapse-item>
+              <el-collapse-item title="我的群组" name="2">
+                <div
                   v-for="group in groups"
                   :key="group.group_id"
                 >
@@ -101,8 +77,8 @@
                   >
                   </i>
                 </div>
-  					  </el-collapse-item>
-  					</el-collapse>
+              </el-collapse-item>
+            </el-collapse>
           </el-card>
         </el-col>
         <el-col :span='8'>
@@ -110,7 +86,7 @@
             <div slot="header" class="clearfix">
               <span>好友</span>
             </div>
-            <div
+            <div 
               class="m_list"
               v-for="(tm,index) in tempMember"
               :key="index"
@@ -143,42 +119,33 @@
             </div>
           </el-card>
         </el-col>
-    	</el-row>
+      </el-row>
       <span slot="footer" class="dialog-footer">
         <el-button type="primary" @click="handleConfirmMember">确 认</el-button>
         <el-button @click="selectDialogVisible = false">取 消</el-button>
       </span>
-		</el-dialog>
-	</div>
+    </el-dialog>
+  </div>
 </template>
 <script>
-import SelectMember from './SelectMember'
 import {apiAuth,apiLinks,apiMeeting} from '@/properties/api.js';
 export default {
-  name: 'MeetingJoin',
-  components: {
-    SelectMember
-  },
-	data() {
-		return {
-			c_email: false,
-			c_message: false,
-			c_once: false,
-			c_five: false,
-			activeNames: [],
-			activeNames1: [],
-			MeetingInfo: null,
-			date:null,
-			form: {
-				meeting_name: '新建会议',
-				start_time: 0,
-				founder_id: '005',
-				member:[],
-				passwd: '123456',
-				repasswd: '123456'
-	    },
+  name: '',
+  data() {
+    return {
+      activeNames: [],
+      activeNames1: [],
+      MeetingInfo: null,
+      form: {
+        meeting_name: '新建会议',
+        start_time: 0,
+        founder_id: '005',
+        founder_member:[],
+        passwd: '123456',
+        repasswd: '123456'
+      },
       form1: {
-      	name: []
+        name: []
       },
       dialogVisible: false,
       selectDialogVisible: false,
@@ -258,9 +225,9 @@ export default {
             trigger: 'blur'
           }
         ],
-			}
+      }
     }
-	},
+  },
   mounted() {
     this.refreshDepartments();
     this.refreshGroups();
@@ -269,9 +236,8 @@ export default {
       this.handleAddTempGroup(this.$store.state.nav.groupinfo.id, this.$store.state.nav.groupinfo.name);
       this.handleConfirmMember();
     }
-
   },
-	methods: {
+  methods: {
     getInfo () {
       var $this = this;
       $this.getSelfInfo (function (res){
@@ -285,25 +251,20 @@ export default {
       var $this = this;
       $this.$axios.get(apiAuth.userInfo, null, cbOk, cbErr);
     },
-
-		hhh() {
-			alert(this.date);
-			console.log(this.date);
-		},
-		onSubmit() {
-	    console.log('submit!');
+    onSubmit() {
+      console.log('submit!');
     },
     handleClose(done) {
       this.$confirm('确认关闭？')
       .then(_ => {
-         	done();
+          done();
       })
       .catch(_ => {});
     },
     handleChange(value) {
       // this.selectedOptions = [];
       this.form1.name.push(value[1]);
-	  },
+    },
 
     refreshGroups() {
       var $this = this;
@@ -379,7 +340,7 @@ export default {
       var $this = this;
       $this.form.member = Array.from($this.tempMeetingMemberSet);
       $this.createMeeting(form.member, form.meeting_member, form.meeting_time, function(res){
-      	$this.$message.success('创建会议成功');
+        $this.$message.success('创建会议成功');
       },function(err) {
         $this.$message.error('创建会议失败');
       });
@@ -398,31 +359,31 @@ export default {
         group_id: id
       }, cbOk, cbErr)
     }
-	},
-	computed: {
-		// filteUsers: function(){
-		// 	var $this = this;
-		// 	var friends = [];
-		// 	for(var i=0;i<$this.friends.length;i++){
-		// 	    friends.push($this.friends[i])
-		// 	}
-		// 	return friends;
-		// }
-	},
-	watch: {
+  },
+  computed: {
+    // filteUsers: function(){
+    //  var $this = this;
+    //  var friends = [];
+    //  for(var i=0;i<$this.friends.length;i++){
+    //      friends.push($this.friends[i])
+    //  }
+    //  return friends;
+    // }
+  },
+  watch: {
 
-	}
+  }
 }
 </script>
 <style scoped>
-	::-webkit-scrollbar {display: none}
+  ::-webkit-scrollbar {display: none}
   .m_list {
     float: left;
     margin-right: 30px;
   }
   .once {
     width: 70%; 
-    margin-top: 15px;
+    margin-top: 50px;
   }
   .mmember {
     border: solid;

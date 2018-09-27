@@ -1,16 +1,25 @@
 import {apiAuth} from '@/properties/api.js'
+let defaultList = []
+try {
+  if (localStorage.chatList != null) {
+    defaultList = JSON.parse(localStorage.chatList)
+  }
+} catch (e) {}
+
 export default {
     state:{
         loading: false,
         user: null,
         meeting: null,
         activeIndex: "1",
-        firstInit: true
+        firstInit: true,
+        groupinfo: null,
+        chatList: defaultList
     },
     mutations:{
         setActiveIndex(state, index){
             state.activeIndex = index;
-            sessionStorage.setItem('activeIndex', index)
+            //sessionStorage.setItem('activeIndex', index)
         },
         changeLoading(state, loading){
             state.loading = loading
@@ -25,6 +34,19 @@ export default {
         },
         setFirstInit(state, firstInit){
             state.firstInit = firstInit;
+        },
+        addChatItem(state, item) {
+            state.chatList.unshift(item)
+            try {
+              if(localStorage.chatList == null) {
+                localStorage.chatList = ""
+              }
+              localStorage.chatList=JSON.stringify(state.chatList)
+            } catch (e) {}
+        },
+        setGroupName(state, groupinfo) {
+            state.groupinfo = groupinfo;
+            sessionStorage.setItem('groupinfo', groupinfo)
         }
     },
     getters:{

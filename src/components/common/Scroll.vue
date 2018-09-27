@@ -16,6 +16,10 @@ export default {
 			type: Number,
 			default: 1
 		},
+		scrollbar: {
+			type: null,
+			default: false
+		},
 		/**
 		 * 是否开启横向滚动
 		 */
@@ -81,7 +85,8 @@ export default {
 			this.scroll = new BScroll(this.$refs.wrapper, {
 				probeType: this.probeType,
 				click: this.click,
-				scrollX: this.scrollX
+				scrollX: this.scrollX,
+				scrollbar: this.scrollbar
 			})
 			// 是否派发滚动事件 
 			if (this.listenScroll) {
@@ -130,6 +135,9 @@ export default {
 		scrollTo() {
 			// 代理better-scroll的scrollTo方法
 			this.scroll && this.scroll.scrollTo.apply(this.scroll, arguments)
+		},
+		scrollBy() {
+			this.scroll && this.scroll.scrollBy.apply(this.scroll, arguments)
 		},
 		scrollToElement() {
 			// 代理better-scroll的scrollToElement方法

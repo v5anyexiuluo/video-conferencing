@@ -1,26 +1,23 @@
 <template>
-	<div class="full-height content full-width h-full-container">
-	  <div class="content-main full-element v-full-container">
-	  	<div v-if="isMaster" ref="videoWindows" id="videoWindows" align="center" class="full-element h-full-container" style="background-color: #145">
-	  		<div class="full-element" style="position: relative;">
-	  			<video :src="isShare? shareVideo.src:localVideo.src" ref="mainVideo" id="mainVideo" style="width:100%; height:100%;object-fit: fill;" poster="avatar.png" playsinline autoplay controls muted>
-					您的浏览器不支持 video 标签。
-				</video>
-				<video v-if="isShare" :src="localVideo.src" ref="localVideo" id="localVideo" style="position: absolute;left: 20px;top: 20px;width: 200px;height: 120px;background: gray;" poster="avatar.png" playsinline autoplay controls muted>
-					您的浏览器不支持 video 标签。
-				</video>
-	  		</div>
-	  		<div class="v-full-container" style="width:200px;background-color: #ecf5ff;">
-				<scroll ref="videoScroll" class="full-element" style="overflow: hidden;padding: 0 10px;height: 0px;">
-					<div>
-						<video v-for="(item, index) in meetingMembers" :src="videoSrc(item.id)" style="width: 100%;height: 110px;background: red;" poster="avatar.png" playsinline autoplay controls muted>
-							您的浏览器不支持 video 标签。
-						</video>
-					</div>
-				</scroll>
-	  		</div>
+	<div class="full-height content">
+	  <div class="content-main" style="position: relative;">
+	  	<div v-if="isMaster" ref="videoWindows" id="videoWindows" align="center" style="height:90%; background-color: #145">
+	  		{{shareVideo.src}}
+	  		<video :src="isShare? shareVideo.src:localVideo.src" ref="mainVideo" id="mainVideo" style="width:100%; height:100%;object-fit: fill;" poster="avatar.png" playsinline autoplay controls muted>
+				您的浏览器不支持 video 标签。
+			</video>
+			<video :src="remoteVideo.src" ref="remoteVideo" id="remoteVideo" style="position: absolute;right: 20px;top: 50px;width: 200px;height: 120px;background: gray;" poster="avatar.png" playsinline autoplay controls muted>
+				您的浏览器不支持 video 标签。
+			</video>
+			<el-select v-model="formMonitoredUser.id" collapse-tags style="position: absolute;right: 20px;top: 10px;width: 200px;" placeholder="选择被监控与会者" @change="handleMonitoredChange" @visible-change="handleMonitoredSelectShow">
+				<el-option v-for="item in meetingMembers" :key="item.id" :label="item.nickname" :value="item.id">
+				</el-option>
+			</el-select>
+			<video v-if="isShare" :src="localVideo.src" ref="localVideo" id="localVideo" style="position: absolute;right: 20px;top: 220px;width: 200px;height: 120px;background: gray;" poster="avatar.png" playsinline autoplay controls muted>
+				您的浏览器不支持 video 标签。
+			</video>
 		</div>
-		<div v-else ref="videoWindows" id="videoWindows" align="center" class="full-element" style="background-color: #145;position: relative;">
+		<div v-else ref="videoWindows" id="videoWindows" align="center" style="height:90%; background-color: #145">
 	  		<video :src="remoteVideo.src" ref="mainVideo" id="mainVideo" style="width:100%; height:100%;object-fit: fill;" poster="avatar.png" playsinline autoplay controls muted>
 				您的浏览器不支持 video 标签。
 			</video>
@@ -34,7 +31,7 @@
 		</div>
 		<div ref="audioWindows" id="audioWindows" align="center">
   		</div>
-		<el-row class="btn-group" type="flex" align="middle" justify="space-between" style="width:100%;height: 50px;line-height: 50px;background-color: white;">
+		<el-row class="btn-group" type="flex" align="middle" justify="space-between" style="position: absolute;left: 0px;bottom: 0px;width:100%;height: 50px;line-height: 50px;background-color: white;">
 			<el-col :span="3"><a @click="dialogSelectMeetingVisible = true" href="javascript:void(0)">切换会议</a></el-col>
 			<el-col :span="3"><a @click="dialogInviteFriendVisible = true" href="javascript:void(0)">邀请+</a></el-col>
 			<!-- <el-col :span="3"><a href="javascript:void(0)">主持人</a></el-col> -->
@@ -48,9 +45,20 @@
 		</el-row>
 	  </div>
 	  <div class="content-right">
-	  	<div style="position: relative; height: 100%;">
-		  	<chat-message></chat-message>
-          	<chat-text></chat-text>
+	  	<div style="position: relative; height: 100%">
+		  	<div ref="scro" style="height: 480px; overflow-y: auto;">
+				<p style="word-break:break-all; text-align: left" v-for="item in MessageList">{{item}}</p>
+		  	</div>
+			<div style="position: absolute; bottom: 0">
+		        <el-input
+				  type="textarea"
+				  :rows="3"
+				  placeholder="请输入内容"
+				  v-model="msg"
+				  @keyup.enter.native="onEventSendGroupChat">
+				</el-input>
+		        <el-button style="float:right" type="primary" size="mini" @click="onEventSendGroupChat">发送</el-button>
+	        </div>
 	    </div>
 	  </div>
 	  <el-dialog title="邀请好友" custom-class="start-meeting" width="400px" center :visible.sync="dialogInviteFriendVisible">
@@ -87,10 +95,6 @@
 import XChatKit from '@/assets/js/xchat.min.js'
 import {apiMeeting} from '@/properties/api.js';
 import {mapState,mapMutations,mapGetters} from 'vuex';
-import BScroll from 'better-scroll'
-import Scroll from '@/components/common/Scroll.vue'
-import ChatMessage from "@/components/common/ChatMessage.vue"
-import ChatText from "@/components/common/ChatText.vue"
 export default {
 	data() {
 		return {
@@ -107,7 +111,7 @@ export default {
 	          formError: ''
 	        },
 	        nowMeetings:[],
-	        isMaster: true,
+	        isMaster: false,
 	        isShare: false,
 			xchatkit: null,
 			meetingjson: {
@@ -145,12 +149,7 @@ export default {
 
 	},
 	updated() {
-		// this.$refs.scro.scrollTop = this.$refs.scro.scrollHeight;
-	},
-	components:{
-		'scroll': Scroll,
-		'chat-message': ChatMessage,
-      	'chat-text': ChatText
+		this.$refs.scro.scrollTop = this.$refs.scro.scrollHeight;
 	},
 	methods:{
 		handleSelectMeeting(){
@@ -571,17 +570,7 @@ export default {
 		...mapGetters([
 			'user',
 			'meeting'
-		]),
-		videoSrc: function(uid){
-			var $this = this;
-			var json = $this.remoteResources.find((value, index, arr) => {
-            	return value.fromuser == uid;
-          	})
-          	if(typeof(json)!="undefined"){
-          		 return window.URL.createObjectURL(json.stream);
-          		// remoteVideo.srcObject=json.stream;
-          	}
-		}
+		])
 	},
 	beforeDestroy: function () {
 	    this.onLeaveConferenceClicked();
@@ -598,33 +587,19 @@ export default {
 		margin: 0px;
 	}
 	.content{
-		
+		width: 100%;
+		display: flex;
+		flex-wrap: nowrap;
 	}
 	.btn-group a{
 		color: gray;
 		text-decoration: none;
 	}
 	.content-main{
+		width: 80%;
 		border-right: 2px solid gray;
 	}
 	.content-right{
-		width: 200px;
-	}
-	.chat-message{
-		width: 100%;
-		position: absolute;
-		top: 0px;
-		bottom: 130px;
-		left: 0px;
-	}
-	.chat-text{
-		height: 130px;
-		width: 100%;
-		position: absolute;
-		left: 0px;
-		bottom: 0px;
-	}
-	.chat-message >>> .text{
-		line-height: 1.8em;
+		width: 20%;
 	}
 </style>

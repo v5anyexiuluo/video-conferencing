@@ -17,7 +17,7 @@
         <el-button type="text" @click="dialogAddDepartmentVisible=true;">添加分组</el-button>
       </div>
     </div>
-    <div class="item-detail full-height">
+    <div v-if="showInfo" class="item-detail full-height">
       <el-tabs v-model="activeTab" @tab-click="">
         <el-tab-pane label="基本信息" name="first" class="h-full-container">
           <img src="https://picsum.photos/200/200" alt="">
@@ -80,7 +80,7 @@
             </el-table-column>
           </el-table>
           <div style="text-align: left;padding-top: 10px;">
-            <el-button type="text" @click="dialogAddFriendVisible=true">添加群成员</el-button>
+            <el-button type="text" @click="handleAddFriendInner">添加成员</el-button>
           </div>
         </el-tab-pane>
       </el-tabs>
@@ -197,10 +197,11 @@
       this.refreshDepartments();
     },
     methods: {
-      refreshDepartments(){
+      refreshDepartments () {
         var $this = this;
         $this.getAllDepartments(function(res){
           $this.departments = res.data.data;
+          $this.depMembers = $this.curDepartment.member
         },function(res){
           $this.$message.error('获取用户分组失败！');
         })
@@ -220,12 +221,12 @@
         })
       },
 
-      handleDelDepartment(){
+      handleDelDepartment () {
         var $this = this;
         if(Object.keys($this.curDepartment).length==0){
           return;
         }
-        $this.deleteDepartment($this.curDepartment.department_id, function(res){
+        $this.deleteDepartment($this.curDepartment.department_id, function(res) {
           $this.$message({
             message: '删除分组成功！',
             type: 'success'
@@ -267,7 +268,12 @@
         })
       },
 
-      handleAddFriend(){
+      handleAddFriendInner() {
+        this.dialogAddFriendVisible = true
+        this.formAddFriend.departmentId = this.curDepartment.department_id
+      },
+
+      handleAddFriend() {
         var $this = this;
         $this.findFriendByNickname($this.formAddFriend.nickName, function(res){
           $this.addFriend($this.formAddFriend, function(res){
@@ -373,6 +379,9 @@
       ...mapGetters([
         'user'
       ]),
+      showInfo () {
+        return this.curDepartment.department_name
+      },
       filteDepartments: function(){
         var $this = this;
         if(!$this.departments){

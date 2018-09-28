@@ -12,16 +12,16 @@
           <span>{{group.group_name}}</span>
         </li>
       </ul>
-      <div class="list-action" @click="dialogCreateGroupVisible=true;">添加分组</div>
+      <div class="list-action" @click="dialogCreateGroupVisible=true;">添加群组</div>
     </div>
-    <div class="item-detail full-height">
+    <div v-if="showInfo" class="item-detail full-height">
       <el-tabs v-model="activeTab" @tab-click="handlerGetMembers">
         <el-tab-pane label="基本信息" name="first" class="h-full-container">
           <img src="https://picsum.photos/200/200" alt="">
           <div class="group-info">
             <p><span>群名称:</span><span>{{curGroup? (curGroup.group_name? curGroup.group_name:''):''}}</span></p>
             <p><span>群主:</span><span>{{curGroup? (curGroup.founderId? curGroup.founderId:''):''}}</span></p>
-            <p><span>创建时间:</span><span>{{curGroup? (curGroup.create_time? curGroup.create_time:''):''}}</span></p>
+            <p><span>创建时间:</span><span>{{curGroup? (curGroup.create_time? timestampToTime(curGroup.create_time):''):''}}</span></p>
             <p><span>群简介:</span><span>暂无</span></p>
             <p>
               <el-button v-if="curGroup.is_builder" type="text" @click="handleDelGroup">解散群</el-button>
@@ -88,8 +88,12 @@
         >
           进入群聊
         </el-button>
-        <el-button type="primary" @click="handleNowMeeting">马上开会</el-button>
-        <el-button type="primary" @click="handleOrderMeeting">预约会议</el-button>
+        <router-link :to="{name: 'now', query:{group_id:curGroup.group_id}}" >
+          <el-button type="primary">马上开会</el-button>
+        </router-link>
+        <router-link :to="{name: 'now', query:{group_id:curGroup.group_id}}" >
+          <el-button type="primary" @click="handleOrderMeeting">预约会议</el-button>
+        </router-link>
       </div>
     </div>
     <el-dialog title="新建群组" custom-class="start-meeting" width="400px" center :visible.sync="dialogCreateGroupVisible">
@@ -167,9 +171,21 @@
     },
     created: function() {
       this.refreshGroups();
+      console.log("this.curGroup.founderId")
+      console.log(!this.curGroup.founderId)
     },
     methods: {
       //####
+      timestampToTime(timestamp) {
+        var date = new Date(timestamp);
+        var Y = date.getFullYear() + '-';
+        var M = (date.getMonth()+1 < 10 ? '0'+(date.getMonth()+1) : date.getMonth()+1) + '-';
+        var D = date.getDate() + ' ';
+        var h = date.getHours() + ':';
+        var m = date.getMinutes() + ':';
+        var s = date.getSeconds();
+        return Y+M+D+h+m+s;
+      },
       refreshGroups(){
         var $this = this;
         $this.findAllGroups(function(res){
@@ -451,6 +467,9 @@
       //   var $this = this;
       //   return $this.getMembersById($this.curGroup);
       // },
+      showInfo () {
+        return this.curGroup.group_name
+      },
       groupId: function(){
         var $this = this;
         if(Object.keys($this.curGroup).length==0){

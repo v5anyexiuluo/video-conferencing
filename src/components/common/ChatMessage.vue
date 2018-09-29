@@ -3,9 +3,9 @@
     <ul style="height:100%;overflow-y: scroll;">
         <li v-for="item in messages">
             <p class="time">
-                <span>{{ item.date | time }}</span>
+                <span>{{ item.timestamp | time }}</span>
             </p>
-            <div class="main h-full-container" :class="{ self: item.self }">
+            <div class="main h-full-container" :class="{ self: item.from==user.id }">
                 <img class="avatar" width="30" height="30" src="https://picsum.photos/40/40" />
                 <div class="text">{{ item.content }}</div>
             </div>
@@ -14,53 +14,31 @@
 </div>
 </template>
 <script>
+import {mapGetters} from 'vuex';
+import utils from '@/assets/js/utils.js';
 export default {
     data(){
         return{
             // 会话列表
-            messages: [
-                {
-                    content: 'Hello，这是一个基于Vue + Vuex + Webpack构建的简单chat示例，聊天记录保存在localStorge, 有什么问题可以通过Github Issue问我。',
-                    date: new Date()
-                }, {
-                    content: '项目地址: https://github.com/coffcer/vue-chat',
-                    date: new Date()
-                },{
-                    content: 'Hello，这是一个基于Vue + Vuex + Webpack构建的简单chat示例，聊天记录保存在localStorge, 有什么问题可以通过Github Issue问我。',
-                    date: new Date()
-                }, {
-                    content: '项目地址: https://github.com/coffcer/vue-chat',
-                    date: new Date()
-                },{
-                    content: 'Hello，这是一个基于Vue + Vuex + Webpack构建的简单chat示例，聊天记录保存在localStorge, 有什么问题可以通过Github Issue问我。',
-                    date: new Date()
-                }, {
-                    content: '项目地址: https://github.com/coffcer/vue-chat',
-                    date: new Date()
-                },{
-                    content: 'Hello，这是一个基于Vue + Vuex + Webpack构建的简单chat示例，聊天记录保存在localStorge, 有什么问题可以通过Github Issue问我。',
-                    date: new Date()
-                }, {
-                    content: '项目地址: https://github.com/coffcer/vue-chat',
-                    date: new Date()
-                },{
-                    content: 'Hello，这是一个基于Vue + Vuex + Webpack构建的简单chat示例，聊天记录保存在localStorge, 有什么问题可以通过Github Issue问我。',
-                    date: new Date()
-                }, {
-                    content: '项目地址: https://github.com/coffcer/vue-chat',
-                    date: new Date(),
-                    self: true
-                }
-            ]
+            // messages: [
+            //     {
+            //         content: '项目地址: https://github.com/coffcer/vue-chat',
+            //         timestamp: new Date(),
+            //         from: 1
+            //     }
+            // ]
         }
+    },
+    props:['messages'],
+    computed:{
+      ...mapGetters([
+        'user'
+      ]),
     },
     filters: {
         // 将日期过滤为 hour:minutes
         time (date) {
-            if (typeof date === 'string') {
-                date = new Date(date);
-            }
-            return date.getHours() + ':' + date.getMinutes();
+            return utils.formatDate(new Date(date), 'yyyy-MM-dd hh:mm');
         }
     },
     directives: {

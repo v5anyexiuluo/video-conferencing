@@ -2,23 +2,34 @@
 <div class="chat-text v-full-container">
     <div class="chat-action"><span class="el-icon-document"></span><span class="el-icon-picture-outline"></span></div>
     <textarea class="full-element" placeholder="按 Ctrl + Enter 发送" v-model="content" @keyup="onKeyup"></textarea>
-    <div style="text-align: right;"><el-button type="primary" style="margin: 0px 20px 10px 0px;" size="mini">发送</el-button></div>
+    <div style="text-align: right;"><el-button type="primary" style="margin: 0px 20px 10px 0px;" size="mini" @click="onSendMsg">发送</el-button></div>
 </div>
 </template>
 <script>
+import connect from '@/assets/js/connector.js'
+import {mapGetters} from 'vuex';
 export default {
     data () {
         return {
             content: ''
-        };
+        }
     },
     methods: {
         onKeyup (e) {
             if (e.ctrlKey && e.keyCode === 13 && this.content.length) {
                 // this.sendMessage(this.content);
-                this.content = '';
+                this.onSendMsg();
             }
+        },
+        onSendMsg(){
+            connect.$emit('msg',JSON.stringify({from: this.user.id, content: this.content, timestamp: Date.parse(new Date())}));
+            this.content = '';
         }
+    },
+    computed:{
+      ...mapGetters([
+        'user'
+      ]),
     }
 };
 </script>

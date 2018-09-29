@@ -1,10 +1,4 @@
 import {apiAuth} from '@/properties/api.js'
-let defaultList = []
-try {
-  if (localStorage.chatList != null) {
-    defaultList = JSON.parse(localStorage.chatList)
-  }
-} catch (e) {}
 
 export default {
     state:{
@@ -12,9 +6,7 @@ export default {
         user: null,
         meeting: null,
         activeIndex: "1",
-        firstInit: true,
-        groupinfo: null,
-        chatList: defaultList
+        firstInit: true
     },
     mutations:{
         setActiveIndex(state, index){
@@ -34,19 +26,6 @@ export default {
         },
         setFirstInit(state, firstInit){
             state.firstInit = firstInit;
-        },
-        addChatItem(state, item) {
-            state.chatList.unshift(item)
-            try {
-              if(localStorage.chatList == null) {
-                localStorage.chatList = ""
-              }
-              localStorage.chatList=JSON.stringify(state.chatList)
-            } catch (e) {}
-        },
-        setGroupName(state, groupinfo) {
-            state.groupinfo = groupinfo;
-            sessionStorage.setItem('groupinfo', groupinfo)
         }
     },
     getters:{

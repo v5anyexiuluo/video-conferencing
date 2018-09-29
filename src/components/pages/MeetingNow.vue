@@ -91,7 +91,7 @@
 		</el-form>
 </template>
 <script>
-import SelectMember from './SelectMember'
+import SelectMember from '@/components/common/SelectMember'
 import {apiAuth,apiLinks,apiMeeting} from '@/properties/api.js';
 export default {
 	data() {

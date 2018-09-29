@@ -1,18 +1,18 @@
 <template>
 	<div class="item-container full-width full-height">
-		<div class="item-list fleft full-height v-full-container">
+		<div class="item-list fleft full-height" style="position: relative;">
       <div class="list-search">
         <el-input placeholder="请输入内容" class="input-with-select">
           <el-button slot="append" icon="el-icon-search"></el-button>
         </el-input>
       </div>
-      <ul class="full-element">
+      <ul class="full-element" style="position: absolute;top: 60px;bottom: 60px;width: 100%;overflow-y: auto;">
         <li v-for="(group, index) in groups" @click="curGroup=group" class="item" :class="{'selected':group.group_id==curGroup.group_id}">
           <img src="https://picsum.photos/30/30" alt="头像">
           <span>{{group.group_name}}</span>
         </li>
       </ul>
-      <div class="list-action" @click="dialogCreateGroupVisible=true;">添加群组</div>
+      <div class="list-action" style="width: 100%;position: absolute;bottom: 0px;left: 0px;" @click="dialogCreateGroupVisible=true;">添加群组</div>
     </div>
     <div v-if="showInfo" class="item-detail full-height">
       <el-tabs v-model="activeTab" @tab-click="handlerGetMembers">
@@ -443,13 +443,10 @@
         this.$router.push('/meeting/order');
       },
       handleJoinChat() {
-        this.addChatItem({
-          name:this.curGroup.group_name,
-          abstract:"摘要内容"
-        });
-        this.$router.push('/chats');
+        this.addChatItem({type:'group',data:this.curGroup});
+        this.$router.push({name:'chatlist'});
       },
-      ...mapMutations(['setGroupName', 'addChatItem'])
+      ...mapMutations(['addChatItem'])
     },
     mounted: function() {
       
@@ -520,21 +517,18 @@
     height: 100%;
   }
   .list-search, .list-action{
-    height: 40px;
-    line-height: 40px;
-    padding: 10px;
+    height: 60px;
+    line-height: 60px;
+    padding: 0px 10px;
     background-color: #f5f7fa;
     cursor: pointer;
+    box-sizing: border-box;
   }
   .list-search{
     border-bottom: 1px solid #dcdfe6;
   }
   .list-action{
     border-top: 1px solid #dcdfe6;
-  }
-  .item-list ul {
-    flex-wrap: wrap;
-    overflow-y: auto;
   }
   li.item{
     height: 40px;

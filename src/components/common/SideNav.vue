@@ -144,4 +144,7 @@ export default {
 .a-navmenu:hover{
   color: rgba(255, 208, 72, 1);
 }
+.is-active .a-navmenu{
+  color: rgb(255, 208, 75);
+}
 </style>

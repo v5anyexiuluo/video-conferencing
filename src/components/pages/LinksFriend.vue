@@ -1,18 +1,31 @@
 <template>
 	<div class="item-container full-width full-height">
-		<div class="item-list fleft full-height v-full-container">
+		<div class="item-list fleft full-height" style="position: relative;">
       <div class="list-search">
         <el-input placeholder="请输入内容" class="input-with-select">
           <el-button slot="append" icon="el-icon-search"></el-button>
         </el-input>
       </div>
-      <ul class="full-element">
+      <!-- <ul class="full-element">
         <li v-for="(department, index) in departments" @click="curDepartment=department;depMembers=department.departmemt_members" class="item" :class="{'selected':department.department_id==curDepartment.department_id}">
           <img src="https://picsum.photos/30/30" alt="头像">
           <span>{{department.department_name}}</span>
         </li>
-      </ul>
-      <div class="list-action">
+      </ul> -->
+      <el-collapse v-model="activeName" @change="handleDepChange" class="full-element" style="position: absolute;top: 60px;bottom: 60px;width: 100%;overflow-y: auto;" accordion>
+        <el-collapse-item v-for="(department, index) in departments" class="item" :class="{'selected':department.department_id==curDepartment.department_id}" :name="department.department_id">
+          <template slot="title" class="cece">
+            <span>{{department.department_name}}</span>
+          </template>
+          <ul>
+            <li v-for="(item, index) in depMembers" @click="handleJoinChat(item)">
+              <img src="https://picsum.photos/30/30" alt="头像">
+              <span>{{item.nickname}}</span>
+            </li>
+          </ul>
+        </el-collapse-item>
+      </el-collapse>
+      <div class="list-action" style="width: 100%;position: absolute;bottom: 0px;left: 0px;">
         <el-button type="text" @click="dialogAddFriendVisible=true;">添加好友</el-button>
         <el-button type="text" @click="dialogAddDepartmentVisible=true;">添加分组</el-button>
       </div>
@@ -155,11 +168,12 @@
   import BScroll from 'better-scroll'
   import Scroll from '@/components/common/Scroll.vue'
   import {apiAuth, apiLinks, apiMeeting} from '@/properties/api.js'
-  import {mapGetters} from 'vuex';
+  import {mapGetters, mapMutations} from 'vuex';
   import utils from '@/assets/js/utils.js'
   export default {
     data() {
       return {
+        activeName: '1',
         departments:[],
         curDepartment:{},
         depMembers:[],
@@ -197,7 +211,15 @@
       this.refreshDepartments();
     },
     methods: {
-      refreshDepartments () {
+      handleDepChange(id){
+        var $this = this;
+        var ret = $this.getDepartmentById(id);
+        if(ret!=null){
+          $this.curDepartment = ret;
+          $this.depMembers = ret.departmemt_members;
+        }        
+      },
+      refreshDepartments(){
         var $this = this;
         $this.getAllDepartments(function(res){
           $this.departments = res.data.data;
@@ -304,9 +326,21 @@
         })
       },
 
+      handleJoinChat(item) {
+        this.addChatItem({type:'friend',data:item});
+        this.$router.push({name:'chatlist'});
+      },
+
       getAllDepartments(cbOk, cbErr){
         var $this = this;
         this.$axios.get(apiLinks.friends.allDepartments, null, cbOk, cbErr)
+      },
+
+      getDepartmentById(id){
+        var $this = this;
+        return $this.departments.find((value, index, arr) => {
+          return value.department_id == id;
+        })
       },
 
       addDepartment(departmentName, cbOk, cbErr){
@@ -368,6 +402,8 @@
           deleted_user_id: userId.toString()
         }, cbOk, cbErr)
       },
+
+      ...mapMutations(['addChatItem'])
     },
     mounted: function() {
       
@@ -413,11 +449,12 @@
     height: 100%;
   }
   .list-search, .list-action{
-    height: 40px;
-    line-height: 40px;
-    padding: 10px;
+    height: 60px;
+    line-height: 60px;
+    padding: 0px 10px;
     background-color: #f5f7fa;
     cursor: pointer;
+    box-sizing: border-box;
   }
   .list-search{
     border-bottom: 1px solid #dcdfe6;
@@ -425,24 +462,37 @@
   .list-action{
     border-top: 1px solid #dcdfe6;
   }
-  .item-list ul {
-    flex-wrap: wrap;
-    overflow-y: auto;
+  .el-collapse{
+    border-width: 0px;
   }
-  li.item{
-    height: 40px;
-    line-height: 40px;
+  .item{
     text-align: left;
-    padding: 10px;
     border-bottom: 1px dashed #dcdfe6;
     cursor: pointer;
   }
-  li.item.selected{
+  .item.selected{
     background-color: aliceblue;
+  }
+  .item >>> .el-collapse-item__header, .item >>> .el-collapse-item__wrap{
+    border-bottom-width: 0px;
+    background-color: transparent;
+  }
+  .item >>> .el-collapse-item__header{
+    padding: 0px 10px;
+  }
+  .item >>> .el-collapse-item__content{
+    padding-bottom: 0px;
+  }
+  .item li{
+    padding: 10px 20px;
+  }
+  .item li:hover{
+    background-color: #ebeef5;
   }
   .item img{
     height: 30px;
     width: 30px;
+    border-radius: 15px;
     vertical-align: middle;
   }
   .item span{

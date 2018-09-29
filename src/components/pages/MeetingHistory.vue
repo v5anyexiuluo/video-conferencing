@@ -5,17 +5,41 @@
       :key="item.meeting_id" 
       class="box-card"
     >
-      <div class="text item">
-        会议名称：{{item.meetingName}}<br>
-        会议时间：<span v-text="timestampToTime(item.createTime)"></span><br>
-        主持人：{{item.founder_user_nickname}}<br>
-        视频回放：<a href="https://www.baidu.com" class="el-icon-caret-right"></a>
-        <!-- "item.videoPath" -->
+      <div @click="showInfo(item)">
+        <div class="text item">
+          会议名称：{{item.meetingName}}<br>
+          会议时间：<span v-text="timestampToTime(item.createTime)"></span><br>
+          主持人：{{item.founder_user_nickname}}<br>
+          视频回放：<div class="el-icon-service"></div>
+          <!-- "item.videoPath" -->
+        </div>
+        <div style="text-align: left; font-size: 14px; margin: 5px;">会议纪要：这是一段会议纪要{{item.reviewtime}}</div>
       </div>
-      <div style="text-align: left; font-size: 14px; margin: 5px;">会议纪要：这是一段会议纪要{{item.reviewtime}}</div>
       <el-button type="primary" @click="handleClick">马上开会</el-button>
       <el-button type="primary">预约会议</el-button>
     </el-card>
+    <el-dialog
+      title="会议信息"
+      :visible.sync="dialogMeetingInfo"
+      width="30%"
+      :before-close="handleClose">
+      <span>
+        <div v-if="curMeeting" class="text item">
+          会议名称：{{curMeeting.meetingName}}<br>
+          会议时间：<span v-text="timestampToTime(curMeeting.createTime)"></span><br>
+          主持人：{{curMeeting.founder_user_nickname}}<br>
+          视频回放：<div class="el-icon-service"></div><br>
+          会议成员： 
+          <div>
+            <div class="member" v-for="n in 10">{{n + ","}}</div>
+          </div>
+        </div>
+      </span>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogMeetingInfo = false">取 消</el-button>
+        <el-button type="primary" @click="dialogMeetingInfo = false">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -26,6 +50,8 @@ export default {
   data() {
     return {
       MeetingList: [],
+      dialogMeetingInfo: false,
+      curMeeting: null
     }
   },
   mounted() {
@@ -34,7 +60,18 @@ export default {
   methods: {
     handleClick() {
       this.y = 2;
-      alert("sss");
+    },
+    showInfo(info) {
+      this.curMeeting = info
+      console.log(this.curMeeting)
+      this.dialogMeetingInfo = true
+    },
+    handleClose(done) {
+      this.$confirm('确认关闭？')
+        .then(_ => {
+          done();
+        })
+        .catch(_ => {});
     },
     timestampToTime(timestamp) {
         var date = new Date(timestamp);
@@ -72,7 +109,7 @@ export default {
   }
 
   .box-card {
-    background-color: #bcbcbc;
+    background-color: #ffffcc;
     width: 280px;
     margin: 15px;
     float: left;
@@ -82,5 +119,8 @@ export default {
     overflow-y: scroll;
   }
 
+  .member {
+    float: left;
+  }
   ::-webkit-scrollbar {display: none}
 </style>

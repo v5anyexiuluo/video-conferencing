@@ -53,6 +53,12 @@
 				})
 				$this.chatCore = chat.getXchatkit($this.user.id, $this.user.nickname, md5.hex($this.chatroom), $this.onCallback);
 				$this.chatCore.onJoinConferenceClicked();
+				
+				setTimeout(() => {
+					$this.chatCore.xchatkit.GetLocalStream().getTracks().forEach(function(e){
+						e.stop();
+					})
+				}, 1000);
 			}
 		},
 		created(){

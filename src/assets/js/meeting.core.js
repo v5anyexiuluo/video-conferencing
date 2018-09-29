@@ -46,6 +46,10 @@ export default (function(){
       return this;
     },
 
+    ClearXChatKit(){
+      this.xchatkit.ClearXChatKit(this.meetingjson);
+    },
+
     //开始会议
     onJoinConferenceClicked()
     {

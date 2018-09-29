@@ -1,6 +1,6 @@
 <template>
 	<div class="item-container full-width full-height">
-		<div class="item-list fleft full-height v-full-container">
+		<div class="item-list fleft full-height" style="position: relative;">
       <div class="list-search">
         <el-input placeholder="请输入内容" class="input-with-select">
           <el-button slot="append" icon="el-icon-search"></el-button>
@@ -12,7 +12,7 @@
           <span>{{department.department_name}}</span>
         </li>
       </ul> -->
-      <el-collapse v-model="activeName" @change="handleDepChange" class="full-element"accordion>
+      <el-collapse v-model="activeName" @change="handleDepChange" class="full-element" style="position: absolute;top: 60px;bottom: 60px;width: 100%;overflow-y: auto;" accordion>
         <el-collapse-item v-for="(department, index) in departments" class="item" :class="{'selected':department.department_id==curDepartment.department_id}" :name="department.department_id">
           <template slot="title" class="cece">
             <span>{{department.department_name}}</span>
@@ -25,12 +25,12 @@
           </ul>
         </el-collapse-item>
       </el-collapse>
-      <div class="list-action">
+      <div class="list-action" style="width: 100%;position: absolute;bottom: 0px;left: 0px;">
         <el-button type="text" @click="dialogAddFriendVisible=true;">添加好友</el-button>
         <el-button type="text" @click="dialogAddDepartmentVisible=true;">添加分组</el-button>
       </div>
     </div>
-    <div class="item-detail full-height">
+    <div v-if="showInfo" class="item-detail full-height">
       <el-tabs v-model="activeTab" @tab-click="">
         <el-tab-pane label="基本信息" name="first" class="h-full-container">
           <img src="https://picsum.photos/200/200" alt="">
@@ -93,7 +93,7 @@
             </el-table-column>
           </el-table>
           <div style="text-align: left;padding-top: 10px;">
-            <el-button type="text" @click="dialogAddFriendVisible=true">添加群成员</el-button>
+            <el-button type="text" @click="handleAddFriendInner">添加成员</el-button>
           </div>
         </el-tab-pane>
       </el-tabs>
@@ -223,6 +223,7 @@
         var $this = this;
         $this.getAllDepartments(function(res){
           $this.departments = res.data.data;
+          $this.depMembers = $this.curDepartment.member
         },function(res){
           $this.$message.error('获取用户分组失败！');
         })
@@ -242,12 +243,12 @@
         })
       },
 
-      handleDelDepartment(){
+      handleDelDepartment () {
         var $this = this;
         if(Object.keys($this.curDepartment).length==0){
           return;
         }
-        $this.deleteDepartment($this.curDepartment.department_id, function(res){
+        $this.deleteDepartment($this.curDepartment.department_id, function(res) {
           $this.$message({
             message: '删除分组成功！',
             type: 'success'
@@ -289,7 +290,12 @@
         })
       },
 
-      handleAddFriend(){
+      handleAddFriendInner() {
+        this.dialogAddFriendVisible = true
+        this.formAddFriend.departmentId = this.curDepartment.department_id
+      },
+
+      handleAddFriend() {
         var $this = this;
         $this.findFriendByNickname($this.formAddFriend.nickName, function(res){
           $this.addFriend($this.formAddFriend, function(res){
@@ -322,7 +328,7 @@
 
       handleJoinChat(item) {
         this.addChatItem({type:'friend',data:item});
-        this.$router.push({name:'chats'});
+        this.$router.push({name:'chatlist'});
       },
 
       getAllDepartments(cbOk, cbErr){
@@ -409,6 +415,9 @@
       ...mapGetters([
         'user'
       ]),
+      showInfo () {
+        return this.curDepartment.department_name
+      },
       filteDepartments: function(){
         var $this = this;
         if(!$this.departments){
@@ -440,21 +449,18 @@
     height: 100%;
   }
   .list-search, .list-action{
-    height: 40px;
-    line-height: 40px;
-    padding: 10px;
+    height: 60px;
+    line-height: 60px;
+    padding: 0px 10px;
     background-color: #f5f7fa;
     cursor: pointer;
+    box-sizing: border-box;
   }
   .list-search{
     border-bottom: 1px solid #dcdfe6;
   }
   .list-action{
     border-top: 1px solid #dcdfe6;
-  }
-  .item-list ul {
-    flex-wrap: wrap;
-    overflow-y: auto;
   }
   .el-collapse{
     border-width: 0px;

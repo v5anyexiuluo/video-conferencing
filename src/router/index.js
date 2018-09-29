@@ -91,7 +91,7 @@ const router = new Router({
           name: 'member',
           path: '/member/:id',
           component: Member
-        }
+        },
       ]
     },
     { path:'*' , component:NotFound}

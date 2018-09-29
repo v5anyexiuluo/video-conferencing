@@ -83,6 +83,7 @@
 import {apiAuth,apiLinks,apiMeeting} from '@/properties/api.js';
 export default {
   name: "SelectMember",
+  props: ['curid'],
   data () {
     return {
       form:{
@@ -174,23 +175,44 @@ export default {
     },
     refreshDepartments() {
       var $this = this;
-      $this.getAllDepartments(function(res){
-        $this.form.formMutiSelects.srcData.friends = res.data.data;
+      $this.form.formMutiSelects.srcData.friends = [];
+      $this.getAllDepartments(function(res) {
+        var re = res.data.data
+        console.log("你好")
+        console.log("hhhhh")
+        for (var i = 0; i < res.data.data.length; i++) {
+          $this.form.formMutiSelects.srcData.friends.push({id: re[i].department_id, name: re[i].department_name, children:[]})
+          for (var j = 0; j < re[i].departmemt_members.length; j++) {
+            $this.form.formMutiSelects.srcData.friends[i].children.push({
+              id: re[i].departmemt_members[j].id,
+              name: re[i].departmemt_members[j].nickname
+            })
+          }
+        }
       },function(res){
-        $this.$message.error('获取用户分组失败！');
+        $this.$message.error('获取用户分群组失败！');
       })
     },
 
     getAllDepartments(cbOk, cbErr) {
       var $this = this;
-      this.$axios.get(apiLinks.friends.allMemberSimple, null, cbOk, cbErr)
+      this.$axios.get(apiLinks.friends.allDepartments, null, cbOk, cbErr)
     },
 
     refreshGroups() {
       var $this = this;
-      $this.getAllGroups(function(res){
+      $this.form.formMutiSelects.srcData.groups = [];
+      $this.getAllGroups(function(res) {
+        var re = res.data.data
+        console.log("hhhhh")
         for (var i = 0; i < res.data.data.length; i++) {
-          $this.form.formMutiSelects.srcData.groups = res.data.data;
+          $this.form.formMutiSelects.srcData.groups.push({id: re[i].group_id, name: re[i].group_name, children:[]})
+          for (var j = 0; j < re[i].member.length; j++) {
+            $this.form.formMutiSelects.srcData.groups[i].children.push({
+              id: re[i].member[j].id,
+              name: re[i].member[j].nickname
+            })
+          }
         }
       },function(res){
         $this.$message.error('获取用户群组失败！');
@@ -199,12 +221,13 @@ export default {
 
     getAllGroups(cbOk, cbErr) {
       var $this = this;
-      this.$axios.get(apiLinks.groups.allMemberSimple, null, cbOk, cbErr);
+      this.$axios.get(apiLinks.groups.allmember, null, cbOk, cbErr);
     },
   },
   mounted() {
     this.refreshDepartments();
     this.refreshGroups();
+    this.$refs.tree.setCheckedKeys([curid]);
   }
 }
 </script>

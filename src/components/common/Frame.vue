@@ -8,11 +8,7 @@
             <head-nav></head-nav>
           </el-header>
           <el-main class="full-height scroll-hidden">
-            <el-row class="full-height main-wrap" style="margin: 0px;">
-              <div class="fright content-wrap full-height">
-                <router-view></router-view>
-              </div>
-            </el-row>
+            <router-view class="content-wrap full-height"></router-view>
           </el-main>
         </el-container>
       </el-container>

@@ -2,8 +2,8 @@
 	<div class="full-height content full-width h-full-container">
 	  <div class="content-main full-element v-full-container">
 	  	<div v-if="isMaster" ref="videoWindows" id="videoWindows" align="center" class="full-element h-full-container" style="background-color: #145">
-	  		<div class="full-element" style="position: relative;">
-	  			<video :src="isShare? shareVideo.src:localVideo.src" ref="mainVideo" id="mainVideo" style="width:100%; height:100%;object-fit: fill;" poster="avatar.png" playsinline autoplay controls muted>
+	  		<div class="full-element h-full-container" style="position: relative;">
+	  			<video :src="isShare? shareVideo.src:localVideo.src" ref="mainVideo" id="mainVideo" class="full-element" style="object-fit: fill;" poster="avatar.png" playsinline autoplay controls muted>
 					您的浏览器不支持 video 标签。
 				</video>
 				<video v-if="isShare" :src="localVideo.src" ref="localVideo" id="localVideo" style="position: absolute;left: 20px;top: 20px;width: 200px;height: 120px;background: gray;" poster="avatar.png" playsinline autoplay controls muted>
@@ -48,10 +48,7 @@
 		</el-row>
 	  </div>
 	  <div class="content-right">
-	  	<div style="position: relative; height: 100%;">
-		  	<chat-message></chat-message>
-          	<chat-text></chat-text>
-	    </div>
+	    <chat style="position: relative; height: 100%;" :chatroom="chatroom" :messages="messages"></chat>
 	  </div>
 	  <el-dialog title="邀请好友" custom-class="start-meeting" width="400px" center :visible.sync="dialogInviteFriendVisible">
         <el-form :model="formInviteFriend" label-width="80px">
@@ -89,8 +86,7 @@ import {apiMeeting} from '@/properties/api.js';
 import {mapState,mapMutations,mapGetters} from 'vuex';
 import BScroll from 'better-scroll'
 import Scroll from '@/components/common/Scroll.vue'
-import ChatMessage from "@/components/common/ChatMessage.vue"
-import ChatText from "@/components/common/ChatText.vue"
+import Chat from "@/components/common/Chat.vue"
 export default {
 	data() {
 		return {
@@ -134,7 +130,9 @@ export default {
 			msg: '',
 			MessageList: [],
 			Conference: '开始会议',
-			Share: '共享桌面'
+			Share: '共享桌面',
+			chatroom: '',
+			messages: []
 		}
 	},
 	created(){
@@ -149,8 +147,7 @@ export default {
 	},
 	components:{
 		'scroll': Scroll,
-		'chat-message': ChatMessage,
-      	'chat-text': ChatText
+		'chat': Chat
 	},
 	methods:{
 		handleSelectMeeting(){
@@ -166,6 +163,7 @@ export default {
 				},function(res){
 					$this.$message.error('获取会议信息失败！'+res.msg);
 				});
+				$this.chatroom = $this.formMeeting.meetingId.toString();
 				$this.meetingjson.fromuser = $this.user.id;
 				$this.meetingjson.fromname = $this.user.nickname;
 				$this.meetingjson.chatroom = $this.formMeeting.meetingId;
@@ -365,30 +363,6 @@ export default {
           	}
 		},
 
-		onEventSendChat(){
-			var json = JSON.parse ( "{}" );
-		    json.chatroom = '';
-		    json.content = '';
-		    this.xchatkit.SendInput ( json );
-		},
-		onEventRevieveChat(json){
-
-		},
-		//发送消息
-		onEventSendGroupChat(){
-			var $this = this;
-			var json = JSON.parse ( "{}" );
-		    json.chatroom = $this.meetingjson.chatroom;
-		    json.content = $this.meetingjson.fromname+":"+$this.msg;
-		    this.xchatkit.SendText ( json );
-		    $this.msg = "";
-		},
-		//将消息添加到消息列表
-		onEventRevieveGroupChat(json){
-			var $this = this;
-			$this.MessageList.push(json.content);
-		},
-
 
 		//启用摄像头
 		onEnableCameraClicked()
@@ -461,10 +435,6 @@ export default {
 		        this.onEventPartyConnected ( json );
 		    else if ( "EventPartyDisconnected" === json.msgtype )
 		        this.onEventPartyDisconnected ( json );
-		    else if ( "text" === json.msgtype )
-		    	this.onEventRevieveGroupChat(json);
-		    else if ( "onText" === json.msgtype )
-		    	this.onEventRevieveChat(json);
 		},
 
 

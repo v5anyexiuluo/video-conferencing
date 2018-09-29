@@ -1,5 +1,5 @@
 <template>
-	<div style="padding:20px 20px;">
+	<div style="padding:20px 0px;">
 		<div class="h-full-container v-center">
 			<span class="full-element">这是一条普通消息，不用操作</span>
 			<div class="deal-actions" style="height: 40px;">

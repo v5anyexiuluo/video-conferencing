@@ -1,283 +1,244 @@
 <template>
-	<div style="height: 480px; overflow-y: scroll;">
-		<el-form class="once" :rules="rules" ref="form" :model="form" label-width="30%">
-			<el-form-item label="会议名称：" prop="meeting_name">
-				<el-input v-model="form.meeting_name" placeholder="请输入主题" clearable></el-input>
-			</el-form-item>
+    <el-form class="once" ref="form" :model="form" label-width="30%">
+      <el-form-item label="会议名称：">
+          <el-input v-model="form.name" clearable></el-input>
+      </el-form-item>
+      <el-form-item label="主持人：">
+          <el-input v-model="form.founder" clearable></el-input>
+      </el-form-item>
 
-			<el-form-item label="开始时间：" >
+      <el-form-item label="开始时间：">
         <div class="block">
-			    <el-date-picker
-			      v-model="form.start_time"
-			      type="datetime"
-			      placeholder="选择日期时间"
-			      style="width: 100%"
-			      value-format="timestamp"
-            clearable
-			    >
-			    </el-date-picker>
-			  </div>
+          <el-date-picker
+            v-model="form.start_time"
+            type="datetime"
+            placeholder="选择日期时间"
+            style="width: 100%"
+            value-format="timestamp"
+          >
+          </el-date-picker>
+        </div>
       </el-form-item>
 
-			<el-form-item label="主持人：" prop="founder_id">
-				<el-input v-model="form.founder_id" placeholder="请输入主持人" clearable></el-input>
-			</el-form-item>
-
-			<el-form-item label="参会人员：" prop="founder_member">
-        <select-member></select-member>
-				<!-- <el-col :span="20" >
-          <div class="mmember">
-              <div v-if="tempMember.length==0 && tempGroup.length==0">
-                <div style="color: #bcbcbc">请选择参会人员</div>
+      <el-form-item label="与会成员：">
+        <div style="height: 260px;">
+          <el-col :span="11" style="height: 100%;display: flex;flex-wrap: nowrap;flex-direction: column;">
+            <div class="tabHeader" style="height: 40px;line-height: 40px; background-color: #f5f7fa;border: 1px solid #ebeef5; border-radius: 4px 4px 0px 0px;">
+              <a href="javascript:void(0)" @click="form.formMutiSelects.curTab=1" :class="[form.formMutiSelects.curTab==1? 'activeTab tabItem':'tabItem']">群组</a>
+              <a href="javascript:void(0)" @click="form.formMutiSelects.curTab=2" :class="[form.formMutiSelects.curTab==2? 'activeTab tabItem':'tabItem']">好友</a>
+              <a href="javascript:void(0)" @click="form.formMutiSelects.curTab=3" :class="[form.formMutiSelects.curTab==3? 'activeTab tabItem':'tabItem']">电话/邮件</a>
+            </div>
+            <div style="flex: 1;flex-wrap: wrap;overflow-y: scroll;border-left: 1px solid #ebeef5;border-right: 1px solid #ebeef5;border-bottom: 1px solid #ebeef5;padding: 10px 0;">
+              <div id="tab1" v-show="form.formMutiSelects.curTab==1">
+                <el-tree
+                  node-key="id"
+                  :data="form.formMutiSelects.srcData.groups"
+                  :props="form.formMutiSelects.settings.groupsProps"
+                  :default-checked-keys="[this.curid]"
+                  show-checkbox
+                  @check-change="handleTreeCheckChange"
+                  ref="groupTree">
+                </el-tree>
               </div>
-              <div v-else>
-                <el-tag v-for="mem in tempMember">{{mem}}</el-tag>
-                <el-tag v-for="gro in tempGroup">{{gro.group_name}}</el-tag>
+              <div id="tab2" v-show="form.formMutiSelects.curTab==2">
+                <el-tree
+                  node-key="id"
+                  :data="form.formMutiSelects.srcData.friends"
+                  :props="form.formMutiSelects.settings.friendsProps"
+                  show-checkbox
+                  @check-change="handleTreeCheckChange"
+                  ref="friendTree">
+                </el-tree>
               </div>
-          </div>
-				</el-col>
-				<el-col :span="4">
-					<el-button type="primary" @click="selectDialogVisible = true">选择</el-button>
-				</el-col> -->
-			</el-form-item>
-
-			<el-form-item label="通知方式：" prop="founder_member">
-        <el-checkbox v-model="c_email">发送邮件</el-checkbox>
-        <el-checkbox v-model="c_message">发送短信</el-checkbox>
+              <div id="tab3" style="text-align: left; padding: 10px;" v-show="form.formMutiSelects.curTab==3">
+                <el-checkbox-group style="text-align: left;display: flex;flex-direction: column;align-items: flex-start;" v-model="form.formMutiSelects.tarData.customSel" @change="handleCustomSelect">
+                  <el-tag
+                    :key="tag"
+                    v-for="tag in form.formMutiSelects.settings.dynamicTags"
+                    closable
+                    :disable-transitions="false"
+                    @close="handleClose(tag)">
+                      <el-checkbox :label="tag"></el-checkbox>
+                  </el-tag>
+                </el-checkbox-group>
+                <el-input
+                  class="input-new-tag"
+                  v-if="form.formMutiSelects.settings.inputVisible"
+                  v-model="form.formMutiSelects.settings.inputValue"
+                  ref="saveTagInput"
+                  size="small"
+                  @keyup.enter.native="handleInputConfirm"
+                  >
+                </el-input>
+                <el-button v-else class="button-new-tag" size="small" @click="showInput">+ New Tag</el-button>
+              </div>
+            </div>
+            <!-- <div style="height: 40px;line-height: 40px; background-color: #f5f7fa;border: 1px solid #ebeef5; border-radius: 0px 0px 4px 4px;">
+              
+            </div> -->
+          </el-col>
+          <el-col :span="2" style="height: 100%;display: flex;flex-direction: column;flex-wrap: nowrap;justify-content: center;align-items: center;">
+          </el-col>
+          <el-col :span="11" style="height: 100%;display: flex;flex-wrap: nowrap;flex-direction: column;">
+            <div class="tabHeader" style="height: 40px;line-height: 40px; background-color: #f5f7fa;border: 1px solid #ebeef5; border-radius: 4px 4px 0px 0px;padding-left: 10px;">结果
+            </div>
+            <div style="flex: 1;flex-wrap: wrap;overflow-y: scroll;border-left: 1px solid #ebeef5;border-right: 1px solid #ebeef5;border-bottom: 1px solid #ebeef5;padding: 10px;text-align: left;">
+              <ul>
+                <li style="color: lightgray;font-style: italic;">好友</li>
+                <li style="margin-left: 1em; line-height: 15px" v-for="item in form.formMutiSelects.tarData.members">{{item.name}}</li>
+              </ul>
+              <ul>
+                <li style="color: lightgray;font-style: italic;">邮件/手机号</li>
+                <li style="margin-left: 1em;" v-for="item in form.formMutiSelects.tarData.customSel">{{item}}</li>
+              </ul>
+            </div>
+          </el-col>
+        </div>
       </el-form-item>
-      <el-form-item label="通知时间：" prop="founder_member">
-        <el-checkbox v-model="c_once">立即发送</el-checkbox>
-        <el-checkbox v-model="c_five">前五分钟</el-checkbox>
-      </el-form-item>
-
       <el-form-item>
-				<el-button type="primary" @click="handleCreateMeeting">预约会议</el-button>
-				<el-button>取消会议</el-button>
-			</el-form-item>
-		</el-form>
-
-		<el-dialog
-		  :visible.sync="selectDialogVisible"
-		  title="选择会议成员"
-		  width="70%"
-		>
-      <el-row>
-        <el-col :span='8'>
-  				<el-card class="list">
-  					<el-collapse v-model="activeNames" @change="handleChange" style="text-align: left;">
-  					  <el-collapse-item title="我的好友" name="1">
-  					    <el-collapse class="s_list" v-model="activeNames1" @change="handleChange">
-  					  		<el-collapse-item 
-                    v-for="(department, index) of departments"
-                    :key="department.department_id" 
-                    :title="department.department_name" 
-                    :name="department.department_id"
-                  >
-  					  			<div 
-                      v-for="item in department.departmemt_members"
-                      :key="item.phone"
-                    >
-                      {{item.nickname}}
-                      <i 
-                        class="el-icon-circle-plus"
-                        @click="handleAddTempMember(item.nickname)" 
-                        style="float: right;"
-                      >
-                      </i>
-                    </div>
-  					  		</el-collapse-item>
-  					  	</el-collapse>
-  					  </el-collapse-item>
-  					  <el-collapse-item title="我的群组" name="2">
-  					    <div
-                  v-for="group in groups"
-                  :key="group.group_id"
-                >
-                  {{group.group_name}}
-                  <i 
-                    class="el-icon-circle-plus" 
-                    @click="handleAddTempGroup(group.group_id, group.group_name)"
-                    style="float: right;"
-                  >
-                  </i>
-                </div>
-  					  </el-collapse-item>
-  					</el-collapse>
-          </el-card>
-        </el-col>
-        <el-col :span='8'>
-          <el-card class="select">
-            <div slot="header" class="clearfix">
-              <span>好友</span>
-            </div>
-            <div
-              class="m_list"
-              v-for="(tm,index) in tempMember"
-              :key="index"
-            >
-              {{tm}}
-              <i
-                class="el-icon-circle-close"
-                @click="handleDeleteTempMember(tm)"
-              >
-              </i>
-            </div>
-          </el-card>
-        </el-col>
-        <el-col :span='8'>
-          <el-card class="select">
-            <div slot="header" class="clearfix">
-              <span>群组</span>
-            </div>
-            <div 
-              class="m_list"
-              v-for="(tm,index) in tempGroup"
-              :key="index"
-            >
-              {{tm.group_name}}
-              <i
-                class="el-icon-circle-close"
-                @click="handleDeleteTempGroup(tm)"
-              >
-              </i>
-            </div>
-          </el-card>
-        </el-col>
-    	</el-row>
-      <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="handleConfirmMember">确 认</el-button>
-        <el-button @click="selectDialogVisible = false">取 消</el-button>
-      </span>
-		</el-dialog>
-	</div>
+        <el-button type="primary">立即创建</el-button>
+        <el-button>取消</el-button>
+      </el-form-item>
+    </el-form>
 </template>
 <script>
-import SelectMember from './SelectMember'
+import SelectMember from '@/components/common/SelectMember'
 import {apiAuth,apiLinks,apiMeeting} from '@/properties/api.js';
 export default {
-  name: 'MeetingJoin',
+  name: 'MeetingOrder',
+  data() {
+    return {
+      form: {
+        name: '新建会议',
+        founder: '',
+        start_time: 0,
+        formMutiSelects: {
+          curTab: 1,
+          srcData: {
+            groups:[
+              {name: '分组1', children:[{ id: '1', name:'名字1'},{ id: '2',name:'名字2'}]},
+              {name: '分组2', children:[{ id: '3',name:'名字1'},{ id: '4',name:'名字2'}]}
+            ],
+            friends:[
+              {name: '分组1', children:[{ id: '1', name:'名字1'},{ id: '2',name:'名字2'}]},
+              {name: '分组2', children:[{ id: '3',name:'名字1'},{ id: '4',name:'名字2'}]}
+            ]
+          },
+          tarData: {
+            members:[],
+            customSel:[]
+          },
+          settings:{
+            groupsProps: {
+              children: 'children',
+              label: 'name'
+            },
+            friendsProps: {
+              children: 'children',
+              label: 'name'
+            },
+            dynamicTags: ['标签一', '标签二', '标签三'],
+                inputVisible: false,
+                inputValue: ''
+          }
+        }
+      },
+      curid: null
+    };
+  },
   components: {
     SelectMember
   },
-	data() {
-		return {
-			c_email: false,
-			c_message: false,
-			c_once: false,
-			c_five: false,
-			activeNames: [],
-			activeNames1: [],
-			MeetingInfo: null,
-			date:null,
-			form: {
-				meeting_name: '新建会议',
-				start_time: 0,
-				founder_id: '005',
-				member:[],
-				passwd: '123456',
-				repasswd: '123456'
-	    },
-      form1: {
-      	name: []
-      },
-      dialogVisible: false,
-      selectDialogVisible: false,
-      selectVisible: false,
-      pwdType: true,
-      pwdType2: true,
-      departments: [],
-      groups: [],
-      tempMember: [],
-      tempGroup: [],
-      tempMemberSet: new Set(),
-      tempGroupSet: new Set(),
-      tempMeetingMemberSet: new Set(),
-      rules: {
-        meeting_name: [
-          {
-            required: true, message: '请输入会议名称', trigger: 'blur' 
-          },
-          {
-            validator: (rule, value, callback) => {
-              if (value === '') {
-              callback(new Error('请输入会议名称'));
-              } else {
-              callback();
-              }
-            },
-            trigger: 'blur'
-          }
-        ],
-        founder_id: [
-          {
-          required: true, message: '请输入主持人', trigger: 'blur' 
-          },
-          {
-            validator: (rule, value, callback) => {
-              if (value === '') {
-                callback(new Error('请输入主持人'));
-              } else {
-                callback();
-              }
-            },
-            trigger: 'blur'
-          }
-        ],
-        passwd: [
-          {
-            required: true, message: '请输入密码', trigger: 'blur' 
-          },
-          {
-            validator: (rule, value, callback) => {
-              if (value === '') {
-                callback(new Error('请输入密码'));
-              } else {
-                if (this.form.repasswd !== '') {
-                this.$refs.form.validateField('repasswd');
-                }
-                callback();
-              }
-            },
-            trigger: 'blur'
-          }
-        ],
-        repasswd: [
-          {
-            required: true, message: '请确认密码', trigger: 'blur' 
-          },
-          {
-            validator: (rule, value, callback) => {
-              if (value === '') {
-                callback(new Error('请再次输入密码'));
-              } else if (value !== this.form.passwd) {
-                callback(new Error('两次输入密码不一致!'));
-              } else {
-                callback();
-              }
-            },
-            trigger: 'blur'
-          }
-        ],
-			}
-    }
-	},
-  mounted() {
-    this.refreshDepartments();
-    this.refreshGroups();
-    this.getInfo();
-    if(this.$store.state.nav.groupinfo) {
-      this.handleAddTempGroup(this.$store.state.nav.groupinfo.id, this.$store.state.nav.groupinfo.name);
-      this.handleConfirmMember();
-    }
+  methods:{
+    handleClose(tag) {
+      this.form.formMutiSelects.settings.dynamicTags.splice(this.form.formMutiSelects.settings.dynamicTags.indexOf(tag), 1);
+    },
+    showInput() {
+      this.form.formMutiSelects.settings.inputVisible = true;
+      this.$nextTick(_ => {
+        this.$refs.saveTagInput.$refs.input.focus();
+      });
+    },
+    handleInputConfirm() {
+      var inputValue = this.form.formMutiSelects.settings.inputValue;
+      var emailReg = /^([0-9A-Za-z\-_\.]+)@([0-9a-z]+\.[a-z]{2,3}(\.[a-z]{2})?)$/g;
+      var phoneReg = /^1(?:3\d|4[4-9]|5[0-35-9]|6[67]|7[013-8]|8\d|9\d)\d{8}$/;
+      if(emailReg.test(inputValue)||phoneReg.test(inputValue)){
+        this.form.formMutiSelects.settings.dynamicTags.push(inputValue);
+        this.form.formMutiSelects.settings.inputVisible = false;
+        this.form.formMutiSelects.settings.inputValue = '';
+      }else{
+        this.$message.error('输入不合法！');
+        return;
+      }
+    },
 
-  },
-	methods: {
+    handleCustomSelect(data){
+      
+    },
+
+    handleTreeCheckChange(data, checked, indeterminate) {
+      var $this = this;
+      // if(checked){
+      //  if(typeof(data.children)=="undefined"){
+      //    // $this.form.formMutiSelects.tarData.groupsSel.push(item);
+      //    $this.addMember(data);
+      //  }
+      // }else{
+      //  if(typeof(data.children)=="undefined"){
+      //    // $this.form.formMutiSelects.tarData.groupsSel.push(item);
+      //    $this.removeMember(data);
+      //  }
+      // }
+      $this.form.formMutiSelects.tarData.members=[]
+      var groups = $this.$refs.groupTree.getCheckedNodes();
+      for (var i = 0; i < groups.length; i++) {
+        if(typeof(groups[i].children)=="undefined") {
+          $this.addMember(groups[i])
+        }
+      }
+      var friends = $this.$refs.friendTree.getCheckedNodes();
+      for (var i = 0; i < friends.length; i++) {
+        if(typeof(friends[i].children)=="undefined") {
+          $this.addMember(friends[i])
+        }
+      }
+      // groups.forEach(function(item,index){
+      //  if(typeof(item.children)=="undefined"){
+      //    $this.form.formMutiSelects.tarData.members.push(item.name);
+      //  }
+      // })
+    },
+
+    addMember(item){
+      var $this = this;
+      var members = $this.form.formMutiSelects.tarData.members;
+      var ret = members.findIndex((value, index, arr) => {
+            return value.id == item.id;
+          })
+      if(ret==-1){
+        $this.form.formMutiSelects.tarData.members.push(item);
+      }
+      console.log($this.form.formMutiSelects.tarData.members)
+    },
+
+    removeMember(item){
+      var $this = this;
+      var members = $this.form.formMutiSelects.tarData.members;
+      var ret = members.findIndex((value, index, arr) => {
+            return value.id == item.id;
+          })
+      if(ret!=-1){
+        $this.form.formMutiSelects.tarData.members.splice(ret,1);
+      }
+      console.log($this.form.formMutiSelects.tarData.members)
+    },
     getInfo () {
       var $this = this;
       $this.getSelfInfo (function (res){
-        $this.form.founder_id = res.data.data.nickname;
+        $this.form.founder = res.data.data.nickname;
       }, function (res){
-        $this.$message.error('获取用户群组失败！');
+        $this.$message.error('获取用户信息失败！');
       })
     },
 
@@ -286,55 +247,22 @@ export default {
       $this.$axios.get(apiAuth.userInfo, null, cbOk, cbErr);
     },
 
-		hhh() {
-			alert(this.date);
-			console.log(this.date);
-		},
-		onSubmit() {
-	    console.log('submit!');
-    },
-    handleClose(done) {
-      this.$confirm('确认关闭？')
-      .then(_ => {
-         	done();
-      })
-      .catch(_ => {});
-    },
-    handleChange(value) {
-      // this.selectedOptions = [];
-      this.form1.name.push(value[1]);
-	  },
-
-    refreshGroups() {
-      var $this = this;
-      $this.getAllGroups(function(res){
-        $this.groups = res.data.data;
-      },function(res){
-        $this.$message.error('获取用户群组失败！');
-      })
-    },
-
-    getAllGroups(cbOk, cbErr) {
-      var $this = this;
-      this.$axios.get(apiLinks.groups.all, null, cbOk, cbErr);
-    },
-
-    handleAddTempGroup(id, g) {
-      this.tempGroupSet.add({group_id:id,group_name:g});
-      this.tempGroup=Array.from(this.tempGroupSet);
-    },
-
-    handleDeleteTempGroup(m) {
-      this.tempGroupSet.delete(m);
-      this.tempGroup=Array.from(this.tempGroupSet);
-    },
-
     refreshDepartments() {
       var $this = this;
-      $this.getAllDepartments(function(res){
-        $this.departments = res.data.data;
+      $this.form.formMutiSelects.srcData.friends = [];
+      $this.getAllDepartments(function(res) {
+        var re = res.data.data
+        for (var i = 0; i < res.data.data.length; i++) {
+          $this.form.formMutiSelects.srcData.friends.push({id: re[i].department_id, name: re[i].department_name, children:[]})
+          for (var j = 0; j < re[i].departmemt_members.length; j++) {
+            $this.form.formMutiSelects.srcData.friends[i].children.push({
+              id: re[i].departmemt_members[j].id,
+              name: re[i].departmemt_members[j].nickname
+            })
+          }
+        }
       },function(res){
-        $this.$message.error('获取用户分组失败！');
+        $this.$message.error('获取用户分群组失败！');
       })
     },
 
@@ -343,106 +271,106 @@ export default {
       this.$axios.get(apiLinks.friends.allDepartments, null, cbOk, cbErr)
     },
 
-    handleAddTempMember(m) {
-      this.tempMemberSet.add(m);
-      this.tempMember=Array.from(this.tempMemberSet);
-    },
-
-    handleDeleteTempMember(m) {
-      this.tempMemberSet.delete(m);
-      this.tempMember=Array.from(this.tempMemberSet);
-    },
-
-    handleConfirmMember() {
+    refreshGroups() {
       var $this = this;
-      $this.selectDialogVisible = false;
-      for (var i = $this.tempMember.length - 1; i >= 0; i--) {
-        $this.tempMeetingMemberSet.add($this.tempMember[i]);
-      }
-      for (var i = $this.tempGroup.length - 1; i >= 0; i--) {
-        console.log("会议id" + $this.tempGroup[i].group_id);
-        $this.getGroupsMember($this.tempGroup[i].group_id.toString(), function(res) {
-          var re = res.data;
-          console.log("请求到的数据:");
-          console.log(re.data);
-          for(var i = re.data.length-1; i>=0; i--) {
-            console.log("获取群组成员：" + re.data[i].nickname);
-            $this.tempMeetingMemberSet.add(re.data[i].nickname);
+      $this.form.formMutiSelects.srcData.groups = [];
+      $this.getAllGroups(function(res) {
+        var re = res.data.data
+        for (var i = 0; i < res.data.data.length; i++) {
+          $this.form.formMutiSelects.srcData.groups.push({id: re[i].group_id, name: re[i].group_name, children:[]})
+          for (var j = 0; j < re[i].member.length; j++) {
+            $this.form.formMutiSelects.srcData.groups[i].children.push({
+              id: re[i].member[j].id,
+              name: re[i].member[j].nickname
+            })
           }
-        }, function(err){
-          $this.$message.error('获取群组成员失败');
-        });
-      }
+        }
+      },function(res){
+        $this.$message.error('获取用户群组失败！');
+      })
     },
 
-    handleCreateMeeting() {
+    getAllGroups(cbOk, cbErr) {
       var $this = this;
-      $this.form.member = Array.from($this.tempMeetingMemberSet);
-      $this.createMeeting(form.member, form.meeting_member, form.meeting_time, function(res){
-      	$this.$message.success('创建会议成功');
-      },function(err) {
-        $this.$message.error('创建会议失败');
-      });
+      this.$axios.get(apiLinks.groups.allmember, null, cbOk, cbErr);
     },
 
-    createMeeting(m_name, cbOk, cbErr) {
-      this.$axios.put(apiMeeting.order.create,{
-        meeting_name: m_name,
-        meeting_member: m_member,
-        meeting_time: m_time
-      }, cbOk, cbErr)
-    },
 
-    getGroupsMember(id, cbOk, cbErr) {
-      this.$axios.post(apiLinks.groups.members,{
-        group_id: id
-      }, cbOk, cbErr)
+    // joinMeetings(mid) {
+    //  axios.get('/meeting/' + mid)
+    //  .then(function(response){
+    //    if(response.code == 0) {
+    //      this.url = response.url;
+    //      console.log(response.msg);
+    //    } else {
+    //      console.log(response.msg);
+    //    }
+    //  })
+    //  .catch(function(error) {
+    //    console.log(error);
+    //  })
+    // }
+  },
+  mounted() {
+    this.getInfo();
+    this.refreshDepartments();
+    this.refreshGroups();
+    if(this.$route.query.group_id) {
+      this.curid=this.$route.query.group_id
     }
-	},
-	computed: {
-		// filteUsers: function(){
-		// 	var $this = this;
-		// 	var friends = [];
-		// 	for(var i=0;i<$this.friends.length;i++){
-		// 	    friends.push($this.friends[i])
-		// 	}
-		// 	return friends;
-		// }
-	},
-	watch: {
-
-	}
+  }
 }
 </script>
+
 <style scoped>
-	::-webkit-scrollbar {display: none}
-  .m_list {
-    float: left;
-    margin-right: 30px;
-  }
+  ::-webkit-scrollbar {display: none}
   .once {
-    width: 70%; 
-    margin-top: 15px;
+     width: 70%; 
+     margin-top: 15px;
   }
-  .mmember {
-    border: solid;
-    border-width: thin; 
-    border-color: #dcdfe6; 
-    border-radius: 4px; 
-    text-align: left; 
-    padding-left: 5px;
+  .tabHeader{
+    text-align: left;
+    display: flex;
   }
-  .list {
-    height: 250px; 
-    overflow: scroll;
+  .el-tag {
+    margin-bottom: 10px;
   }
-  .s_list {
-    width: 80%;
-    float: right;
+  .button-new-tag {
+    height: 40px;
+    line-height: 40px;
+    padding-top: 0;
+    padding-bottom: 0;
   }
-  .select {
-    height: 250px;
-    text-align: left; 
-    overflow: scroll;
+  .input-new-tag {
+    vertical-align: bottom;
+  }
+   .tabItem{
+    height: 100%;
+    color: #606266;
+    text-decoration: none;
+    padding: 0 10px;
+  }
+  .tabItem:hover{
+    color: #dcdfe6;
+  }
+  .activeTab{
+    color: red;
+    border-bottom: 1px solid red;
+  }
+  .tabHeader{
+    text-align: left;
+    display: flex;
+  }
+  .el-tag {
+    margin-bottom: 10px;
+  }
+  .button-new-tag {
+    height: 40px;
+    line-height: 40px;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+  .input-new-tag {
+    vertical-align: bottom;
   }
 </style>

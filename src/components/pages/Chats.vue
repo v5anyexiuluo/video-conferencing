@@ -7,27 +7,23 @@
         </el-input>
       </div>
       <ul class="full-element">
-        <router-link
-          to="/#"
-          tag="li"
-          class="item h-full-container"
-          v-for="chat in chatList"
-        >
-          <img src="https://picsum.photos/40/40" alt="头像">
+        <li @click="initChat(chat)" class="item h-full-container" :class="{selected: curChat==chat}" v-for="chat in chatList">
+          <img :src="chat.data.headimg? chat.data.headimg:'https://picsum.photos/20/20'" alt="头像">
           <div
             style="margin-left: 10px;line-height: initial;"
             class="full-element"
           >
-            <h4>{{chat.name}}</h4>
-            <router-link to="/regist" tag="p" style="font-size: 14px;" class="item h-full-container">{{chat.abstract}}</router-link>
+            <h4>{{chat.type=="friend"? chat.data.nickname:chat.data.group_name}}</h4>
+            <router-link to="/regist" tag="p" style="font-size: 14px;" class="item h-full-container">会议纪要{{chat.data.realname}}</router-link>
           </div>
-        </router-link>
+          <div><el-button type="text" icon="el-icon-circle-close-outline" style="font-size: 18px;" @click.stop="removeChatItem(chat);"></el-button></div>
+        </li>
       </ul>
     </div>
     <div class="item-detail full-height">
       <el-tabs v-model="activeTab" type="border-card" style="height: 100%;">
         <el-tab-pane label="聊天" name="first" class="full-height" style="position: relative;">
-          <chat-message :chatname="chatNow"></chat-message>
+          <chat-message :messages="messages"></chat-message>
           <chat-text></chat-text>
         </el-tab-pane>
         <el-tab-pane label="文件" name="second">
@@ -55,27 +51,82 @@
 <script>
   import ChatMessage from "@/components/common/ChatMessage.vue"
   import ChatText from "@/components/common/ChatText.vue"
+  import {mapGetters, mapMutations} from 'vuex';
+  import md5 from 'js-md5';
+  import chat from '@/assets/js/meeting.core.js';
+  import connect from '@/assets/js/connector.js'
   export default {
     name: 'LinksFriend',
     data(){
       return {
         activeTab: 'first',
-        chatNow:"",
-        // chatList: []
-        chatList: ["第一个群组","第二个群组","第三个群组"]
+        curChat: null,
+        chatCore: null,
+        messages:[]
       }
-    },
-    methods: {
-
-    },
-    mounted() {
-      this.chatList = this.$store.state.nav.chatList
-      this.chatNow = this.chatList[0]
     },
     components: {
       'chat-message': ChatMessage,
       'chat-text': ChatText
     },
+    methods: {
+      ...mapMutations([
+        'addChatItem',
+        'removeChatItem',
+        'addChatMsg'
+      ]),
+
+      // 聊天回调函数
+      onCallback(json) {
+        if("text" === json.msgtype)
+          this.onEventRevieveChat(json);
+      },
+
+      onEventRevieveChat(json){
+        var $this = this;
+        var msgObj = JSON.parse(json.content);
+        $this.messages.push(msgObj);
+      },
+
+      initChat(chatItem){
+        var $this = this;
+        $this.curChat=chatItem;
+        if(typeof chatItem.messages != 'undefined'){
+          $this.messages=chatItem.messages;
+        }
+        connect.$off('msg');
+        connect.$on('msg',function(msg){
+          $this.chatCore.onEventSendChat(msg);
+        })
+        var chatroom = '';
+        if($this.curChat.type=="friend"){
+          chatroom = $this.user.id>$this.curChat.data.id? ($this.curChat.data.id.toString()+$this.user.id):($this.user.id.toString()+$this.curChat.data.id)
+        }else if($this.curChat.type=="group"){
+          chatroom = $this.curChat.data.group_id.toString();
+        }else{
+          return;
+        }
+        $this.chatCore = chat.getXchatkit($this.user.id, $this.user.nickname, md5.hex(chatroom), $this.onCallback);
+        $this.chatCore.onJoinConferenceClicked();
+      }
+    },
+    created(){
+      console.log(this.chatList)
+    },
+    mounted() {
+    },
+    computed:{
+      ...mapGetters([
+        'user',
+        'chatList'
+      ]),
+    },
+    watch:{
+      curChat: function(newVal, oldVal){
+        var $this = this;
+        $this.addChatMsg(oldVal);
+      }
+    }
   }
 </script>
 <style scoped>
@@ -112,6 +163,9 @@
     padding: 10px;
     border-bottom: 1px dashed #dcdfe6;
     cursor: pointer;
+  }
+  li.selected{
+    background-color: #ecf5ff;
   }
   .item img{
     height: 40px;
@@ -172,7 +226,6 @@
     margin-right: 10px;
   }
   .h-full-container>div{
-    flex-grow: 1;
     text-align: left;
   }
   .h-full-container>div>div:not(:first-child){

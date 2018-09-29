@@ -18,6 +18,7 @@
     "axios": "^0.18.0",
     "better-scroll": "^1.12.6",
     "element-ui": "^2.4.5",
+    "js-md5": "^0.7.3",
     "moment": "^2.22.1",
     "recordrtc": "^5.4.7",
     "vue": "^2.5.2",

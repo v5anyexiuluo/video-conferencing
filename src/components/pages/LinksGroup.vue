@@ -427,13 +427,10 @@
         this.$router.push('/meeting/order');
       },
       handleJoinChat() {
-        this.addChatItem({
-          name:this.curGroup.group_name,
-          abstract:"摘要内容"
-        });
-        this.$router.push('/chats');
+        this.addChatItem({type:'group',data:this.curGroup});
+        this.$router.push({name:'chats'});
       },
-      ...mapMutations(['setGroupName', 'addChatItem'])
+      ...mapMutations(['addChatItem'])
     },
     mounted: function() {
       

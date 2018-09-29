@@ -6,12 +6,25 @@
           <el-button slot="append" icon="el-icon-search"></el-button>
         </el-input>
       </div>
-      <ul class="full-element">
+      <!-- <ul class="full-element">
         <li v-for="(department, index) in departments" @click="curDepartment=department;depMembers=department.departmemt_members" class="item" :class="{'selected':department.department_id==curDepartment.department_id}">
           <img src="https://picsum.photos/30/30" alt="头像">
           <span>{{department.department_name}}</span>
         </li>
-      </ul>
+      </ul> -->
+      <el-collapse v-model="activeName" @change="handleDepChange" class="full-element"accordion>
+        <el-collapse-item v-for="(department, index) in departments" class="item" :class="{'selected':department.department_id==curDepartment.department_id}" :name="department.department_id">
+          <template slot="title" class="cece">
+            <span>{{department.department_name}}</span>
+          </template>
+          <ul>
+            <li v-for="(item, index) in depMembers" @click="handleJoinChat(item)">
+              <img src="https://picsum.photos/30/30" alt="头像">
+              <span>{{item.nickname}}</span>
+            </li>
+          </ul>
+        </el-collapse-item>
+      </el-collapse>
       <div class="list-action">
         <el-button type="text" @click="dialogAddFriendVisible=true;">添加好友</el-button>
         <el-button type="text" @click="dialogAddDepartmentVisible=true;">添加分组</el-button>
@@ -155,11 +168,12 @@
   import BScroll from 'better-scroll'
   import Scroll from '@/components/common/Scroll.vue'
   import {apiAuth, apiLinks, apiMeeting} from '@/properties/api.js'
-  import {mapGetters} from 'vuex';
+  import {mapGetters, mapMutations} from 'vuex';
   import utils from '@/assets/js/utils.js'
   export default {
     data() {
       return {
+        activeName: '1',
         departments:[],
         curDepartment:{},
         depMembers:[],
@@ -197,6 +211,14 @@
       this.refreshDepartments();
     },
     methods: {
+      handleDepChange(id){
+        var $this = this;
+        var ret = $this.getDepartmentById(id);
+        if(ret!=null){
+          $this.curDepartment = ret;
+          $this.depMembers = ret.departmemt_members;
+        }        
+      },
       refreshDepartments(){
         var $this = this;
         $this.getAllDepartments(function(res){
@@ -298,9 +320,21 @@
         })
       },
 
+      handleJoinChat(item) {
+        this.addChatItem({type:'friend',data:item});
+        this.$router.push({name:'chats'});
+      },
+
       getAllDepartments(cbOk, cbErr){
         var $this = this;
         this.$axios.get(apiLinks.friends.allDepartments, null, cbOk, cbErr)
+      },
+
+      getDepartmentById(id){
+        var $this = this;
+        return $this.departments.find((value, index, arr) => {
+          return value.department_id == id;
+        })
       },
 
       addDepartment(departmentName, cbOk, cbErr){
@@ -362,6 +396,8 @@
           deleted_user_id: userId.toString()
         }, cbOk, cbErr)
       },
+
+      ...mapMutations(['addChatItem'])
     },
     mounted: function() {
       
@@ -420,20 +456,37 @@
     flex-wrap: wrap;
     overflow-y: auto;
   }
-  li.item{
-    height: 40px;
-    line-height: 40px;
+  .el-collapse{
+    border-width: 0px;
+  }
+  .item{
     text-align: left;
-    padding: 10px;
     border-bottom: 1px dashed #dcdfe6;
     cursor: pointer;
   }
-  li.item.selected{
+  .item.selected{
     background-color: aliceblue;
+  }
+  .item >>> .el-collapse-item__header, .item >>> .el-collapse-item__wrap{
+    border-bottom-width: 0px;
+    background-color: transparent;
+  }
+  .item >>> .el-collapse-item__header{
+    padding: 0px 10px;
+  }
+  .item >>> .el-collapse-item__content{
+    padding-bottom: 0px;
+  }
+  .item li{
+    padding: 10px 20px;
+  }
+  .item li:hover{
+    background-color: #ebeef5;
   }
   .item img{
     height: 30px;
     width: 30px;
+    border-radius: 15px;
     vertical-align: middle;
   }
   .item span{

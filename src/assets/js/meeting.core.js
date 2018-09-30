@@ -68,7 +68,11 @@ export default (function(){
     //   // return window.URL.createObjectURL(this.xchatkit.GetLocalStream());
     //   return window.URL.createObjectURL(json.stream);
     // },
-
+    onEventLocalStream(json)
+    {
+      // return window.URL.createObjectURL(this.xchatkit.GetLocalStream());
+      return window.URL.createObjectURL(json.stream);
+    },
     // //加入会议事件
     // onEventPartyAdded(json)
     // {

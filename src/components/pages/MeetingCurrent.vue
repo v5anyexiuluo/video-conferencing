@@ -87,9 +87,11 @@ import {mapState,mapMutations,mapGetters} from 'vuex';
 import BScroll from 'better-scroll'
 import Scroll from '@/components/common/Scroll.vue'
 import Chat from "@/components/common/Chat.vue"
+import meet from '@/assets/js/meeting.core.js';
 export default {
-	data() {
+	data () {
 		return {
+      meetCore: null,
 			dialogInviteFriendVisible: false,
 			dialogSelectMeetingVisible: false,
 			formMeeting: {
@@ -150,37 +152,37 @@ export default {
 		'chat': Chat
 	},
 	methods:{
-		handleSelectMeeting(){
-			var $this = this;
-			if($this.formMeeting.meetingId){
-				$this.getMeetingInfo($this.formMeeting.meetingId, function(res){
-					$this.setMeeting(res.data.data)
-					if($this.user.id==$this.meeting.founderId){
-						$this.isMaster = true;
-					}else{
-						$this.isMaster = false;
-					}
-				},function(res){
-					$this.$message.error('获取会议信息失败！'+res.msg);
-				});
-				$this.chatroom = $this.formMeeting.meetingId.toString();
-				$this.meetingjson.fromuser = $this.user.id;
-				$this.meetingjson.fromname = $this.user.nickname;
-				$this.meetingjson.chatroom = $this.formMeeting.meetingId;
-				$this.xchatkit = new XChatKit($this.meetingjson);
-				$this.dialogSelectMeetingVisible = false;
-			}
-		},
+		// handleSelectMeeting(){
+		// 	var $this = this;
+		// 	if($this.formMeeting.meetingId){
+		// 		$this.getMeetingInfo($this.formMeeting.meetingId, function(res){
+		// 			$this.setMeeting(res.data.data)
+		// 			if($this.user.id==$this.meeting.founderId){
+		// 				$this.isMaster = true;
+		// 			}else{
+		// 				$this.isMaster = false;
+		// 			}
+		// 		},function(res){
+		// 			$this.$message.error('获取会议信息失败！'+res.msg);
+		// 		});
+		// 		$this.chatroom = $this.formMeeting.meetingId.toString();
+		// 		$this.meetingjson.fromuser = $this.user.id;
+		// 		$this.meetingjson.fromname = $this.user.nickname;
+		// 		$this.meetingjson.chatroom = $this.formMeeting.meetingId;
+		// 		$this.xchatkit = new XChatKit($this.meetingjson);
+		// 		$this.dialogSelectMeetingVisible = false;
+		// 	}
+		// },
 
 		handleMonitoredChange(newVal){
 			var $this = this
 			var json = $this.remoteResources.find((value, index, arr) => {
-            	return value.fromuser == newVal;
-          	})
-          	if(typeof(json)!="undefined"){
-          		$this.remoteVideo.src=window.URL.createObjectURL(json.stream);
-          		// remoteVideo.srcObject=json.stream;
-          	}
+        return value.fromuser == newVal;
+      })
+      if(typeof(json)!="undefined"){
+        $this.remoteVideo.src=window.URL.createObjectURL(json.stream);
+        // remoteVideo.srcObject=json.stream;
+      }
 		},
 
 		handleMonitoredSelectShow(isShow){
@@ -199,64 +201,312 @@ export default {
 			})
 		},
 
-		//开始会议与结束会议
-		onStartOrEndConference()
-		{
+		/*此处往下为本次封装代码*/
+		/**
+		*	2018-9-28
+		* 史鑫鑫
+		*/
+    // 会议选择
+    handleSelectMeeting () {
+      var $this = this;
+      if($this.formMeeting.meetingId){
+        $this.getMeetingInfo($this.formMeeting.meetingId, function(res){
+          $this.setMeeting(res.data.data)
+          if($this.user.id==$this.meeting.founderId){
+            $this.isMaster = true;
+          }else{
+            $this.isMaster = false;
+          }
+        },function(res){
+          $this.$message.error('获取会议信息失败！'+res.msg);
+        });
+        $this.chatroom = $this.formMeeting.meetingId.toString();
+        $this.meetCore = meet.getXchatkit($this.user.id, $this.user.nickname, $this.formMeeting.meetingId, $this.onCallback);
+        $this.dialogSelectMeetingVisible = false;
+      }
+    },
+		// 视频回调函数
+		onCallback(json) {
+	    if ( "EventLocalStream" == json.msgtype )
+	      this.onEventLocalStream ( json );
+	    else if ( "EventPartyAdded" === json.msgtype )
+	      this.onEventPartyAdded ( json );
+	    else if ( "EventPartyRemoved" === json.msgtype )
+	      this.onEventPartyRemoved ( json );
+	    else if ( "EventRDPEnabled" === json.msgtype )
+	      this.onEventRDPEnabled ( json );
+	    else if ( "EventRDPDisabled" === json.msgtype )
+	      this.onEventRDPDisabled ( json );
+	    else if ( "EventPartyConnected" === json.msgtype )
+	      this.onEventPartyConnected ( json );
+	    else if ( "EventPartyDisconnected" === json.msgtype )
+	      this.onEventPartyDisconnected ( json );
+		},
+
+		onEventLocalStream ( json ) {
 			var $this = this;
-			if($this.Conference == '开始会议') {
-				$this.onJoinConferenceClicked();
-				$this.Conference = '结束会议';
-			} else {
-				$this.onLeaveConferenceClicked();
-				$this.Conference = '开始会议';
+      console.log("json")
+      console.log(json)
+			var meetingObj = json;
+			if($this.isShare){
+				$this.localVideo.src=window.URL.createObjectURL($this.meetCore.GetLocalStream());
+				$this.shareVideo.src=window.URL.createObjectURL(meetingObj.stream);
+			}else{
+				$this.localVideo.src=window.URL.createObjectURL(meetingObj.stream);
 			}
 		},
 
-		//开始会议
-		onJoinConferenceClicked()
-		{
+		onEventPartyAdded ( json ) {
+			var $this = this;
+			var meetingObj = JSON.parse(json.content);
+			if(!$this.isMaster && $this.meeting.founderId==meetingObj.fromuser){
+				$this.remoteVideo.src=window.URL.createObjectURL(meetingObj.stream);
+				return;
+			}
+			var result = $this.remoteResources.findIndex((value, index, arr) => {
+				return value.id == meetingObj.id;
+			})
+			if(result==-1){
+				$this.remoteResources.push(meetingObj);
+			}
+		},
+
+		onEventPartyRemoved ( json ) {
+			var $this = this;
+			var meetingObj = JSON.parse(json.content);
+			var result = $this.remoteResources.findIndex((value, index, arr) => {
+				return value.id == meetingObj.id;
+			})
+			if(result != -1) {
+				$this.remoteResources.splice(result,1);
+			}
+
+		},
+		onEventRDPEnabled ( json ) {
+
+		},
+
+		onEventRDPDisabled ( json ) {
+
+		},
+
+		onEventPartyConnected ( json ) {
+			var $this = this;
+			var meetingObj = JSON.parse(json.content);
+			$this.meetCore.StartRecording(meetingObj.fromuser);
+		},
+
+		onEventPartyDisconnected ( json ) {
+			var $this = this;
+			var meetingObj = JSON.parse(json.content);
+			$this.xchatkit.StopRecording(meetingObj.fromuser);
+		},
+
+    // 开始或者结束会议
+    onStartOrEndConference()
+    {
+      var $this = this;
+      if($this.Conference == '开始会议') {
+        $this.onJoinConferenceClicked1();
+        $this.Conference = '结束会议';
+      } else {
+        $this.onLeaveConferenceClicked1();
+        $this.Conference = '开始会议';
+      }
+    },
+
+		onJoinConferenceClicked1 () {
 			var $this = this;
 			if($this.isMaster){
 				$this.startMeeting($this.meeting.id, function(res){
-					$this.xchatkit.JoinConference($this.meetingjson);
+					$this.meetCore.onJoinConferenceClicked();
 				}, function(res){
 					$this.$message.error('启动会议失败！'+res.msg);
 				})
 			}else{
 				$this.entryMeeting($this.meeting.id, $this.user.nickname, function(res){
-					$this.xchatkit.JoinConference($this.meetingjson);
+					$this.meetCore.onJoinConferenceClicked();
 				}, function(res){
 					$this.$message.error('进入会议失败！'+res.msg);
 				})
 			}
 		},
+
+    onLeaveConferenceClicked1 () {
+      var $this = this;
+      $this.meetCore.onLeaveConferenceClicked();
+      //刷新与会人员列表
+      $this.refreshNowMembers();
+    },
+
+    onHoldCallClicked () {
+      var $this = this;
+      $this.meetCore.onHoldCallClicked()
+    },
+
+    onRetrieveCallClicked () {
+      var $this = this;
+      $this.meetCore.onRetrieveCallClicked()
+    },
+
+    onMakeCallClick(){
+      var $this = this;
+      $this.meetCore.onMakeCallClick()
+    },
+
+    onReleaseCallClick () {
+      var $this = this;
+      $this.meetCore.onReleaseCallClick()
+    },
+
+    //共享桌面与停止共享
+    onStartOrEndShare()
+    {
+      var $this = this;
+      if($this.Share == '共享桌面') {
+        $this.onStartShareClicked();
+        $this.Share = '停止共享';
+      } else {
+        $this.onStopShareClicked();
+        $this.Share = '共享桌面';
+      }
+    },
+
+    //开始屏幕共享
+    onStartShareClicked()
+    {
+      var $this = this;
+      $this.isShare = true;
+      $this.meetCore.onStartShareClicked();
+    },
+
+    //停止屏幕共享
+    onStopShareClicked()
+    {
+      var $this = this;
+      $this.isShare = false;
+      $this.meetCore.onStopShareClicked();
+      $this.localVideo.src = window.URL.createObjectURL($this.xchatkit.GetLocalStream());
+    },
+    //加入会议事件
+    onEventPartyAdded(json)
+    {
+      if(!this.isMaster && this.meeting.founderId==json.fromuser) {
+       this.remoteVideo.src = window.URL.createObjectURL(json.stream);
+      return;
+      }
+      var result = this.remoteResources.findIndex((value, index, arr) => {
+        return value.id == json.id;
+      })
+      if(result==-1) {
+        this.remoteResources.push(json);
+      }
+    },
+    //离开会议
+    onEventPartyRemoved(json)
+    {
+      var result = this.remoteResources.findIndex((value, index, arr) => {
+        return value.id == json.id;
+      })
+      if(result!=-1){
+        this.remoteResources.splice(result,1);
+      }
+    },
+
+
+    //启用摄像头
+    onEnableCameraClicked()
+    {
+      var $this = this;
+      $this.localVideo.src = $this.meetCore.onEventLocalStream();
+      $this.meetCore.onEnableCameraClicked();
+    },
+    //禁用摄像头
+    onDisableCameraClicked()
+    {
+      $this.localVideo.src = '';
+      localVideo.poster = "avatar.png";
+      $this.meetCore.onDisableCameraClicked();
+    },
+
+    //启用麦克风
+    onDisableMicphoneClicked()
+    {
+      var $this = this;
+      $this.meetCore.onDisableMicphoneClicked();
+    },
+    //禁用麦克风
+    onDisableMicphoneClicked()
+    {
+      var $this = this;
+      $this.meetCore.onDisableMicphoneClicked();
+    },
+
+		/*
+		*此处往上为本次封装代码
+		*2018-9-28
+		*史鑫鑫
+		*/
+
+
+		//开始会议与结束会议
+		// onStartOrEndConference()
+		// {
+		// 	var $this = this;
+		// 	if($this.Conference == '开始会议') {
+		// 		$this.onJoinConferenceClicked();
+		// 		$this.Conference = '结束会议';
+		// 	} else {
+		// 		$this.onLeaveConferenceClicked();
+		// 		$this.Conference = '开始会议';
+		// 	}
+		// },
+
+		//开始会议
+		// onJoinConferenceClicked()
+		// {
+		// 	var $this = this;
+		// 	if($this.isMaster){
+		// 		$this.startMeeting($this.meeting.id, function(res){
+		// 			$this.xchatkit.JoinConference($this.meetingjson);
+		// 		}, function(res){
+		// 			$this.$message.error('启动会议失败！'+res.msg);
+		// 		})
+		// 	}else{
+		// 		$this.entryMeeting($this.meeting.id, $this.user.nickname, function(res){
+		// 			$this.xchatkit.JoinConference($this.meetingjson);
+		// 		}, function(res){
+		// 			$this.$message.error('进入会议失败！'+res.msg);
+		// 		})
+		// 	}
+		// },
 		//结束
-		onLeaveConferenceClicked()
-		{
-			var $this = this;
-			$this.xchatkit.LeaveConference($this.meetingjson);
-	        //刷新与会人员列表
-	        $this.refreshNowMembers();
-			// var $this = this;
-			// if($this.isMaster){
-			// 	$this.endMeeting($this.meeting.id, function(res){
-			// 		$this.xchatkit.LeaveConference($this.meetingjson);
-			//         //刷新与会人员列表
-			//         $this.refreshNowMembers();
-			// 	}, function(res){
-			// 		$this.$message.error('结束会议失败！'+res.msg);
-			// 	})
-			// }else{
-			// 	$this.exitMeeting($this.meeting.id, $this.user.nickname, function(res){
-			// 		// alert("离开会议,会议号:" + this.meetingjson.chatroom);
-			//         $this.xchatkit.LeaveConference($this.meetingjson);
-			//         //刷新与会人员列表
-			//         $this.refreshNowMembers();
-			// 	}, function(res){
-			// 		$this.$message.error('退出会议失败！'+res.msg);
-			// 	})
-			// }
-		},
+		// onLeaveConferenceClicked()
+		// {
+		// 	var $this = this;
+		// 	$this.xchatkit.LeaveConference($this.meetingjson);
+	 //        //刷新与会人员列表
+	 //        $this.refreshNowMembers();
+		// 	// var $this = this;
+		// 	// if($this.isMaster){
+		// 	// 	$this.endMeeting($this.meeting.id, function(res){
+		// 	// 		$this.xchatkit.LeaveConference($this.meetingjson);
+		// 	//         //刷新与会人员列表
+		// 	//         $this.refreshNowMembers();
+		// 	// 	}, function(res){
+		// 	// 		$this.$message.error('结束会议失败！'+res.msg);
+		// 	// 	})
+		// 	// }else{
+		// 	// 	$this.exitMeeting($this.meeting.id, $this.user.nickname, function(res){
+		// 	// 		// alert("离开会议,会议号:" + this.meetingjson.chatroom);
+		// 	//         $this.xchatkit.LeaveConference($this.meetingjson);
+		// 	//         //刷新与会人员列表
+		// 	//         $this.refreshNowMembers();
+		// 	// 	}, function(res){
+		// 	// 		$this.$message.error('退出会议失败！'+res.msg);
+		// 	// 	})
+		// 	// }
+		// },
 
 		//邀请人
 		onInviteFriendClicked()
@@ -265,177 +515,177 @@ export default {
 		    this.addMember(this.room, this.formInviteFriend.nickName);
 		},
 
-		onHoldCallClicked()
-		{
-			var $this = this;
-			$this.meetingjson.chatroom = '';
-	        $this.xchatkit.HoldCall($this.meetingjson);
-		},
+		// onHoldCallClicked()
+		// {
+		// 	var $this = this;
+		// 	$this.meetingjson.chatroom = '';
+	 //        $this.xchatkit.HoldCall($this.meetingjson);
+		// },
 
-		onRetrieveCallClicked()
-		{
-			var $this = this;
-			$this.meetingjson.chatroom = '';
-	        this.xchatkit.RetrieveCall($this.meetingjson);
-		},
+		// onRetrieveCallClicked()
+		// {
+		// 	var $this = this;
+		// 	$this.meetingjson.chatroom = '';
+	 //        this.xchatkit.RetrieveCall($this.meetingjson);
+		// },
 
-		onMakeCallClick(){
-			var json = myjson;
-	        json.touser = '';//对方Id
-	        json.chatroom = '';//会议Id
-	        this.xchatkit.MakeCall ( json );
-		},
-		onReleaseCallClick(){
-			var json = myjson;
-	        json.touser = '';
-	        json.chatroom = '';
-	        this.xchatkit.ReleaseCall ( json );
-		},
+		// onMakeCallClick(){
+		// 	var json = myjson;
+	 //        json.touser = '';//对方Id
+	 //        json.chatroom = '';//会议Id
+	 //        this.xchatkit.MakeCall ( json );
+		// },
+		// onReleaseCallClick(){
+		// 	var json = myjson;
+	 //        json.touser = '';
+	 //        json.chatroom = '';
+	 //        this.xchatkit.ReleaseCall ( json );
+		// },
 
-		//共享桌面与停止共享
-		onStartOrEndShare()
-		{
-			var $this = this;
-			if($this.Share == '共享桌面') {
-				$this.onStartShareClicked();
-				$this.Share = '停止共享';
-			} else {
-				$this.onStopShareClicked();
-				$this.Share = '共享桌面';
-			}
-		},
+		// //共享桌面与停止共享
+		// onStartOrEndShare()
+		// {
+		// 	var $this = this;
+		// 	if($this.Share == '共享桌面') {
+		// 		$this.onStartShareClicked();
+		// 		$this.Share = '停止共享';
+		// 	} else {
+		// 		$this.onStopShareClicked();
+		// 		$this.Share = '共享桌面';
+		// 	}
+		// },
 
-		//开始屏幕共享
-		onStartShareClicked()
-		{
-			var $this = this;
-			$this.isShare = true;
-		    $this.xchatkit.StartShare();
-		    // this.shareVideo.src=window.URL.createObjectURL(json.stream);
-		},
+		// //开始屏幕共享
+		// onStartShareClicked()
+		// {
+		// 	var $this = this;
+		// 	$this.isShare = true;
+		//     $this.xchatkit.StartShare();
+		//     // this.shareVideo.src=window.URL.createObjectURL(json.stream);
+		// },
 
-		//停止屏幕共享
-		onStopShareClicked()
-		{
-			var $this = this;
-			$this.isShare = false;
-		    $this.xchatkit.StopShare();
-		    $this.localVideo.src = window.URL.createObjectURL($this.xchatkit.GetLocalStream());
-		},
-		//回调函数
-		//本地流事件
-		onEventLocalStream(json)
-		{
-			// this.$refs.localVideo.srcObject = json.stream;
-			var $this = this;
-			if($this.isShare){
-				$this.localVideo.src=window.URL.createObjectURL($this.xchatkit.GetLocalStream());
-				$this.shareVideo.src=window.URL.createObjectURL(json.stream);
-			}else{
-				$this.localVideo.src=window.URL.createObjectURL(json.stream);
-			}
-			// $this.localVideo.src=window.URL.createObjectURL(json.stream);
-		},
+		// //停止屏幕共享
+		// onStopShareClicked()
+		// {
+		// 	var $this = this;
+		// 	$this.isShare = false;
+		//     $this.xchatkit.StopShare();
+		//     $this.localVideo.src = window.URL.createObjectURL($this.xchatkit.GetLocalStream());
+		// },
+		// //回调函数
+		// //本地流事件
+		// // onEventLocalStream(json)
+		// // {
+		// // 	// this.$refs.localVideo.srcObject = json.stream;
+		// // 	var $this = this;
+		// // 	if($this.isShare){
+		// // 		$this.localVideo.src=window.URL.createObjectURL($this.xchatkit.GetLocalStream());
+		// // 		$this.shareVideo.src=window.URL.createObjectURL(json.stream);
+		// // 	}else{
+		// // 		$this.localVideo.src=window.URL.createObjectURL(json.stream);
+		// // 	}
+		// // 	// $this.localVideo.src=window.URL.createObjectURL(json.stream);
+		// // },
 
-		//加入会议事件
-		onEventPartyAdded(json)
-		{
+		// //加入会议事件
+		// onEventPartyAdded(json)
+		// {
 			
-			if(!this.isMaster && this.meeting.founderId==json.fromuser){
-				this.remoteVideo.src=window.URL.createObjectURL(json.stream);
-				return;
-			}
-			var result = this.remoteResources.findIndex((value, index, arr) => {
-            	return value.id == json.id;
-          	})
-          	if(result==-1){
-          		this.remoteResources.push(json);
-          	}
-		},
-		//离开会议
-		onEventPartyRemoved(json)
-		{
-		    var result = this.remoteResources.findIndex((value, index, arr) => {
-            	return value.id == json.id;
-          	})
-          	if(result!=-1){
-          		this.remoteResources.splice(result,1);
-          	}
-		},
+		// 	if(!this.isMaster && this.meeting.founderId==json.fromuser){
+		// 		this.remoteVideo.src=window.URL.createObjectURL(json.stream);
+		// 		return;
+		// 	}
+		// 	var result = this.remoteResources.findIndex((value, index, arr) => {
+  //           	return value.id == json.id;
+  //         	})
+  //         	if(result==-1){
+  //         		this.remoteResources.push(json);
+  //         	}
+		// },
+		// //离开会议
+		// onEventPartyRemoved(json)
+		// {
+		//     var result = this.remoteResources.findIndex((value, index, arr) => {
+  //           	return value.id == json.id;
+  //         	})
+  //         	if(result!=-1){
+  //         		this.remoteResources.splice(result,1);
+  //         	}
+		// },
 
 
-		//启用摄像头
-		onEnableCameraClicked()
-		{
-			var $this = this;
-	        $this.localVideo.src = window.URL.createObjectURL($this.xchatkit.GetLocalStream());
-	        var json = $this.meetingjson;
-	        json.chatroom = '';
-	        xchatkit.EnableCamera(json);
-		},
-		//禁用摄像头
-		onDisableCameraClicked()
-		{
-	        $this.localVideo.src = '';
-	        localVideo.poster = "avatar.png";
-	        json = $this.meetingjson;
-	        json.chatroom = '';
-	        xchatkit.DisableCamera(json);
-		},
+		// //启用摄像头
+		// onEnableCameraClicked()
+		// {
+		// 	var $this = this;
+	 //        $this.localVideo.src = window.URL.createObjectURL($this.xchatkit.GetLocalStream());
+	 //        var json = $this.meetingjson;
+	 //        json.chatroom = '';
+	 //        xchatkit.EnableCamera(json);
+		// },
+		// //禁用摄像头
+		// onDisableCameraClicked()
+		// {
+	 //        $this.localVideo.src = '';
+	 //        localVideo.poster = "avatar.png";
+	 //        json = $this.meetingjson;
+	 //        json.chatroom = '';
+	 //        xchatkit.DisableCamera(json);
+		// },
 
-		//启用麦克风
-		onDisableMicphoneClicked()
-		{
-	        var $this = this;
-	        $this.xchatkit.EnableMicphone();
-		},
-		//禁用麦克风
-		onDisableMicphoneClicked()
-		{
-	        var $this = this;
-	        $this.xchatkit.DisableMicphone();
-		},
+		// //启用麦克风
+		// onDisableMicphoneClicked()
+		// {
+	 //        var $this = this;
+	 //        $this.xchatkit.EnableMicphone();
+		// },
+		// //禁用麦克风
+		// onDisableMicphoneClicked()
+		// {
+	 //        var $this = this;
+	 //        $this.xchatkit.DisableMicphone();
+		// },
 
 
-		onEventRDPEnabled(json)
-		{
+		// onEventRDPEnabled(json)
+		// {
 	        
-		},
-		onEventRDPDisabled(json)
-		{
+		// },
+		// onEventRDPDisabled(json)
+		// {
 		    
-		},
+		// },
 
 		//启动录像
-		onEventPartyConnected(json){
-			var $this = this;
-			$this.xchatkit.StartRecording(json.fromuser);
-		},
+		// onEventPartyConnected(json){
+		// 	var $this = this;
+		// 	$this.xchatkit.StartRecording(json.fromuser);
+		// },
 		//停止录像
-		onEventPartyDisconnected(json){
-			var $this = this;
-			$this.StopRecording(json.fromuser);
-		},
+		// onEventPartyDisconnected(json){
+		// 	var $this = this;
+		// 	$this.StopRecording(json.fromuser);
+		// },
 
 		//回调函数
-		onCallback(json) {
-		    console.log ( json );
-		    console.log ( JSON.stringify ( json ) );
-		    if ( "EventLocalStream" == json.msgtype )
-		        this.onEventLocalStream ( json );
-		    else if ( "EventPartyAdded" === json.msgtype )
-		        this.onEventPartyAdded ( json );
-		    else if ( "EventPartyRemoved" === json.msgtype )
-		        this.onEventPartyRemoved ( json );
-		    else if ( "EventRDPEnabled" === json.msgtype )
-		        this.onEventRDPEnabled ( json );
-		    else if ( "EventRDPDisabled" === json.msgtype )
-		        this.onEventRDPDisabled ( json );
-		    else if ( "EventPartyConnected" === json.msgtype )
-		        this.onEventPartyConnected ( json );
-		    else if ( "EventPartyDisconnected" === json.msgtype )
-		        this.onEventPartyDisconnected ( json );
-		},
+		// onCallback(json) {
+		//     console.log ( json );
+		//     console.log ( JSON.stringify ( json ) );
+		//     if ( "EventLocalStream" == json.msgtype )
+		//         this.onEventLocalStream ( json );
+		//     else if ( "EventPartyAdded" === json.msgtype )
+		//         this.onEventPartyAdded ( json );
+		//     else if ( "EventPartyRemoved" === json.msgtype )
+		//         this.onEventPartyRemoved ( json );
+		//     else if ( "EventRDPEnabled" === json.msgtype )
+		//         this.onEventRDPEnabled ( json );
+		//     else if ( "EventRDPDisabled" === json.msgtype )
+		//         this.onEventRDPDisabled ( json );
+		//     else if ( "EventPartyConnected" === json.msgtype )
+		//         this.onEventPartyConnected ( json );
+		//     else if ( "EventPartyDisconnected" === json.msgtype )
+		//         this.onEventPartyDisconnected ( json );
+		// },
 
 
 		//会议加人
@@ -554,7 +804,7 @@ export default {
 		}
 	},
 	beforeDestroy: function () {
-	    this.onLeaveConferenceClicked();
+	    this.onLeaveConferenceClicked1();
 	},
 }
 </script>

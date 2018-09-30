@@ -190,6 +190,7 @@
         var $this = this;
         $this.findAllGroups(function(res){
             $this.groups = res.data.data;
+            $this.handlerGetMembers();
           },function(res){
             $this.$message.error('获取群组信息失败！');
           }
@@ -327,11 +328,11 @@
           return;
         }
         $this.deleteGroupMember($this.curGroup.group_id, nickname,function(res){
-          $this.$message({
+          $this.refreshGroups();
+          $this.$message ({
             message: '从组内删除好友成功！',
             type: 'success'
           });
-          $this.refreshGroups();
         },function(res){
           $this.$message.error('从组内删除好友失败！');
         })

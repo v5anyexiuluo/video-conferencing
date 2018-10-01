@@ -735,7 +735,6 @@ export default {
 }
 </script>
 <style scoped>
-
 	.el-main{
 		width: 100%;
 		height: 100%;
@@ -772,5 +771,10 @@ export default {
 	}
 	.chat-message >>> .text{
 		line-height: 1.8em;
+	}
+	/*线上存在问题*/
+	.h-full-container{
+		margin: 0px;
+		border-bottom-width: 0px;
 	}
 </style>

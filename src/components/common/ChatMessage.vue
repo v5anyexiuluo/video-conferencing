@@ -52,7 +52,8 @@ export default {
 
 <style scoped>
 .chat-message {
-    padding: 10px 15px;
+    /*padding: 10px 15px;线上存在问题*/
+    padding: 10px 10px;
     overflow-y: scroll;
 }
 .chat-message li {
@@ -85,6 +86,7 @@ export default {
     word-break: break-all;
     background-color: #fafafa;
     border-radius: 4px;
+    margin-left: 0px;/*线上存在问题*/
 }
 
 .text:before {

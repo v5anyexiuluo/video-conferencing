@@ -9,18 +9,19 @@
 	import ChatMessage from "@/components/common/ChatMessage.vue"
 	import ChatText from "@/components/common/ChatText.vue"
   	import {mapGetters, mapMutations} from 'vuex';
-  	import chat from '@/assets/js/meeting.core.js';
+  	import Chat from '@/assets/js/meeting.core.js';
   	import connect from '@/assets/js/connector.js';
   	export default {
 	    name: 'Chat',
 	    data(){
 			return {
 				chatCore: null,
+				isMeeting: false,
+				messages: []
 			}
 		},
 		props:[
-			'chatroom',
-			'messages'
+			'chatroom'
 		],
 		components: {
 			'chat-message': ChatMessage,
@@ -49,16 +50,19 @@
 				var $this = this;
 				connect.$off('msg');
 				connect.$on('msg',function(msg){
-					$this.chatCore.onEventSendChat(msg);
+					$this.chatCore.SendText(msg);
 				})
-				$this.chatCore = chat.getXchatkit($this.user.id, $this.user.nickname, md5.hex($this.chatroom), $this.onCallback);
-				$this.chatCore.onJoinConferenceClicked();
-				
-				setTimeout(() => {
-					$this.chatCore.xchatkit.GetLocalStream().getTracks().forEach(function(e){
-						e.stop();
-					})
-				}, 1000);
+				if(!$this.isMeeting){
+					$this.chatCore = new Chat($this.user.id, $this.user.nickname, md5.hex($this.chatroom), $this.onCallback).getXchatkit();
+					$this.chatCore.JoinConference();
+					setTimeout(() => {
+						$this.chatCore.GetLocalStream().getTracks().forEach(function(e){
+							e.stop();
+						})
+					}, 1000);
+				}else{
+					$this.chatCore.addCallBack($this.onCallback)
+				}			
 			}
 		},
 		created(){
@@ -67,16 +71,38 @@
 		},
 		computed:{
 			...mapGetters([
-			'user',
-			'chatList'
+				'user',
+				'chatList',
+				'historyMsg'
 			]),
 		},
 		watch:{
 			chatroom:function(newVal, oldVal){
 				var $this = this;
+				if(oldVal){
+					$this.addChatMsg({chatroom: oldVal, msg:$this.messages})
+				}
+				// var temp = newVal.split(":");
+				// if(temp[0]=='meeting'){
+				// 	$this.isMeeting = true;
+				// }else{
+				// 	$this.isMeeting = false;
+				// }
+				if(typeof newVal == 'string'){
+					$this.isMeeting = false;
+				}else{
+					$this.isMeeting = true;
+					$this.chatCore = newVal;
+				}
 				$this.initChat();
+				$this.messages=$this.historyMsg(newVal);
 			}
-		}
+		},
+		beforeDestroy: function () {
+		    this.chatCore.LeaveConference();
+		    this.chatCore.ClearXChatKit();
+		    this.addChatMsg({chatroom: this.chatroom, msg:this.messages})
+		},
 	}
 </script>
 <style>

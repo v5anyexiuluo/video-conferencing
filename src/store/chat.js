@@ -3,6 +3,7 @@ import {apiAuth} from '@/properties/api.js'
 export default {
     state:{
         chatList: [],
+        historyMsg: []
     },
     mutations:{
         addChatItem(state, item) {
@@ -35,16 +36,18 @@ export default {
         },
         addChatMsg(state, chat){
             if(chat){
-                var result = state.chatList.findIndex((value, index, arr) => {
-                    return value.data == chat.data;
+                var result = state.historyMsg.findIndex((value, index, arr) => {
+                    return value.chatroom == chat.chatroom;
                 })
                 if(result!=-1){
-                    state.chatList[result]['messages']=chat.messages;
-                    localStorage.setItem('chatList',JSON.stringify(state.chatList))
+                    state.historyMsg[result]['msg']=chat.msg;
+                }else{
+                    state.historyMsg.push({chatroom: chat.chatroom, msg: chat.msg})
                 }
+                localStorage.setItem('historyMsg',JSON.stringify(state.historyMsg))
             }
             
-        }
+        },
     },
     getters:{
         chatList(state){
@@ -52,6 +55,18 @@ export default {
                 state.chatList = JSON.parse(localStorage.getItem('chatList'))
             }
             return state.chatList;
+        },
+        historyMsg: (state)=>(chatroom)=>{
+            if(localStorage.getItem('historyMsg')){
+                state.historyMsg = JSON.parse(localStorage.getItem('historyMsg'))
+            }
+            var result = state.historyMsg.find((value, index, arr) => {
+                return value.chatroom == chatroom;
+            })
+            if(typeof result=='undefined'){
+                return [];
+            }
+            return result.msg;
         }
     }
 }

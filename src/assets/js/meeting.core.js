@@ -1,65 +1,63 @@
 import XChatKit from '@/assets/js/xchat.min.js'
 export default (function(){
-  return {
-    xchatkit: null,
-    meetingjson: {
+  return function(fromuser, fromname, chatroom, callback){
+
+    this.callbackList = []
+    this.callbackList.push(callback)
+    var $this = this;
+    // 回调函数
+    this.onCallback = function(json) {
+      $this.callbackList.forEach(function(e){
+        e(json);
+      })
+    }
+
+    this.meetingjson = {
       mgw : "wss://webrtc.myegoo.com.cn/ws",
       turn : "turn:webrtc.myegoo.com.cn",
-      fromuser : '',
-      fromname : '',
-      chatroom : '',
-      callback : '',
+      fromuser : fromuser,
+      fromname : fromname,
+      chatroom : chatroom,
+      callback : this.onCallback,
       camera : 0,
       bps : null
-    },
+    }
+    this.xchatkit = null,
 
-    //回调函数
-    // onCallback(json) {
-    //   if ( "EventLocalStream" == json.msgtype )
-    //       this.onEventLocalStream ( json );
-    //   else if ( "EventPartyAdded" === json.msgtype )
-    //       this.onEventPartyAdded ( json );
-    //   else if ( "EventPartyRemoved" === json.msgtype )
-    //       this.onEventPartyRemoved ( json );
-    //   else if ( "EventRDPEnabled" === json.msgtype )
-    //       this.onEventRDPEnabled ( json );
-    //   else if ( "EventRDPDisabled" === json.msgtype )
-    //       this.onEventRDPDisabled ( json );
-    //   else if ( "EventPartyConnected" === json.msgtype )
-    //       this.onEventPartyConnected ( json );
-    //   else if ( "EventPartyDisconnected" === json.msgtype )
-    //       this.onEventPartyDisconnected ( json );
-    //   else if ( "text" === json.msgtype )
-    //     this.onEventRevieveGroupChat(json);
-    //   else if ( "onText" === json.msgtype )
-    //     this.onEventRevieveChat(json);
-    // },
+    this.addCallBack = function(callback){
+      this.callbackList.push(callback);
+    }
 
-    getXchatkit(fromuser, fromname, chatroom, callback){
-      this.meetingjson.fromuser = fromuser;
-      this.meetingjson.fromname = fromname;
-      this.meetingjson.chatroom = chatroom;
-      this.meetingjson.callback = callback;
-      if(this.xchatkit==null){
-        this.xchatkit = new XChatKit(this.meetingjson);
-      }
+    this.getXchatkit = function(){
+      // this.meetingjson.fromuser = fromuser;
+      // this.meetingjson.fromname = fromname;
+      // this.meetingjson.chatroom = chatroom;
+      // this.meetingjson.callback = callback;
+      // if(this.xchatkit==null){
+      //   this.xchatkit = new XChatKit(this.meetingjson);
+      // }
+      // return this;
+      this.xchatkit = new XChatKit(this.meetingjson);
       return this;
-    },
+    }
 
-    ClearXChatKit(){
-      this.xchatkit.ClearXChatKit(this.meetingjson);
-    },
+
+
+    this.ClearXChatKit = function (){
+      // this.xchatkit.ClearXChatKit(this.meetingjson);
+    }
 
     //开始会议
-    onJoinConferenceClicked()
+    this.JoinConference = function()
     {
+      console.log(this)
       this.xchatkit.JoinConference(this.meetingjson);
-    },
+    }
     //结束
-    onLeaveConferenceClicked()
+    this.LeaveConference = function()
     {
       this.xchatkit.LeaveConference(this.meetingjson);
-    },
+    }
 
     // //回调函数
     // //本地流事件
@@ -68,124 +66,101 @@ export default (function(){
     //   // return window.URL.createObjectURL(this.xchatkit.GetLocalStream());
     //   return window.URL.createObjectURL(json.stream);
     // },
-    onEventLocalStream(json)
+    this.GetLocalStream = function(){
+      return this.xchatkit.GetLocalStream();
+    }
+
+    this.LocalStream = function(json)
     {
       // return window.URL.createObjectURL(this.xchatkit.GetLocalStream());
       return window.URL.createObjectURL(json.stream);
-    },
-    // //加入会议事件
-    // onEventPartyAdded(json)
-    // {
+    }
 
-    // },
-    // //离开会议
-    // onEventPartyRemoved(json)
-    // {
-
-    // },
-
-    onHoldCallClicked()
+    this.HoldCall = function()
     {
       this.meetingjson.chatroom = '';
       this.xchatkit.HoldCall(this.meetingjson);
-    },
+    }
 
-    onRetrieveCallClicked()
+    this.RetrieveCall = function()
     {
       this.meetingjson.chatroom = '';
       this.xchatkit.RetrieveCall(this.meetingjson);
-    },
+    }
 
-    onMakeCallClick(){
+    this.MakeCall = function(){
       var json = myjson;
       json.touser = '';//对方Id
       json.chatroom = '';//会议Id
       this.xchatkit.MakeCall ( json );
-    },
-    onReleaseCallClick(){
+    }
+    this.ReleaseCall = function(){
       var json = myjson;
       json.touser = '';
       json.chatroom = '';
       this.xchatkit.ReleaseCall ( json );
-    },
+    }
 
     //开始屏幕共享
-    onStartShareClicked()
+    this.StartShare = function()
     {
       this.xchatkit.StartShare();
-    },
+    }
 
     //停止屏幕共享
-    onStopShareClicked()
+    this.StopShare = function()
     {
       this.xchatkit.StopShare();
-    },
+    }
 
-    onEventSendInputChat(){
+    this.SendInput = function(){
       var json = JSON.parse ( "{}" );
       json.chatroom = this.meetingjson.chatroom;
       json.content = '';
       this.xchatkit.SendInput ( json );
-    },
-    // onEventRevieveChat(json){
+    }
 
-    // },
     //发送消息
-    onEventSendChat(msg){
+    this.SendText = function(msg){
       var json = JSON.parse ( "{}" );
       json.chatroom = this.meetingjson.chatroom;
       json.content = msg;
       this.xchatkit.SendText ( json );
-    },
-    // //将消息添加到消息列表
-    // onEventRevieveGroupChat(json){
-
-    // },
-
+    }
 
     //启用摄像头
-    onEnableCameraClicked()
+    this.EnableCamera = function()
     {
       var json = this.meetingjson;
       json.chatroom = '';
       this.xchatkit.EnableCamera(json);
-    },
+    }
     //禁用摄像头
-    onDisableCameraClicked()
+    this.DisableCamera = function()
     {
       var json = this.meetingjson;
       json.chatroom = '';
       this.xchatkit.DisableCamera(json);
-    },
+    }
 
     //启用麦克风
-    onDisableMicphoneClicked()
+    this.EnableMicphone = function()
     {
       this.xchatkit.EnableMicphone();
-    },
+    }
     //禁用麦克风
-    onDisableMicphoneClicked()
+    this.DisableMicphone = function()
     {
       this.xchatkit.DisableMicphone();
-    },
+    }
 
-
-    // onEventRDPEnabled(json)
-    // {
-          
-    // },
-    // onEventRDPDisabled(json)
-    // {
-        
-    // },
-
-    // //启动录像
-    // onEventPartyConnected(json){
-    //   this.xchatkit.StartRecording(json.fromuser);
-    // },
-    // //停止录像
-    // onEventPartyDisconnected(json){
-    //   this.StopRecording(json.fromuser);
-    // }
+    //启动录像
+    this.StartRecording = function(json){
+      this.xchatkit.StartRecording(json.fromuser);
+    }
+    //停止录像
+    this.StopRecording = function(json){
+      this.xchatkit.StopRecording(json.fromuser);
+    }
   }
 })()

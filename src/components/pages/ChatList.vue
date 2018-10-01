@@ -23,11 +23,11 @@
     <div class="item-detail full-height">
       <el-tabs v-model="activeTab" type="border-card" style="height: 100%;">
         <el-tab-pane label="聊天" name="first" class="full-height" style="position: relative;">
-          <chat :chatroom="chatroom" :messages="messages"></chat>
+          <chat :chatroom="chatroom"></chat>
         </el-tab-pane>
         <el-tab-pane label="文件" name="second">
           <div class="card-wrap">
-            <el-card v-for="(o, index) in 4" :key="o" class="box-card margin-b-20 one-second" :class="{'margin-l-2P': index%2!=0}">
+            <!-- <el-card v-for="(o, index) in 4" :key="o" class="box-card margin-b-20 one-second" :class="{'margin-l-2P': index%2!=0}">
               <div class="h-full-container">
                 <span class="el-icon-document"></span>
                 <div>
@@ -35,12 +35,12 @@
                   <div>2018-08-12</div>
                 </div>
               </div>
-            </el-card>
+            </el-card> -->
           </div>
         </el-tab-pane>
         <el-tab-pane label="音视频" name="third">
 
-          <div>音视频</div>
+          <!-- <div>音视频</div> -->
         
         </el-tab-pane>
       </el-tabs>
@@ -56,8 +56,7 @@
       return {
         activeTab: 'first',
         curChat: null,
-        chatroom: '',
-        messages: []
+        chatroom: ''
       }
     },
     components: {
@@ -65,19 +64,16 @@
     },
     methods: {
       ...mapMutations([
-        'addChatMsg'
+        'removeChatItem'
       ]),
 
       initChat(chatItem){
         var $this = this;
         $this.curChat=chatItem;
-        if(typeof chatItem.messages != 'undefined'){
-          $this.messages=chatItem.messages;
-        }
         if($this.curChat.type=="friend"){
-          $this.chatroom = $this.user.id>$this.curChat.data.id? ($this.curChat.data.id.toString()+$this.user.id):($this.user.id.toString()+$this.curChat.data.id)
+          $this.chatroom = 'chat:'+($this.user.id>$this.curChat.data.id? ($this.curChat.data.id.toString()+$this.user.id):($this.user.id.toString()+$this.curChat.data.id))
         }else if($this.curChat.type=="group"){
-          $this.chatroom = $this.curChat.data.group_id.toString();
+          $this.chatroom = 'chat:'+($this.curChat.data.group_id.toString());
         }
       }
     },
@@ -93,10 +89,6 @@
       ]),
     },
     watch:{
-      curChat: function(newVal, oldVal){
-        var $this = this;
-        $this.addChatMsg(oldVal);
-      }
     }
   }
 </script>

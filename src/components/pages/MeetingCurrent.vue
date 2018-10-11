@@ -735,7 +735,6 @@ export default {
 }
 </script>
 <style scoped>
-
 	.el-main{
 		width: 100%;
 		height: 100%;

@@ -30,7 +30,7 @@
 <script>
 	
 </script>
-<style>
+<style scoped>
 	.h-full-container{
 		margin: 0px 0px 20px 20px;
 		vertical-align: middle;

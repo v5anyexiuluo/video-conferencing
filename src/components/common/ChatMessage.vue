@@ -53,6 +53,7 @@ export default {
 <style scoped>
 .chat-message {
     padding: 10px 15px;
+    /*padding: 10px 10px;*/
     overflow-y: scroll;
 }
 .chat-message li {

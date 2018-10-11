@@ -105,7 +105,7 @@
 		},
 	}
 </script>
-<style>
+<style scoped>
 .chat-message{
     width: 100%;
     position: absolute;

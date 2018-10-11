@@ -85,18 +85,18 @@
             <div style="flex: 1;flex-wrap: wrap;overflow-y: scroll;border-left: 1px solid #ebeef5;border-right: 1px solid #ebeef5;border-bottom: 1px solid #ebeef5;padding: 10px;text-align: left;">
               <ul>
                 <li style="color: lightgray;font-style: italic;">好友</li>
-                <li style="margin-left: 1em; line-height: 15px" v-for="item in form.formMutiSelects.tarData.members">{{item.name}}</li>
+                <li style="margin-left: 1em; line-height: 15px" v-for="(item,index) in form.formMutiSelects.tarData.members" :key="index">{{item.name}}</li>
               </ul>
               <ul>
                 <li style="color: lightgray;font-style: italic;">邮件/手机号</li>
-                <li style="margin-left: 1em;" v-for="item in form.formMutiSelects.tarData.customSel">{{item}}</li>
+                <li style="margin-left: 1em;" v-for="(item,index) in form.formMutiSelects.tarData.customSel" :key="index">{{item}}</li>
               </ul>
             </div>
           </el-col>
         </div>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary">立即创建</el-button>
+        <el-button type="primary" @click="handleMeetingOrder">立即创建</el-button>
         <el-button>取消</el-button>
       </el-form-item>
     </el-form>
@@ -219,6 +219,7 @@ export default {
       if(ret==-1){
         $this.form.formMutiSelects.tarData.members.push(item);
       }
+      console.log("$this.form.formMutiSelects.tarData.members")
       console.log($this.form.formMutiSelects.tarData.members)
     },
 
@@ -295,6 +296,28 @@ export default {
       this.$axios.get(apiLinks.groups.allmember, null, cbOk, cbErr);
     },
 
+    handleMeetingOrder() {
+      var $this = this
+      var members=[]
+      for (var i = 0; i < this.form.formMutiSelects.tarData.members.length; i++) {
+        members.push({"nickname": this.form.formMutiSelects.tarData.members[i].name})
+      }
+      console.log(members)
+      $this.createMeeting(this.form.name, members, this.form.start_time, function(res) {
+        $this.$message.success('创建会议成功');
+      }, function(res) {
+        $this.$message.error('创建会议失败');
+      })
+    },
+
+    createMeeting (m_name, m_members, m_stime, cbOk, cbErr) {
+      var $this = this;
+      $this.$axios.put(apiMeeting.order.create, {
+        meeting_name: m_name,
+        members: m_members,
+        start_time: m_stime.toString()
+      }, cbOk, cbErr)
+    },
 
     // joinMeetings(mid) {
     //  axios.get('/meeting/' + mid)

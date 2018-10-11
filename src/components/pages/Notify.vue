@@ -28,7 +28,45 @@
 	</div>
 </template>
 <script>
-	
+export default {
+  data() {
+    return {
+      context:"",
+      history:""
+    }
+  },
+	methods: {
+    refreshAllMsg() {
+      var $this = this;
+      getMsg( function(res) {
+        $this.context = res;
+      }, function(){
+        $this.$message.error('获取通知失败');
+      })
+    },
+		getMsg(cbOk, cbErr){
+      var $this = this;
+        $this.$axios.get(apiMsg.msg, {
+      }, cbOk, cbErr)
+    },
+    refreshAllHistoryMsg() {
+      var $this = this;
+      getHistory( function(res) {
+        $this.history = res;
+      }, function() {
+        $this.$message.error('获取历史通知失败');
+      })
+    },
+    getHistory(cbOk, cbErr) {
+      var $this = this;
+        $this.$axios.get(apiMsg.historymsg, {
+      }, cbOk, cbErr)
+    }
+  },
+  mounted() {
+    // refreshAllMsg();
+  }
+}	
 </script>
 <style scoped>
 	.h-full-container{

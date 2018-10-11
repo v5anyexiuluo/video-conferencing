@@ -160,7 +160,7 @@ export default {
 			}
 		},
 
-		handleCustomSelect(data){
+		handleCustomSelect(data) {
 			
 		},
 
@@ -282,6 +282,28 @@ export default {
       this.$axios.get(apiLinks.groups.allmember, null, cbOk, cbErr);
     },
 
+    handleMeetingOrder() {
+      var $this = this
+      var members=[]
+      for (var i = 0; i < this.form.formMutiSelects.tarData.members.length; i++) {
+        members.push({"nickname": this.form.formMutiSelects.tarData.members[i].name})
+      }
+      console.log(members)
+      $this.createMeeting(this.form.name, members, function(res) {
+        $this.$message.success('创建会议成功');
+      }, function(res) {
+        $this.$message.error('创建会议失败');
+      })
+    },
+
+    createMeeting (m_name, m_members, cbOk, cbErr) {
+      var $this = this;
+      $this.$axios.put(apiMeeting.order.create, {
+        meeting_name: m_name,
+        members: m_members,
+        start_time: (new Date()).getTime() + 180000
+      }, cbOk, cbErr)
+    },
 
 		// joinMeetings(mid) {
 		// 	axios.get('/meeting/' + mid)

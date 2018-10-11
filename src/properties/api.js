@@ -73,5 +73,6 @@ export var apiMeeting = {
 	}
 }
 export var apiMsg = {
-	
+	msg: notify + '/notifications',
+	historymsg: notify + 'notifications/history/{page}'
 }

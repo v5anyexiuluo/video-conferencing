@@ -73,5 +73,12 @@ export var apiMeeting = {
 	}
 }
 export var apiMsg = {
-	
+	ws:{
+		endpoint: notify+'/ws/contacts',
+		subcribe: '/topic/{id}' 
+	},
+	pull:{
+		undo: notify+'/api/v1/notifications',
+		history: notify+'/api/v1/notifications/history/{page}'
+	}
 }

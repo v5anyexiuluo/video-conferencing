@@ -62,13 +62,13 @@
                     if (valid) {
                         // localStorage.setItem('ms_username',this.ruleForm.username);
                         // this.$router.push('/');
-                        $this.login($this.ruleForm, function(){
+                        $this.login($this.ruleForm, function(res){
                             $this.$router.push({name: 'friend'})
                             $this.$message({
                                 message: '登录成功！',
                                 type: 'success'
                             });
-                        },function(){
+                        },function(res){
                             $this.$router.push({name: 'login'})
                             $this.$message.error('用户名或密码错误！');
                         })

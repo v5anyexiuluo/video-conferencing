@@ -21,6 +21,8 @@
     "js-md5": "^0.7.3",
     "moment": "^2.22.1",
     "recordrtc": "^5.4.7",
+    "sockjs-client": "^1.3.0",
+    "stompjs": "^2.3.3",
     "vue": "^2.5.2",
     "vue-circle-menu": "^1.1.1",
     "vue-preview": "^1.1.3",

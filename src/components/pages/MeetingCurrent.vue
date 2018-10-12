@@ -654,39 +654,39 @@ export default {
 
 		getMeetingMembers(id, cbOk, cbErr){
 			var $this = this;
-			$this.$axios.post(apiMeeting.now.members, {
+			$this.$axios.post(utils.handleParamInUrl(apiMeeting.now.members, {
 				mid: id.toString()
-			}, cbOk, cbErr)
+			}), cbOk, cbErr)
 		},
 
 		startMeeting(meetingId, cbOk, cbErr){
 			var $this = this;
-			$this.$axios.post(apiMeeting.now.start, {
+			$this.$axios.post(utils.handleParamInUrl(apiMeeting.now.start, {
 				mid: meetingId.toString()
-			}, cbOk, cbErr)
+			}), cbOk, cbErr)
 		},
 
 		endMeeting(meetingId, cbOk, cbErr){
 			var $this = this;
-			$this.$axios.post(apiMeeting.now.end, {
+			$this.$axios.post(utils.handleParamInUrl(apiMeeting.now.end, {
 				mid: meetingId.toString()
-			}, cbOk, cbErr)
+			}), cbOk, cbErr)
 		},
 
 		entryMeeting(meetingId, nickname, cbOk, cbErr){
 			var $this = this;
-			$this.$axios.post(apiMeeting.now.entry, {
+			$this.$axios.post(utils.handleParamInUrl(apiMeeting.now.entry, {
 				meeting_id: meetingId.toString(),
 				user_nickname: nickname
-			}, cbOk, cbErr)
+			}), cbOk, cbErr)
 		},
 
 		exitMeeting(meetingId, nickname, cbOk, cbErr){
 			var $this = this;
-			$this.$axios.post(apiMeeting.now.exit, {
+			$this.$axios.post(utils.handleParamInUrl(apiMeeting.now.exit, {
 				meeting_id: meetingId.toString(),
 				user_nickname: nickname
-			}, cbOk, cbErr)
+			}), cbOk, cbErr)
 		},
 
 		...mapMutations([

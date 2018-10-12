@@ -342,7 +342,7 @@
           return value.department_id == id;
         })
       },
-
+      // utils.handleParamInUrl
       addDepartment(departmentName, cbOk, cbErr){
         var $this = this;
         $this.$axios.put(apiLinks.friends.addDepartment, {
@@ -368,10 +368,10 @@
 
       findFriendByNickname(nickname, cbOk, cbErr){
         var $this = this;
-        $this.$axios.post(apiAuth.userInfoByNickname,
+        $this.$axios.post(utils.handleParamInUrl(apiAuth.userInfoByNickname,
           {
             nickname:nickname
-          }, cbOk, cbErr
+          }), cbOk, cbErr
         )
       },
 

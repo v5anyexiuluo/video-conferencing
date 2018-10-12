@@ -298,11 +298,11 @@ export default {
 
     createMeeting (m_name, m_members, cbOk, cbErr) {
       var $this = this;
-      $this.$axios.put(apiMeeting.order.create, {
+      $this.$axios.put(utils.handleParamInUrl(apiMeeting.order.create, {
         meeting_name: m_name,
         members: m_members,
         start_time: (new Date()).getTime() + 180000
-      }, cbOk, cbErr)
+      }), cbOk, cbErr)
     },
 
 		// joinMeetings(mid) {

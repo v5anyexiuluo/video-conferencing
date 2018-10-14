@@ -8,7 +8,7 @@ import router from './router'
 import Axios from '@/properties/axios.js';
 import api from './properties/api.js'
 import properties from './properties/properties.js'
-import { Row, Col, Container, Aside, Header, Footer, Main, Menu, Submenu, MenuItem, Tooltip, Table, TableColumn, Tabs, TabPane, Pagination, Button, Dropdown, DropdownMenu, DropdownItem, Collapse, CollapseItem, Popover, Tree, Dialog, Form, FormItem, Select, Option, OptionGroup, Card, Input, Tag, Checkbox, CheckboxGroup, TimePicker, DatePicker, Cascader, Transfer, Message, MessageBox, Loading, Notification } from 'element-ui';
+import { Row, Col, Container, Aside, Header, Footer, Badge, Main, Menu, Submenu, MenuItem, Tooltip, Table, TableColumn, Tabs, TabPane, Pagination, Button, Dropdown, DropdownMenu, DropdownItem, Collapse, CollapseItem, Popover, Tree, Dialog, Form, FormItem, Select, Option, OptionGroup, Card, Input, Tag, Checkbox, CheckboxGroup, TimePicker, DatePicker, Cascader, Transfer, Message, MessageBox, Loading, Notification } from 'element-ui';
 import 'element-ui/lib/theme-chalk/display.css';
 import "./assets/icon/iconfont.css";
 import "./assets/css/common.css";
@@ -24,6 +24,7 @@ Vue.component(Container.name, Container);
 Vue.component(Aside.name, Aside);
 Vue.component(Header.name, Header);
 Vue.component(Footer.name, Footer);
+Vue.component(Badge.name, Badge);
 Vue.component(Main.name, Main);
 Vue.component(Menu.name, Menu);
 Vue.component(Submenu.name, Submenu);

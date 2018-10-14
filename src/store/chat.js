@@ -1,5 +1,3 @@
-import {apiAuth} from '@/properties/api.js'
-
 export default {
     state:{
         chatList: [],

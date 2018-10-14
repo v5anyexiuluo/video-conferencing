@@ -11,7 +11,6 @@
     name: 'App',
     created: function(){
       
-
     },
     mounted: function(){
       console.log(this.$router)

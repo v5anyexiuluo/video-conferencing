@@ -37,7 +37,12 @@ import CircleMenu from 'vue-circle-menu';
 
 // import pinyin from '/static/js/pinyin/bundle.js'
 import {mapState,mapMutations,mapGetters} from 'vuex';
-
+import SockJS from "sockjs-client";
+import Stomp from "stompjs";
+import md5 from 'js-md5';
+import {apiMsg} from '@/properties/api.js';
+import utils from '@/assets/js/utils.js';
+import {msgType} from '@/assets/js/common.js';
 export default {
   data() {
     return {
@@ -52,21 +57,12 @@ export default {
   created: function(){
     // this.listen();
     // this.addRouters();
+    this.connect();
   },
   mounted: function() {
     var $this = this;
     if($this.firstInit){
-      $this.$confirm('有会议待参加，是否参加?', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      center: true,
-      type: 'warning'
-      }).then(() => {
-        $this.setFirstInit(false)
-        $this.$router.push({name:'current'});
-      }).catch(() => {
-                
-      });
+      
     }
   },
   components: {
@@ -76,8 +72,75 @@ export default {
   },
   methods: {
     ...mapMutations([
-      'setFirstInit'
+      'setFirstInit',
+      'addMsg'
     ]),
+    // websocket连接
+    connect() {
+      var $this = this;
+      // “/ws/contacts”为接入点（endpoint）
+      // console.log(apiMsg.ws.endpoint)
+      var socket = new SockJS('https://xingshidream.cn:8085/api/v1/ws/contacts');
+      $this.stompClient = Stomp.over(socket);
+      $this.stompClient.connect({}, function (frame) {
+          console.log('Connected: ' + frame);
+          var subcribePath = utils.handleParamInUrl(apiMsg.ws.subcribe,{
+        id: md5.hex($this.user.nickname)
+      })
+          // var subcribePath= '/topic/' + md5.hex($this.user.nickname);
+          // 开始订阅消息
+          // $this.subcribe(subcribePath);
+          $this.subcribe('/topic/93dd4de5cddba2c733c65f233097f05a');
+      },function(res){
+        console.log(res)
+      });
+    },
+
+    // 订阅消息
+    subcribe(subcribePath){
+      var $this = this;
+        $this.stompClient.subscribe(subcribePath, function (response) {
+        // 这5句其实没啥用
+        // var response1 = document.getElementById('response');
+        // var p = document.createElement('p');
+        // p.style.wordWrap = 'break-word';
+        // p.appendChild(document.createTextNode(response.body));
+        // response1.appendChild(p);
+        // 有用的是从这里开始，将消息字符串转Object
+        var content = JSON.parse(response.body);
+        $this.addMsg(content);
+        // 接收到消息后，发送消息确认给服务端，下面这段代码是固定的
+        if (content.messageId != undefined) {
+            $this.stompClient.send(subcribePath, {}, JSON.stringify({
+                'userId': $this.user.nickname,
+                "type": "ack",
+                "content": {
+                    "messageId": (content.messageId),
+                    "time": new Date().getTime()
+                }
+            }));
+        }
+        if(typeof content.category != 'undefined'){
+          $this.$confirm('你有新的消息，是否查看?', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            center: true,
+            type: 'warning'
+          }).then(() => {
+            $this.setFirstInit(false)
+            $this.$router.push({name:'notifies'});
+          }).catch(() => {
+             
+          });;
+        }
+      }, {ack: 'client'});
+    },
+
+    // 发送消息给服务器的函数，用于客户端与服务端的通信
+    sendSometing(subcribePath) {
+      var $this = this;
+        $this.stompClient.send(subcribePath, {}, JSON.stringify({'name': $this.user.nickname}));
+    },
     // listen(){
     //   var $this = this;
     //   connect.$on('sub-to-parent',function(msg){
@@ -154,6 +217,7 @@ export default {
       nav:state=>state.nav
     }),
     ...mapGetters([
+      'user',
       'loading',
       'firstInit'
     ])

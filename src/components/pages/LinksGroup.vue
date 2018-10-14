@@ -352,11 +352,11 @@
 
       createGroup(groupName, cbOk, cbErr) {
         var $this = this;
-        $this.$axios.put(
+        $this.$axios.put(utils.handleParamInUrl(
           apiLinks.groups.create,
           {
             group_name:groupName
-          },
+          }),
           cbOk,
           cbErr
         )
@@ -364,20 +364,20 @@
 
       deleteGroup(groupId, cbOk, cbErr) {
         var $this = this;
-        $this.$axios.post(apiLinks.groups.delete,
+        $this.$axios.post(utils.handleParamInUrl(apiLinks.groups.delete,
           {
             group_id: groupId.toString()
-          }, cbOk, cbErr
+          }), cbOk, cbErr
         )
       },
 
       deleteGroupMember(groupId, nickname, cbOk, cbErr) {
         var self = this;
-        self.$axios.post(apiLinks.groups.deleteMember,
+        self.$axios.post(utils.handleParamInUrl(apiLinks.groups.deleteMember,
           {
             group_id:groupId.toString(),
             nickname:nickname
-          },
+          }),
           cbOk, cbErr
         )
       },
@@ -385,21 +385,21 @@
       //更新群组名称
       updateGroupName(groupId, newGroupName, cbOk, cbErr) {
         var self = this;
-        self.$axios.post(apiLinks.groups.modifyName,
+        self.$axios.post(utils.handleParamInUrl(apiLinks.groups.modifyName,
           {
             group_id: groupId.toString(),
             group_name: newGroupName
-          }, cbOk, cbErr
+          }), cbOk, cbErr
         )
       },
 
       appendGroupUsers(groupId, members, cbOk, cbErr) {
         var self = this;
-        self.$axios.put(apiLinks.groups.addMembers, 
+        self.$axios.put(utils.handleParamInUrl(apiLinks.groups.addMembers, 
           {
             group_id:groupId.toString(),
             members:members
-          },
+          }),
           cbOk, cbErr
         )
       },
@@ -412,22 +412,22 @@
       //删除群组中的用户
       deleteGroupMembers(groupId, members, cbOk, cbErr) {
         var self = this;
-        self.$axios.post(apiLinks.groups.deleteMembers,
+        self.$axios.post(utils.handleParamInUrl(apiLinks.groups.deleteMembers,
           {
             group_id:groupId.toString(),
             members:members
-          },
+          }),
           cbOk, cbErr
         )
       },
 
       deleteGroupMember(groupId, nickname, cbOk, cbErr) {
         var self = this;
-        self.$axios.post(apiLinks.groups.deleteMember,
+        self.$axios.post(utils.handleParamInUrl(apiLinks.groups.deleteMember,
           {
             group_id:groupId.toString(),
             nickname:nickname
-          },
+          }),
           cbOk, cbErr
         )
       },

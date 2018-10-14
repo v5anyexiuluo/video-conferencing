@@ -31,7 +31,7 @@
           视频回放：<div class="el-icon-service"></div><br>
           会议成员： 
           <div>
-            <div class="member" v-for="n in 10">{{n + ","}}</div>
+            <div class="member" v-for="(n, index) in 10" :key="index">{{n + ","}}</div>
           </div>
         </div>
       </span>
@@ -94,7 +94,7 @@ export default {
     },
     getHistoryMeeting(cbOk, cbErr){
       var $this = this;
-      $this.$axios.get(apiMeeting.history.all, {
+      $this.$axios.get(apiMeeting.order.all, {
       }, cbOk, cbErr)
     },
   }

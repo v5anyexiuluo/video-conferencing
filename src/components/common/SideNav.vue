@@ -19,7 +19,14 @@
         <el-submenu v-if="item.subs" :index="item.id.toString()">
           <template slot="title">
             <i :class="item.icon"></i>
-            <span>{{item.title}}</span>
+            <span>
+              <el-badge v-if="item.badge" :value="msgs.length" class="item">
+                {{item.title}}
+              </el-badge>
+              <template v-else>
+                {{item.title}}
+              </template>
+            </span>
           </template>
           <router-link v-for="(subItem, subIndex) in item.subs" :to="{name: subItem.name}" class="a-navmenu">
             <el-menu-item :index="subItem.id.toString()" style="padding-left: 54px;">
@@ -30,7 +37,14 @@
         <el-menu-item v-else :index="item.id.toString()">
           <router-link :to="{name: item.name}" class="a-navmenu">
             <i :class="item.icon"></i>
-            <span>{{item.title}}</span>
+            <span>
+              <el-badge v-if="item.badge" :value="msgs.length" class="item">
+                {{item.title}}
+              </el-badge>
+              <template v-else>
+                {{item.title}}
+              </template>
+            </span>
           </router-link>
         </el-menu-item>
       </template>
@@ -90,7 +104,8 @@ export default {
     ...mapGetters([
       'activeIndex',
       'user',
-      'meeting'
+      'meeting',
+      'msgs'
     ])
   }
 }
@@ -146,5 +161,10 @@ export default {
 }
 .is-active .a-navmenu{
   color: rgb(255, 208, 75);
+}
+
+.el-badge>>>.el-badge__content{
+  top: 28px!important;
+  right: -20px!important;
 }
 </style>

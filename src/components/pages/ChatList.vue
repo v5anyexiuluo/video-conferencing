@@ -7,7 +7,7 @@
         </el-input>
       </div>
       <ul class="full-element" style="position: absolute;top: 60px;bottom: 0px;width: 100%;overflow-y: auto;">
-        <li @click="initChat(chat)" class="item h-full-container" :class="{selected: curChat==chat}" v-for="chat in chatList">
+        <li @click="initChat(chat)" class="item h-full-container" :class="{selected: curChat==chat}" v-for="(chat, index) in chatList" :key=index>
           <img :src="chat.data.headimg? chat.data.headimg:'https://picsum.photos/20/20'" alt="头像">
           <div
             style="margin-left: 10px;line-height: initial;"

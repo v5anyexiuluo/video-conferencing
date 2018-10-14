@@ -135,7 +135,7 @@ export default {
 		});
 	},
 	mounted() {
-		this.dialogSelectMeetingVisible=true;
+		
 	},
 	updated() {
 		
@@ -180,18 +180,10 @@ export default {
 	      var $this = this;
 	      if($this.formMeeting.meetingId){
 	        $this.getMeetingInfo($this.formMeeting.meetingId, function(res){
-	          $this.setMeeting(res.data.data)
-	          if($this.user.id==$this.meeting.founderId){
-	            $this.isMaster = true;
-	          }else{
-	            $this.isMaster = false;
-	          }
+	          $this.setCurMeeting(res.data.data)
 	        },function(res){
 	          $this.$message.error('获取会议信息失败！'+res.msg);
 	        });
-	        $this.meetCore = new Meet($this.user.id, $this.user.nickname, $this.formMeeting.meetingId, $this.onCallback).getXchatkit();
-	        // $this.chatroom = 'meeting:'+$this.formMeeting.meetingId.toString();
-	        $this.chatroom = $this.meetCore;
 	        $this.dialogSelectMeetingVisible = false;
 	      }
 	    },
@@ -654,43 +646,43 @@ export default {
 
 		getMeetingMembers(id, cbOk, cbErr){
 			var $this = this;
-			$this.$axios.post(apiMeeting.now.members, {
+			$this.$axios.post(utils.handleParamInUrl(apiMeeting.now.members, {
 				mid: id.toString()
-			}, cbOk, cbErr)
+			}), cbOk, cbErr)
 		},
 
 		startMeeting(meetingId, cbOk, cbErr){
 			var $this = this;
-			$this.$axios.post(apiMeeting.now.start, {
+			$this.$axios.post(utils.handleParamInUrl(apiMeeting.now.start, {
 				mid: meetingId.toString()
-			}, cbOk, cbErr)
+			}), cbOk, cbErr)
 		},
 
 		endMeeting(meetingId, cbOk, cbErr){
 			var $this = this;
-			$this.$axios.post(apiMeeting.now.end, {
+			$this.$axios.post(utils.handleParamInUrl(apiMeeting.now.end, {
 				mid: meetingId.toString()
-			}, cbOk, cbErr)
+			}), cbOk, cbErr)
 		},
 
 		entryMeeting(meetingId, nickname, cbOk, cbErr){
 			var $this = this;
-			$this.$axios.post(apiMeeting.now.entry, {
+			$this.$axios.post(utils.handleParamInUrl(apiMeeting.now.entry, {
 				meeting_id: meetingId.toString(),
 				user_nickname: nickname
-			}, cbOk, cbErr)
+			}), cbOk, cbErr)
 		},
 
 		exitMeeting(meetingId, nickname, cbOk, cbErr){
 			var $this = this;
-			$this.$axios.post(apiMeeting.now.exit, {
+			$this.$axios.post(utils.handleParamInUrl(apiMeeting.now.exit, {
 				meeting_id: meetingId.toString(),
 				user_nickname: nickname
-			}, cbOk, cbErr)
+			}), cbOk, cbErr)
 		},
 
 		...mapMutations([
-			'setMeeting'
+			'setCurMeeting'
 		]),
 	},
 	name: 'MeetingNow',
@@ -706,6 +698,20 @@ export default {
 					$this.$message.error('获取正在进行的会议信息失败！');
 				});
 			}
+		},
+		curMeeting:{
+			handler:function(val, oldVal) {
+				var $this = this;
+				if($this.user.id==$this.meeting.founderId){
+					$this.isMaster = true;
+				}else{
+					$this.isMaster = false;
+				}
+		        $this.meetCore = new Meet($this.user.id, $this.user.nickname, $this.formMeeting.meetingId, $this.onCallback).getXchatkit();
+		        // $this.chatroom = 'meeting:'+$this.formMeeting.meetingId.toString();
+		        $this.chatroom = $this.meetCore;
+			},
+			deep: true
 		}
 	},
 	computed:{
@@ -714,7 +720,8 @@ export default {
 		}),
 		...mapGetters([
 			'user',
-			'meeting'
+			'meeting',
+			'curMeeting'
 		]),
 		videoSrc: function(){
 			return function(uid){

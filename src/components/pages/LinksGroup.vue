@@ -7,7 +7,13 @@
         </el-input>
       </div>
       <ul class="full-element" style="position: absolute;top: 60px;bottom: 60px;width: 100%;overflow-y: auto;">
-        <li v-for="(group, index) in groups" @click="curGroup=group" class="item" :class="{'selected':group.group_id==curGroup.group_id}">
+        <li
+          v-for="(group, index) in groups"
+          :key="index"
+          @click="curGroup=group"
+          class="item"
+          :class="{'selected':group.group_id==curGroup.group_id}"
+        >
           <img src="https://picsum.photos/30/30" alt="头像">
           <span>{{group.group_name}}</span>
         </li>
@@ -91,8 +97,8 @@
         <router-link :to="{name: 'now', query:{group_id:curGroup.group_id}}" >
           <el-button type="primary">马上开会</el-button>
         </router-link>
-        <router-link :to="{name: 'now', query:{group_id:curGroup.group_id}}" >
-          <el-button type="primary" @click="handleOrderMeeting">预约会议</el-button>
+        <router-link :to="{name: 'order', query:{group_id:curGroup.group_id}}" >
+          <el-button type="primary">预约会议</el-button>
         </router-link>
       </div>
     </div>
@@ -123,7 +129,7 @@
         <el-form-item label="选择好友">
           <el-select v-model="formAddUser.friends" multiple collapse-tags style="width: 100%;" placeholder="选择好友">
             <el-option
-              v-for="(item,index) in filteUsers"
+              v-for="item in filteUsers"
               :key="item.nickname"
               :label="item.nickname"
               :value="item.nickname">
@@ -142,6 +148,7 @@
   import BScroll from 'better-scroll'
   import Scroll from '@/components/common/Scroll.vue'
   import {apiAuth, apiLinks, apiMeeting} from '@/properties/api.js'
+  import utils from '@/assets/js/utils.js'
   import {mapGetters, mapMutations} from 'vuex';
   export default {
     data() {
@@ -190,6 +197,8 @@
         var $this = this;
         $this.findAllGroups(function(res){
             $this.groups = res.data.data;
+            console.log("LinksGroup");
+            console.log(res.data);
             $this.handlerGetMembers();
           },function(res){
             $this.$message.error('获取群组信息失败！');
@@ -345,9 +354,9 @@
 
       findMembersByGroupId(groupId,cbOk,cbErr){
         var $this = this;
-        $this.$axios.post(apiLinks.groups.members, {
+        $this.$axios.get(utils.handleParamInUrl(apiLinks.groups.members, {
           group_id: groupId.toString()
-        }, cbOk, cbErr)
+        }),null, cbOk, cbErr)
       },
 
       createGroup(groupName, cbOk, cbErr) {

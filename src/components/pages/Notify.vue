@@ -1,6 +1,6 @@
 <template>
 	<div style="padding:20px;">
-		<template v-for="(msg, index) in msgs">
+		<template v-for="msg in msgs">
 			<div v-if="msg.category==msgType.PLAIN_TEXT" class="h-full-container v-center">
 				<span class="full-element">{{msg.content}}</span>
 				<div class="deal-actions" style="height: 40px;">
@@ -37,81 +37,93 @@
 	import utils from '@/assets/js/utils.js';
 	import {msgType} from '@/assets/js/common.js';
 	export default {
-        data: function(){
-        	return {
-        		stompClient: null,
-        		msgType: msgType,
-        		countdown: []
-        	}
-        },
-        name: 'Login',
-        components: {
-        },
-        created(){
-        	var $this = this;
-        	$this.pullHistory(1, function(res){
-        		var msgs = res.data.data;
-        		msgs.forEach(function(value,index,array){
-    				$this.addMsg(JSON.parse(value));
-        		})
-        	},function(res){
-	        	$this.$message.error('获取历史消息失败！');
-	        })
-        },
-        mounted() {
-        },
-        methods: {
-        	...mapMutations([
-				'addMsg',
-				'setCurMeeting'
-			]),
-        	handleAdded(url){
-	        	this.$axios.get('https://xingshidream.cn:8082'+url, null, cbOk, cbErr)
-	        },
+    data: function(){
+      return {
+        stompClient: null,
+        msgType: msgType,
+        countdown: [],
+        Mssage:{}
+      }
+    },
+    name: 'Login',
+    components: {
+    },
+    created(){
+      var $this = this;
+      $this.pullHistory(1, function(res){
+        var msgs = res.data.data;
+        msgs.forEach(function(value,index,array){
+          $this.addMsg(JSON.parse(value));
+        })
+      },function(res){
+        $this.$message.error('获取历史消息失败！');
+      })
 
-	        pullUndoMsg(cbOk, cbErr){
-	        	this.$axios.get(apiMsg.pull.undo, null, cbOk, cbErr)
-	        },
+      $this.pullUndoMsg(function(res){
+        var msg=res.data.data;
+        console.log("Undo")
+        console.log(msg)
+        msg.forEach(function(value,index,array){
+          $this.Mssage.push_back(JSON.parse(value));
+        })
+      },function(res){
+        $this.$message.error('获取未读消息失败！');
+      })
+    },
+    mounted() {
+    },
+    methods: {
+      ...mapMutations([
+        'addMsg',
+        'setCurMeeting'
+      ]),
+      handleAdded(url){
+        this.$axios.get('https://xingshidream.cn:8082'+url, null, cbOk, cbErr)
+      },
 
-	        pullHistory(page, cbOk, cbErr){
-	        	this.$axios.get(utils.handleParamInUrl(apiMsg.pull.history,{
-		          page: page
-		        }), null, cbOk, cbErr)
-	        },
+      pullUndoMsg(cbOk, cbErr){
+        this.$axios.get(apiMsg.pull.undo, null, cbOk, cbErr)
+      },
 
-	        entryMeeting(meeting){
-	        	var $this = this;
-	        	$this.setCurMeeting(meeting);
-	        	$this.$router.push({name: 'current'})
-	        }
-        },
-        watch:{
+      pullHistory(page, cbOk, cbErr){
+        this.$axios.get(utils.handleParamInUrl(apiMsg.pull.history,{
+          page: page
+        }), null, cbOk, cbErr)
+      },
 
-        },
-        computed:{
-        	...mapGetters([
-				'user',
-				'msgs',
-				// 'filtedCountdownMsg'
-			]),
-        	// getCountdown: function(){
-        	// 	var $this = this
-        	// 	return function(id){
-        	// 		var result = $this.filtedCountdownMsg.find((value, index, arr) => {
-		       //          return value.messageId == id;
-		       //      })
-		       //      if(typeof result!='undefined'){
-		       //      	return result.time
-		       //      }else{
-		       //      	return '';
-		       //      }
-        	// 	}
-        	// }
-        },
-        filters:{
-        	
-        }
+      entryMeeting(meeting){
+        var $this = this;
+        $this.setCurMeeting(meeting);
+        $this.$router.push({name: 'current'})
+      }
+    },
+    watch:{
+
+    },
+    computed:{
+      ...mapGetters([
+        'user',
+        'msgs',
+        // 'filtedCountdownMsg'
+      ]),
+          // getCountdown: function(){
+          // 	var $this = this
+          // 	return function(id){
+          // 		var result = $this.filtedCountdownMsg.find((value, index, arr) => {
+            //          return value.messageId == id;
+            //      })
+            //      if(typeof result!='undefined'){
+            //      	return result.time
+            //      }else{
+            //      	return '';
+            //      }
+          // 	}
+          // }
+    },
+    filters:{
+      
     }
+  }
 </script>
 <style scoped>
 	.h-full-container{

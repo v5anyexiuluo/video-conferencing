@@ -111,4 +111,4 @@ export var apiMsg = {
 		undo: notify+'/notifications',
 		history: notify+'/notifications/history/{page}'
 	}
-}
+} 

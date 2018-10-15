@@ -13,12 +13,22 @@
         </li>
       </ul> -->
       <el-collapse v-model="activeName" @change="handleDepChange" class="full-element" style="position: absolute;top: 60px;bottom: 60px;width: 100%;overflow-y: auto;" accordion>
-        <el-collapse-item v-for="(department, index) in departments" class="item" :class="{'selected':department.department_id==curDepartment.department_id}" :name="department.department_id">
+        <el-collapse-item
+          v-for="(department, index) in departments"
+          :key="index"
+          class="item"
+          :class="{'selected':department.department_id==curDepartment.department_id}"
+          :name="department.department_id"
+        >
           <template slot="title" class="cece">
             <span>{{department.department_name}}</span>
           </template>
           <ul>
-            <li v-for="(item, index) in depMembers" @click="handleJoinChat(item)">
+            <li
+              v-for="(item, index) in depMembers"
+              :key="index"
+              @click="handleJoinChat(item)"
+            >
               <img src="https://picsum.photos/30/30" alt="头像">
               <span>{{item.nickname}}</span>
             </li>
@@ -31,7 +41,7 @@
       </div>
     </div>
     <div v-if="showInfo" class="item-detail full-height">
-      <el-tabs v-model="activeTab" @tab-click="">
+      <el-tabs v-model="activeTab" @tab-click="NULL">
         <el-tab-pane label="基本信息" name="first" class="h-full-container">
           <img src="https://picsum.photos/200/200" alt="">
           <div class="group-info">
@@ -125,7 +135,7 @@
         <el-form-item label="选择新组">
           <el-select v-model="formMoveFriendToDepartment.newDepartmentId" collapse-tags style="width: 100%;" placeholder="选择新组">
             <el-option
-              v-for="(item,index) in filteDepartments"
+              v-for="item in filteDepartments"
               :key="item.department_id"
               :label="item.department_name"
               :value="item.department_id">
@@ -146,7 +156,7 @@
         <el-form-item label="选择分组">
           <el-select v-model="formAddFriend.departmentId" collapse-tags style="width: 100%;" placeholder="选择分组">
             <el-option
-              v-for="(item,index) in departments"
+              v-for="item in departments"
               :key="item.department_id"
               :label="item.department_name"
               :value="item.department_id">
@@ -368,10 +378,10 @@
 
       findFriendByNickname(nickname, cbOk, cbErr){
         var $this = this;
-        $this.$axios.post(utils.handleParamInUrl(apiAuth.userInfoByNickname,
+        $this.$axios.get(utils.handleParamInUrl(apiAuth.userInfoByNickname,
           {
             nickname:nickname
-          }), cbOk, cbErr
+          }),null, cbOk, cbErr
         )
       },
 
@@ -387,7 +397,7 @@
 
       addFriend(newFriend, cbOk, cbErr) {
         var $this = this;
-        $this.$axios.put(apiLinks.friends.add, 
+        $this.$axios.post(apiLinks.friends.add, 
           {
             nickname: newFriend.nickName,
             department_id: newFriend.departmentId.toString()

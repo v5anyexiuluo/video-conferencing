@@ -104,13 +104,13 @@ export default {
 <style scoped>
   .text {
     font-size: 14px;
-    margin-left: 40px;
+    margin-left: 20px;
     text-align: left;
   }
 
   .box-card {
     background-color: #ffffcc;
-    width: 280px;
+    width: 270px;
     margin: 15px;
     float: left;
   }

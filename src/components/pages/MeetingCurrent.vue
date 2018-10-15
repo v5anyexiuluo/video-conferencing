@@ -43,7 +43,7 @@
 			<el-col :span="3"><a href="javascript:void(0)">设置</a></el-col>
 			<el-col :span="3"></el-col>
 			<el-col :span="3"></el-col>
-			<el-col :span="3"></el-col>
+			<!-- <el-col :span="3" @click="uploadVideoVisible=true;">上传视频</el-col> -->
 			<el-col :span="3"><a @click="onStartOrEndConference" href="javascript:void(0)">{{Conference}}</a></el-col>
 		</el-row>
 	  </div>
@@ -78,6 +78,16 @@
           <el-button type="primary" @click="handleSelectMeeting">确 定</el-button>
         </div>
       </el-dialog>
+      <!-- <el-dialog title="上传会议视频" custom-class="start-meeting" width="400px" center :visible.sync="uploadVideoVisible">
+        <el-form :model="formUploadVideo" label-width="80px">
+          <el-form-item label="用户名">
+          </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="uploadVideoVisible = false">取 消</el-button>
+          <el-button type="primary" @click="onUploadVideoClicked">确 定</el-button>
+        </div>
+      </el-dialog> -->
 	</div>
 </template>
 <script>
@@ -92,6 +102,7 @@ export default {
 		return {
 			dialogInviteFriendVisible: false,
 			dialogSelectMeetingVisible: false,
+			// uploadVideoVisible: false,
 			formMeeting: {
 				meetingId: null
 			},
@@ -99,6 +110,9 @@ export default {
 	          nickName: '',
 	          formError: ''
 	        },
+	        // formUploadVideo: {
+
+	        // },
 	        nowMeetings:[],
 	        isMaster: true,
 	        isShare: false,
@@ -165,6 +179,10 @@ export default {
 		// 		$this.xchatkit = new XChatKit($this.meetingjson);
 		// 		$this.dialogSelectMeetingVisible = false;
 		// 	}
+		// },
+		// onUploadVideoClicked(){
+		// 	var $this = this;
+		// 	$this.uploadVideoVisible = false;
 		// },
 
 		refreshNowMembers(){

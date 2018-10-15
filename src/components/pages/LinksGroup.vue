@@ -20,7 +20,7 @@
           <img src="https://picsum.photos/200/200" alt="">
           <div class="group-info">
             <p><span>群名称:</span><span>{{curGroup? (curGroup.group_name? curGroup.group_name:''):''}}</span></p>
-            <p><span>群主:</span><span>{{curGroup? (curGroup.founderInfo.nickname? curGroup.founderInfo.nickname:''):''}}</span></p>
+            <p><span>群主:</span><span>{{curGroup? (curGroup.founder_info.nickname? curGroup.founder_info.nickname:''):''}}</span></p>
             <p><span>创建时间:</span><span>{{curGroup? (curGroup.create_time? timestampToTime(curGroup.create_time):''):''}}</span></p>
             <p><span>群简介:</span><span>暂无</span></p>
             <p>

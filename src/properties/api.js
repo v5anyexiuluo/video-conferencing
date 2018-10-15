@@ -32,8 +32,7 @@ export var apiLinks = {
 		deleteDepartment: links+'/departments/{department_id}',  //
 		addFriendToDepartment: links+'/departments/{department_id}/member',
 		addFriendsToDepartment: links+'/departments/{department_id}/members',
-		updateDepartmentOfFriend: links+'/departments/{department_id}/members/exchange',  //
-		allMemberSimple: links + "/departments/temp_in_page"
+		updateDepartmentOfFriend: links+'/departments/{department_id}/members/exchange'
 	},
 	groups:{
 		// create: links+'/groups/create',
@@ -57,8 +56,7 @@ export var apiLinks = {
 		// allmember: links + '/groups/get_group_member',
 		allmember: links + '/groups/members',
 		// exit: links + '/groups/exit_group',	
-		exit: links + '/groups/{group_id}/exit_group',		
-		allMemberSimple: links + '/groups/get_group_member_in_page'
+		exit: links + '/groups/{group_id}/exit_group'
 	}
 }
 export var apiMeeting = {

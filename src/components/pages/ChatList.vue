@@ -14,7 +14,7 @@
             class="full-element"
           >
             <h4>{{chat.type=="friend"? chat.data.nickname:chat.data.group_name}}</h4>
-            <router-link to="/regist" tag="p" style="font-size: 14px;" class="item h-full-container">会议纪要{{chat.data.realname}}</router-link>
+            <p style="font-size: 14px;" class="item h-full-container" @click.stop="goAbstract(chat)">会议纪要{{chat.data.realname}}</p>
           </div>
           <div><el-button type="text" icon="el-icon-circle-close-outline" style="font-size: 18px;" @click.stop="removeChatItem(chat);"></el-button></div>
         </li>
@@ -48,6 +48,7 @@
   </div>
 </template>
 <script>
+  import md5 from 'js-md5';
   import Chat from "@/components/common/Chat.vue"
   import {mapGetters, mapMutations} from 'vuex';
   export default {
@@ -67,14 +68,27 @@
         'removeChatItem'
       ]),
 
+      getChatroom(userId, chat){
+        var $this = this;
+        var chatroom;
+        if(chat.type=="friend"){
+          chatroom = (userId.id>chat.data.id? (chat.data.id.toString()+userId.id):(userId.toString()+chat.data.id))
+        }else if(chat.type=="group"){
+          chatroom = (chat.data.group_id.toString());
+        }
+        return md5.hex(chatroom);
+      },
+
       initChat(chatItem){
         var $this = this;
         $this.curChat=chatItem;
-        if($this.curChat.type=="friend"){
-          $this.chatroom = 'chat:'+($this.user.id>$this.curChat.data.id? ($this.curChat.data.id.toString()+$this.user.id):($this.user.id.toString()+$this.curChat.data.id))
-        }else if($this.curChat.type=="group"){
-          $this.chatroom = 'chat:'+($this.curChat.data.group_id.toString());
-        }
+        $this.chatroom = $this.getChatroom($this.user.id, $this.curChat);
+      },
+
+      goAbstract(chat){
+        var $this = this;
+        var chatroom = $this.getChatroom($this.user.id, chat);
+        this.$router.push({name:'abstract', params:{id: chatroom}});
       }
     },
     created(){

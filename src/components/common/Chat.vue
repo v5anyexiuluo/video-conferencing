@@ -5,7 +5,6 @@
 	</div>
 </template>
 <script>
-  	import md5 from 'js-md5';
 	import ChatMessage from "@/components/common/ChatMessage.vue"
 	import ChatText from "@/components/common/ChatText.vue"
   	import {mapGetters, mapMutations} from 'vuex';
@@ -53,7 +52,7 @@
 					$this.chatCore.SendText(msg);
 				})
 				if(!$this.isMeeting){
-					$this.chatCore = new Chat($this.user.id, $this.user.nickname, md5.hex($this.chatroom), $this.onCallback).getXchatkit();
+					$this.chatCore = new Chat($this.user.id, $this.user.nickname, $this.chatroom, $this.onCallback).getXchatkit();
 					$this.chatCore.JoinConference();
 					setTimeout(() => {
 						$this.chatCore.GetLocalStream().getTracks().forEach(function(e){

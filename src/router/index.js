@@ -10,6 +10,7 @@ import MeetingNow from '@/components/pages/MeetingNow'
 import LinksGroup from '@/components/pages/LinksGroup'
 import LinksFriend from '@/components/pages/LinksFriend'
 import Member from '@/components/pages/Member'
+import Abstract from '@/components/pages/Abstract'
 import NotFound from '@/components/pages/NotFound'
 import properties from '@/properties/properties.js';
 import store from '@/store/'
@@ -92,6 +93,11 @@ const router = new Router({
           path: '/member/:id',
           component: Member
         },
+        {
+          name: 'abstract',
+          path: '/abstract/:id',
+          component: Abstract
+        }
       ]
     },
     { path:'*' , component:NotFound}

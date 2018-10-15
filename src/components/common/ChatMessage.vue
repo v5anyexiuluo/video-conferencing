@@ -6,7 +6,9 @@
                 <span>{{ item.timestamp | time }}</span>
             </p>
             <div class="main h-full-container" :class="{ self: item.from==user.id }">
-                <img class="avatar" width="30" height="30" src="https://picsum.photos/40/40" />
+                <router-link :to="{name:'member',params:{id: item.from}}" style="cursor: pointer;text-decoration: none;color: inherit;">
+                    <img class="avatar" width="30" height="30" src="https://picsum.photos/40/40" />
+                </router-link>
                 <div class="text">{{ item.content }}</div>
             </div>
         </li>

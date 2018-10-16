@@ -25,6 +25,21 @@
           </el-date-picker>
         </div>
       </el-form-item>
+      
+      <el-form-item label="通知方式：">
+				<div>
+					<el-checkbox
+						v-model="form.formMutiSelects.settings.email_notify"
+						label="邮件通知"
+					>
+					</el-checkbox>
+					<el-checkbox
+						v-model="form.formMutiSelects.settings.sms_notify"
+						label="短信通知"
+					>
+					</el-checkbox>
+				</div>
+			</el-form-item>
 
       <el-form-item label="与会成员：">
         <div style="height: 260px;">
@@ -138,6 +153,7 @@
 <script>
 import SelectMember from '@/components/common/SelectMember'
 import {apiAuth,apiLinks,apiMeeting} from '@/properties/api.js';
+import utils from '@/assets/js/utils.js'
 export default {
   name: 'MeetingOrder',
   data() {
@@ -365,10 +381,11 @@ export default {
       }
       console.log(members)
       $this.createMeeting(
-        this.form.name,members,
-        this.form.start_time,
-        this.form.formMutiSelects.settings.email_notify,
-				this.form.formMutiSelects.settings.sms_notify,
+        $this.form.name,
+        members,
+        $this.form.start_time,
+        $this.form.formMutiSelects.settings.email_notify,
+				$this.form.formMutiSelects.settings.sms_notify,
         function(res) {
           $this.$message.success('创建会议成功');
         }, function(res) {
@@ -379,13 +396,13 @@ export default {
 
     createMeeting (m_name, m_members, m_stime, m_email, m_sms, cbOk, cbErr) {
       var $this = this;
-      $this.$axios.put(utils.handleParamInUrl(apiMeeting.order.create, {
+      $this.$axios.put(apiMeeting.order.create, {
         meeting_name: m_name,
         members: m_members,
         start_time: m_stime.toString(),
         email_notify:m_email,
 				sms_notify:m_sms
-      }), cbOk, cbErr)
+      }, cbOk, cbErr)
     },
 
     // joinMeetings(mid) {
@@ -402,6 +419,23 @@ export default {
     //    console.log(error);
     //  })
     // }
+    getMeetingMember (id) {
+      var $this = this;
+      $this.meetingMember (id, function (res){
+        var re = res.data.data
+        console.log("会议成员")
+        console.log(re)
+      }, function (res){
+        $this.$message.error('获取会议成员信息失败！');
+      })
+    },
+
+    meetingMember (id, cbOk, cbErr) {
+      var $this = this;
+      $this.$axios.get(utils.handleParamInUrl(apiMeeting.now.members,{
+        mid:id
+      }), null, cbOk, cbErr);
+    },
   },
   mounted() {
     this.getInfo();
@@ -409,6 +443,9 @@ export default {
     this.refreshGroups();
     if(this.$route.query.group_id) {
       this.curid=this.$route.query.group_id
+    }
+    if(this.$route.query.meeting_id) {
+      this.getMeetingMember(this.$route.query.meeting_id);
     }
   }
 }

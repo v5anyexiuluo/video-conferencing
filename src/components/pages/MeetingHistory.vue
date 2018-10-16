@@ -18,8 +18,18 @@
         </div>
         <div style="text-align: left; font-size: 14px; margin: 5px;">会议纪要：这是一段会议纪要{{item.reviewtime}}</div>
       </div>
-      <el-button type="primary" @click="handleClick">马上开会</el-button>
-      <el-button type="primary">预约会议</el-button>
+      <div v-if="item.founder_user_nickname==selfInfo">
+        <!-- <router-link :to="{name: 'now', query:{group_id:curGroup.group_id}}" > -->
+        <router-link :to="{name: 'now', query:{meeting_id:item.id}}">
+          <el-button type="primary">马上开会</el-button>
+        </router-link>
+        <router-link :to="{name: 'order', query:{meeting_id:item.id}}">
+          <el-button type="primary">预约会议</el-button>
+        </router-link>
+      </div>
+      <div v-else>
+        <el-button type="primary" @click="showInfo(item)">查看会议详情</el-button>
+      </div>
     </el-card>
     <el-dialog
       title="会议信息"
@@ -47,23 +57,22 @@
 </template>
 
 <script>
-import {apiMeeting} from '@/properties/api.js';
+import {apiAuth, apiMeeting} from '@/properties/api.js';
 export default {
   name: 'MeetingHistory',
   data() {
     return {
       MeetingList: [],
       dialogMeetingInfo: false,
-      curMeeting: null
+      curMeeting: null,
+      selfInfo: null
     }
   },
   mounted() {
     this.refreshAllHistoryMeeting();
+    this.getInfo();
   },
   methods: {
-    handleClick() {
-      this.y = 2;
-    },
     showInfo(info) {
       this.curMeeting = info
       console.log(this.curMeeting)
@@ -100,6 +109,24 @@ export default {
       $this.$axios.get(apiMeeting.order.all, {
       }, cbOk, cbErr)
     },
+    getInfo () {
+      var $this = this;
+      $this.getSelfInfo (function (res){
+        console.log("selfres")
+        console.log(res);
+        console.log(res.data.data.nickname)
+        $this.selfInfo = res.data.data.nickname
+        console.log("SELFINFO")
+        console.log($this.selfInfo)
+      }, function (res){
+        $this.$message.error('获取用户信息失败！');
+      })
+    },
+
+    getSelfInfo (cbOk, cbErr) {
+      var $this = this;
+      $this.$axios.get(apiAuth.userInfo, null, cbOk, cbErr);
+    }
   }
 }
 </script>

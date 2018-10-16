@@ -12,7 +12,7 @@
 					<el-input v-model="form.founder" clearable></el-input>
 			</el-form-item>
 			<el-form-item label="通知方式：">
-				<div>
+				<div style="text-align: left;">
 					<el-checkbox
 						v-model="form.formMutiSelects.settings.email_notify"
 						label="邮件通知"
@@ -42,7 +42,7 @@
 									node-key="id"
 									:data="form.formMutiSelects.srcData.groups"
 									:props="form.formMutiSelects.settings.groupsProps"
-									:default-checked-keys="this.curid"
+									:default-checked-keys="form.formMutiSelects.settings.curid"
 									show-checkbox
 									@check-change="handleTreeCheckChange"
 									ref="groupTree">
@@ -174,6 +174,7 @@ export default {
 							children: 'children',
 							label: 'name'
 						},
+						curid: [],
 						dynamicTags: ['邮件通知', '短信通知'],
 						email_notify: false,
 						sms_notify: false,
@@ -181,8 +182,7 @@ export default {
 						inputValue: ''
 					}
 				}
-			},
-			curid: []
+			}
 		};
 	},
 	components: {
@@ -319,15 +319,18 @@ export default {
 			$this.form.formMutiSelects.srcData.groups = [];
 			$this.getAllGroups(function(res) {
 				var re = res.data.data
+				//elementui tree数据不要循环往里添加，而是整理好以后，一次赋值，否则出现默认值不显示的问题
+				var temp = [];
 				for (var i = 0; i < res.data.data.length; i++) {
-					$this.form.formMutiSelects.srcData.groups.push({id: re[i].group_id, name: re[i].group_name, children:[]})
+					temp.push({id: re[i].group_id, name: re[i].group_name, children:[]})
 					for (var j = 0; j < re[i].member.length; j++) {
-						$this.form.formMutiSelects.srcData.groups[i].children.push({
+						temp[i].children.push({
 						id: re[i].member[j].id,
 						name: re[i].member[j].nickname
 						})
 					}
 				}
+				$this.form.formMutiSelects.srcData.groups = temp;
 			},function(res){
 				$this.$message.error('获取用户群组失败！');
 			})
@@ -402,10 +405,8 @@ export default {
 				console.log(re)
 				for(var i=0; i<re.length; i++) {
 					console.log(re[i].id);
-					$this.curid.push(re[i].id);
+					$this.form.formMutiSelects.settings.curid.push(re[i].id);
 				}
-				console.log("curid")
-				console.log($this.curid);
       }, function (res){
         $this.$message.error('获取会议成员信息失败！');
       })
@@ -418,18 +419,18 @@ export default {
       }), null, cbOk, cbErr);
     },
 	},
-	mounted() {
+	created() {
 		this.getInfo();
 		this.refreshDepartments();
 		this.refreshGroups();
 		if(this.$route.query.group_id) {
-			this.curid.push(this.$route.query.group_id)
-			console.log("this.curid")
-			console.log(this.curid)
+			this.form.formMutiSelects.settings.curid.push(this.$route.query.group_id)
 		}
 		if(this.$route.query.meeting_id) {
-      this.getMeetingMember(this.$route.query.meeting_id)
-    }
+	      	this.getMeetingMember(this.$route.query.meeting_id)
+	    }
+	},
+	mounted(){
 	},
 	name: 'MeetingJoin'
 }

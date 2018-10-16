@@ -27,7 +27,7 @@
       </el-form-item>
       
       <el-form-item label="通知方式：">
-				<div>
+				<div style="text-align: left;">
 					<el-checkbox
 						v-model="form.formMutiSelects.settings.email_notify"
 						label="邮件通知"
@@ -55,7 +55,7 @@
                   node-key="id"
                   :data="form.formMutiSelects.srcData.groups"
                   :props="form.formMutiSelects.settings.groupsProps"
-                  :default-checked-keys="[this.curid]"
+                  :default-checked-keys="form.formMutiSelects.settings.curid"
                   show-checkbox
                   @check-change="handleTreeCheckChange"
                   ref="groupTree">
@@ -212,6 +212,7 @@ export default {
               children: 'children',
               label: 'name'
             },
+            curid: [8],
             email_notify:false,
             sms_notify:false,
             dynamicTags: ['标签一', '标签二', '标签三'],
@@ -219,8 +220,7 @@ export default {
             inputValue: ''
           }
         }
-      },
-      curid: null
+      }
     };
   },
   components: {
@@ -442,7 +442,7 @@ export default {
     this.refreshDepartments();
     this.refreshGroups();
     if(this.$route.query.group_id) {
-      this.curid=this.$route.query.group_id
+      this.form.formMutiSelects.settings.curid=this.$route.query.group_id
     }
     if(this.$route.query.meeting_id) {
       this.getMeetingMember(this.$route.query.meeting_id);

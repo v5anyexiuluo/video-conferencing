@@ -77,6 +77,7 @@
                   node-key="id"
                   :data="form.formMutiSelects.srcData.friends"
                   :props="form.formMutiSelects.settings.friendsProps"
+                  :default-checked-keys="form.formMutiSelects.settings.curid"
                   show-checkbox
                   @check-change="handleTreeCheckChange"
                   ref="friendTree">
@@ -131,68 +132,73 @@
     </el-form>
   </div>
 </template>
+
 <script>
-import SelectMember from '@/components/common/SelectMember'
-import {apiAuth,apiLinks,apiMeeting} from '@/properties/api.js';
-import utils from '@/assets/js/utils.js'
+import SelectMember from "@/components/common/SelectMember";
+import { apiAuth, apiLinks, apiMeeting } from "@/properties/api.js";
+import utils from "@/assets/js/utils.js";
 export default {
-  name: 'MeetingOrder',
+  name: "MeetingOrder",
   data() {
     return {
       pickerOptions: {
         disabledDate(time) {
-          return time.getTime() < Date.now()-86400000;
+          return time.getTime() < Date.now() - 86400000;
         },
-        shortcuts: [{
-          text: '今天',
-          onClick(picker) {
-            picker.$emit('pick', new Date());
+        shortcuts: [
+          {
+            text: "今天",
+            onClick(picker) {
+              picker.$emit("pick", new Date());
+            }
+          },
+          {
+            text: "明天",
+            onClick(picker) {
+              const date = new Date();
+              date.setTime(date.getTime() + 3600 * 1000 * 24);
+              picker.$emit("pick", date);
+            }
+          },
+          {
+            text: "一周后",
+            onClick(picker) {
+              const date = new Date();
+              date.setTime(date.getTime() + 3600 * 1000 * 24 * 7);
+              picker.$emit("pick", date);
+            }
           }
-        }, {
-          text: '明天',
-          onClick(picker) {
-            const date = new Date();
-            date.setTime(date.getTime() + 3600 * 1000 * 24);
-            picker.$emit('pick', date);
-          }
-        }, {
-          text: '一周后',
-          onClick(picker) {
-            const date = new Date();
-            date.setTime(date.getTime() + 3600 * 1000 * 24 * 7);
-            picker.$emit('pick', date);
-          }
-        }]
+        ]
       },
       form: {
-        name: '新建会议',
-        founder: '',
-        start_time: '',
+        name: "新建会议",
+        founder: "",
+        start_time: "",
         formMutiSelects: {
           curTab: 1,
           srcData: {
-            groups:[],
-            friends:[]
+            groups: [],
+            friends: []
           },
           tarData: {
-            members:[],
-            customSel:[]
+            members: [],
+            customSel: []
           },
-          settings:{
+          settings: {
             groupsProps: {
-              children: 'children',
-              label: 'name'
+              children: "children",
+              label: "name"
             },
             friendsProps: {
-              children: 'children',
-              label: 'name'
+              children: "children",
+              label: "name"
             },
-            curid: [8],
-            email_notify:false,
-            sms_notify:false,
-            dynamicTags: ['标签一', '标签二', '标签三'],
+            curid: [],
+            email_notify: false,
+            sms_notify: false,
+            dynamicTags: ["标签一", "标签二", "标签三"],
             inputVisible: false,
-            inputValue: ''
+            inputValue: ""
           }
         }
       }
@@ -201,35 +207,36 @@ export default {
   components: {
     SelectMember
   },
-  methods:{
+  methods: {
     handleClose(tag) {
-      this.form.formMutiSelects.settings.dynamicTags.splice(this.form.formMutiSelects.settings.dynamicTags.indexOf(tag), 1);
+      this.form.formMutiSelects.settings.dynamicTags.splice(
+        this.form.formMutiSelects.settings.dynamicTags.indexOf(tag),
+        1
+      );
     },
     showInput() {
-      this.form.formMutiSelects.settings.inputVisible = true;
+      this.form.formMutiSelects.settings.inputVisible = true
       this.$nextTick(_ => {
-        this.$refs.saveTagInput.$refs.input.focus();
-      });
+        this.$refs.saveTagInput.$refs.input.focus()
+      })
     },
     handleInputConfirm() {
       var inputValue = this.form.formMutiSelects.settings.inputValue;
-      var emailReg = /^([0-9A-Za-z\-_\.]+)@([0-9a-z]+\.[a-z]{2,3}(\.[a-z]{2})?)$/g;
-      var phoneReg = /^1(?:3\d|4[4-9]|5[0-35-9]|6[67]|7[013-8]|8\d|9\d)\d{8}$/;
-      if(emailReg.test(inputValue)||phoneReg.test(inputValue)){
-        this.form.formMutiSelects.settings.dynamicTags.push(inputValue);
-        this.form.formMutiSelects.settings.inputVisible = false;
-        this.form.formMutiSelects.settings.inputValue = '';
-      }else{
-        this.$message.error('输入不合法！');
+      var emailReg = /^([0-9A-Za-z\-_\.]+)@([0-9a-z]+\.[a-z]{2,3}(\.[a-z]{2})?)$/g
+      var phoneReg = /^1(?:3\d|4[4-9]|5[0-35-9]|6[67]|7[013-8]|8\d|9\d)\d{8}$/
+      if (emailReg.test(inputValue) || phoneReg.test(inputValue)) {
+        this.form.formMutiSelects.settings.dynamicTags.push(inputValue)
+        this.form.formMutiSelects.settings.inputVisible = false
+        this.form.formMutiSelects.settings.inputValue = ""
+      } else {
+        this.$message.error("输入不合法！")
         return;
       }
     },
 
-    handleCustomSelect(data){
-      
-    },
+    handleCustomSelect(data) {},
 
-    handleTreeCheckChange(data, checked, indeterminate) {
+    handleTreeCheckChange() {
       var $this = this;
       // if(checked){
       //  if(typeof(data.children)=="undefined"){
@@ -242,17 +249,17 @@ export default {
       //    $this.removeMember(data);
       //  }
       // }
-      $this.form.formMutiSelects.tarData.members=[]
+      $this.form.formMutiSelects.tarData.members = [];
       var groups = $this.$refs.groupTree.getCheckedNodes();
       for (var i = 0; i < groups.length; i++) {
-        if(typeof(groups[i].children)=="undefined") {
-          $this.addMember(groups[i])
+        if (typeof groups[i].children == "undefined") {
+          $this.addMember(groups[i]);
         }
       }
       var friends = $this.$refs.friendTree.getCheckedNodes();
       for (var i = 0; i < friends.length; i++) {
-        if(typeof(friends[i].children)=="undefined") {
-          $this.addMember(friends[i])
+        if (typeof friends[i].children == "undefined") {
+          $this.addMember(friends[i]);
         }
       }
       // groups.forEach(function(item,index){
@@ -262,40 +269,43 @@ export default {
       // })
     },
 
-    addMember(item){
+    addMember(item) {
       var $this = this;
       var members = $this.form.formMutiSelects.tarData.members;
       var ret = members.findIndex((value, index, arr) => {
-            return value.id == item.id;
-          })
-      if(ret==-1){
+        return value.id == item.id;
+      });
+      if (ret == -1) {
         $this.form.formMutiSelects.tarData.members.push(item);
       }
-      console.log("$this.form.formMutiSelects.tarData.members")
-      console.log($this.form.formMutiSelects.tarData.members)
+      console.log("$this.form.formMutiSelects.tarData.members");
+      console.log($this.form.formMutiSelects.tarData.members);
     },
 
-    removeMember(item){
+    removeMember(item) {
       var $this = this;
       var members = $this.form.formMutiSelects.tarData.members;
       var ret = members.findIndex((value, index, arr) => {
-            return value.id == item.id;
-          })
-      if(ret!=-1){
-        $this.form.formMutiSelects.tarData.members.splice(ret,1);
+        return value.id == item.id;
+      });
+      if (ret != -1) {
+        $this.form.formMutiSelects.tarData.members.splice(ret, 1);
       }
-      console.log($this.form.formMutiSelects.tarData.members)
+      console.log($this.form.formMutiSelects.tarData.members);
     },
-    getInfo () {
+    getInfo() {
       var $this = this;
-      $this.getSelfInfo (function (res){
-        $this.form.founder = res.data.data.nickname;
-      }, function (res){
-        $this.$message.error('获取用户信息失败！');
-      })
+      $this.getSelfInfo(
+        function(res) {
+          $this.form.founder = res.data.data.nickname;
+        },
+        function(res) {
+          $this.$message.error("获取用户信息失败！");
+        }
+      );
     },
 
-    getSelfInfo (cbOk, cbErr) {
+    getSelfInfo(cbOk, cbErr) {
       var $this = this;
       $this.$axios.get(apiAuth.userInfo, null, cbOk, cbErr);
     },
@@ -303,44 +313,62 @@ export default {
     refreshDepartments() {
       var $this = this;
       $this.form.formMutiSelects.srcData.friends = [];
-      $this.getAllDepartments(function(res) {
-        var re = res.data.data
-        for (var i = 0; i < res.data.data.length; i++) {
-          $this.form.formMutiSelects.srcData.friends.push({id: re[i].department_id, name: re[i].department_name, children:[]})
-          for (var j = 0; j < re[i].departmemt_members.length; j++) {
-            $this.form.formMutiSelects.srcData.friends[i].children.push({
-              id: re[i].departmemt_members[j].id,
-              name: re[i].departmemt_members[j].nickname
-            })
+      $this.getAllDepartments(
+        function(res) {
+          var re = res.data.data;
+          var temp = [];
+          for (var i = 0; i < re.length; i++) {
+            temp.push({
+              id: re[i].department_id,
+              name: re[i].department_name,
+              children: []
+            });
+            for (var j = 0; j < re[i].departmemt_members.length; j++) {
+              temp[i].children.push({
+                id: re[i].departmemt_members[j].id,
+                name: re[i].departmemt_members[j].nickname
+              });
+            }
           }
+          $this.form.formMutiSelects.srcData.friends = temp;
+        },
+        function(res) {
+          $this.$message.error("获取用户分群组失败！");
         }
-      },function(res){
-        $this.$message.error('获取用户分群组失败！');
-      })
+      );
     },
 
     getAllDepartments(cbOk, cbErr) {
       var $this = this;
-      this.$axios.get(apiLinks.friends.allDepartments, null, cbOk, cbErr)
+      this.$axios.get(apiLinks.friends.allDepartments, null, cbOk, cbErr);
     },
 
     refreshGroups() {
       var $this = this;
       $this.form.formMutiSelects.srcData.groups = [];
-      $this.getAllGroups(function(res) {
-        var re = res.data.data
-        for (var i = 0; i < res.data.data.length; i++) {
-          $this.form.formMutiSelects.srcData.groups.push({id: re[i].group_id, name: re[i].group_name, children:[]})
-          for (var j = 0; j < re[i].member.length; j++) {
-            $this.form.formMutiSelects.srcData.groups[i].children.push({
-              id: re[i].member[j].id,
-              name: re[i].member[j].nickname
-            })
+      $this.getAllGroups(
+        function(res) {
+          var re = res.data.data;
+          var temp = [];
+          for (var i = 0; i < re.length; i++) {
+            temp.push({
+              id: re[i].group_id,
+              name: re[i].group_name,
+              children: []
+            });
+            for (var j = 0; j < re[i].member.length; j++) {
+              temp[i].children.push({
+                id: re[i].member[j].id,
+                name: re[i].member[j].nickname
+              });
+            }
           }
+          $this.form.formMutiSelects.srcData.groups = temp;
+        },
+        function(res) {
+          $this.$message.error("获取用户群组失败！");
         }
-      },function(res){
-        $this.$message.error('获取用户群组失败！');
-      })
+      );
     },
 
     getAllGroups(cbOk, cbErr) {
@@ -349,118 +377,148 @@ export default {
     },
 
     handleMeetingOrder() {
-      var $this = this
-      var members=[]
-      for (var i = 0; i < this.form.formMutiSelects.tarData.members.length; i++) {
-        members.push({"nickname": this.form.formMutiSelects.tarData.members[i].name})
+      var $this = this;
+      var members = [];
+      for (
+        var i = 0;
+        i < this.form.formMutiSelects.tarData.members.length;
+        i++
+      ) {
+        members.push({
+          nickname: this.form.formMutiSelects.tarData.members[i].name
+        });
       }
-      console.log(members)
+      console.log(members);
       $this.createMeeting(
         $this.form.name,
         members,
         $this.form.start_time,
         $this.form.formMutiSelects.settings.email_notify,
-				$this.form.formMutiSelects.settings.sms_notify,
+        $this.form.formMutiSelects.settings.sms_notify,
         function(res) {
-          $this.$message.success('创建会议成功');
-        }, function(res) {
-          $this.$message.error('创建会议失败');
+          $this.$message.success("创建会议成功");
+        },
+        function(res) {
+          $this.$message.error("创建会议失败");
         }
-      )
+      );
     },
 
-    createMeeting (m_name, m_members, m_stime, m_email, m_sms, cbOk, cbErr) {
+    createMeeting(m_name, m_members, m_stime, m_email, m_sms, cbOk, cbErr) {
       var $this = this;
-      $this.$axios.put(apiMeeting.order.create, {
-        meeting_name: m_name,
-        members: m_members,
-        start_time: m_stime.toString(),
-        email_notify:m_email,
-				sms_notify:m_sms
-      }, cbOk, cbErr)
+      $this.$axios.put(
+        apiMeeting.order.create,
+        {
+          meeting_name: m_name,
+          members: m_members,
+          start_time: m_stime.toString(),
+          email_notify: m_email,
+          sms_notify: m_sms
+        },
+        cbOk,
+        cbErr
+      );
     },
 
-    getMeetingMember (id) {
+    getMeetingMember(id) {
       var $this = this;
-      $this.meetingMember (id, function (res){
-        var re = res.data.data
-        console.log("会议成员")
-        console.log(re)
-      }, function (res){
-        $this.$message.error('获取会议成员信息失败！');
-      })
+      $this.meetingMember(
+        id,
+        function(res) {
+          var re = res.data.data;
+          console.log("会议成员");
+          console.log(re);
+          for (var i = 0; i < re.length; i++) {
+            $this.form.formMutiSelects.settings.curid.push(re[i].id);
+            $this.form.formMutiSelects.tarData.members.push({
+              id:re[i].id,
+              name:re[i].nickname
+            })
+          }
+        },
+        function(res) {
+          $this.$message.error("获取会议成员信息失败！");
+        }
+      );
     },
 
-    meetingMember (id, cbOk, cbErr) {
+    meetingMember(id, cbOk, cbErr) {
       var $this = this;
-      $this.$axios.get(utils.handleParamInUrl(apiMeeting.now.members,{
-        mid:id
-      }), null, cbOk, cbErr);
-    },
+      $this.$axios.get(
+        utils.handleParamInUrl(apiMeeting.now.members, {
+          mid: id
+        }),
+        null,
+        cbOk,
+        cbErr
+      );
+    }
   },
   mounted() {
     this.getInfo();
     this.refreshDepartments();
     this.refreshGroups();
-    if(this.$route.query.group_id) {
-      this.form.formMutiSelects.settings.curid=this.$route.query.group_id
+    if (this.$route.query.group_id) {
+      this.form.formMutiSelects.settings.curid = this.$route.query.group_id;
     }
-    if(this.$route.query.meeting_id) {
+    if (this.$route.query.meeting_id) {
       this.getMeetingMember(this.$route.query.meeting_id);
     }
   }
-}
+};
 </script>
 
 <style scoped>
-  ::-webkit-scrollbar {display: none}
-  .once {
-     width: 70%; 
-     margin-top: 15px;
-  }
-  .tabHeader{
-    text-align: left;
-    display: flex;
-  }
-  .el-tag {
-    margin-bottom: 10px;
-  }
-  .button-new-tag {
-    height: 40px;
-    line-height: 40px;
-    padding-top: 0;
-    padding-bottom: 0;
-  }
-  .input-new-tag {
-    vertical-align: bottom;
-  }
-   .tabItem{
-    height: 100%;
-    color: #606266;
-    text-decoration: none;
-    padding: 0 10px;
-  }
-  .tabItem:hover{
-    color: #dcdfe6;
-  }
-  .activeTab{
-    color: red;
-    border-bottom: 1px solid red;
-  }
-  .tabHeader{
-    text-align: left;
-    display: flex;
-  }
-  .el-tag {
-    margin-bottom: 10px;
-  }
-  .button-new-tag {
-    height: 40px;
-    line-height: 40px;
-    padding-top: 0;
-    padding-bottom: 0;
-  }
-  .input-new-tag {
-    vertical-align: bottom;
-  }
+::-webkit-scrollbar {
+  display: none;
+}
+.once {
+  width: 70%;
+  margin-top: 15px;
+}
+.tabHeader {
+  text-align: left;
+  display: flex;
+}
+.el-tag {
+  margin-bottom: 10px;
+}
+.button-new-tag {
+  height: 40px;
+  line-height: 40px;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+.input-new-tag {
+  vertical-align: bottom;
+}
+.tabItem {
+  height: 100%;
+  color: #606266;
+  text-decoration: none;
+  padding: 0 10px;
+}
+.tabItem:hover {
+  color: #dcdfe6;
+}
+.activeTab {
+  color: red;
+  border-bottom: 1px solid red;
+}
+.tabHeader {
+  text-align: left;
+  display: flex;
+}
+.el-tag {
+  margin-bottom: 10px;
+}
+.button-new-tag {
+  height: 40px;
+  line-height: 40px;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+.input-new-tag {
+  vertical-align: bottom;
+}
 </style>

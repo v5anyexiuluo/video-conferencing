@@ -256,6 +256,7 @@
       handleDelDepartment () {
         var $this = this;
         if(Object.keys($this.curDepartment).length==0){
+          console.log("NULL")
           return;
         }
         $this.deleteDepartment($this.curDepartment.department_id, function(res) {

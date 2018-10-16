@@ -6,6 +6,20 @@
 			<el-form-item label="主持人：">
 					<el-input v-model="form.founder" clearable></el-input>
 			</el-form-item>
+			<el-form-item label="通知方式：">
+				<div>
+					<el-checkbox
+						v-model="form.formMutiSelects.settings.email_notify"
+						label="邮件通知"
+					>
+					</el-checkbox>
+					<el-checkbox
+						v-model="form.formMutiSelects.settings.sms_notify"
+						label="短信通知"
+					>
+					</el-checkbox>
+				</div>
+			</el-form-item>
 			<!-- <el-form-item label="参会人员：">
 					<select-member :curid="curid"></select-member>
 			</el-form-item> -->
@@ -23,7 +37,7 @@
 									node-key="id"
 									:data="form.formMutiSelects.srcData.groups"
 									:props="form.formMutiSelects.settings.groupsProps"
-									:default-checked-keys="[this.curid]"
+									:default-checked-keys="this.curid"
 									show-checkbox
 									@check-change="handleTreeCheckChange"
 									ref="groupTree">
@@ -162,7 +176,7 @@ export default {
 					}
 				}
 			},
-			curid: null
+			curid: []
 		};
 	},
 	components: {
@@ -322,10 +336,10 @@ export default {
       }
       console.log(members)
 			$this.createMeeting(
-				this.form.name,
+				$this.form.name,
 				members,
-				form.formMutiSelects.settings.email_notify,
-				form.formMutiSelects.settings.sms_notify,
+				$this.form.formMutiSelects.settings.email_notify,
+				$this.form.formMutiSelects.settings.sms_notify,
 				function(res) {
         	$this.$message.success('创建会议成功');
 				}, function(res) {
@@ -359,14 +373,42 @@ export default {
 		// 		console.log(error);
 		// 	})
 		// }
+		getMeetingMember (id) {
+      var $this = this;
+      $this.meetingMember (id, function (res){
+        var re = res.data.data
+        console.log("会议成员")
+				console.log(re)
+				for(var i=0; i<re.length; i++) {
+					console.log(re[i].id);
+					$this.curid.push(re[i].id);
+				}
+				console.log("curid")
+				console.log($this.curid);
+      }, function (res){
+        $this.$message.error('获取会议成员信息失败！');
+      })
+    },
+
+    meetingMember (id, cbOk, cbErr) {
+      var $this = this;
+      $this.$axios.get(utils.handleParamInUrl(apiMeeting.now.members,{
+        mid:id
+      }), null, cbOk, cbErr);
+    },
 	},
 	mounted() {
 		this.getInfo();
 		this.refreshDepartments();
 		this.refreshGroups();
 		if(this.$route.query.group_id) {
-			this.curid=this.$route.query.group_id
+			this.curid.push(this.$route.query.group_id)
+			console.log("this.curid")
+			console.log(this.curid)
 		}
+		if(this.$route.query.meeting_id) {
+      this.getMeetingMember(this.$route.query.meeting_id)
+    }
 	},
 	name: 'MeetingJoin'
 }

@@ -28,13 +28,13 @@
 			'chat-text': ChatText
 		},
 		created(){
-			var $this = this;
-			if(typeof $this.chatroom != 'string'){
-				$this.isMeeting = true;
-				$this.chatCore = $this.chatroom;
-				$this.initChat();
-				$this.messages=$this.historyMsg($this.chatCore.meetingjson.chatroom);
-			}
+			// var $this = this;
+			// if(typeof $this.chatroom != 'string'){
+			// 	$this.isMeeting = true;
+			// 	$this.chatCore = $this.chatroom;
+			// 	$this.initChat();
+			// 	$this.messages=$this.historyMsg($this.chatCore.meetingjson.chatroom);
+			// }
 		},
 		mounted() {
 
@@ -85,9 +85,8 @@
 			]),
 		},
 		watch:{
-			chatroom:function(newVal, oldVal){
+			chatroom: function(newVal, oldVal){
 				var $this = this;
-				var chatroomId;
 				if(typeof newVal == 'string'){
 					$this.isMeeting = false;
 				}else{
@@ -105,7 +104,7 @@
 				// $this.isMeeting = false;
 				// $this.initChat();
 				// $this.messages=$this.historyMsg(newVal);
-			},
+			}
 			// chatobj:function(newVal, oldVal){
 			// 	if(oldVal){
 			// 		$this.addChatMsg({chatroom: oldVal, msg:$this.messages})

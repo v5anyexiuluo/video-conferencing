@@ -381,6 +381,7 @@ export default {
 				for(var i=0; i<re.length; i++) {
 					console.log(re[i].id);
 					$this.form.formMutiSelects.settings.curid.push(re[i].id);
+					$this.form.formMutiSelects.tarData.members.push({id: re[i].id, name:re[i].nickname})
 				}
       }, function (res){
         $this.$message.error('获取会议成员信息失败！');
@@ -393,13 +394,14 @@ export default {
         mid:id
       }), null, cbOk, cbErr);
     },
+    
 	},
 	created() {
 		this.getInfo();
 		this.refreshDepartments();
 		this.refreshGroups();
 		if(this.$route.query.group_id) {
-			this.form.formMutiSelects.settings.curid.push(this.$route.query.group_id)
+			this.form.formMutiSelects.settings.getMeetingMember.push(this.$route.query.group_id)
 		}
 		if(this.$route.query.meeting_id) {
 	      	this.getMeetingMember(this.$route.query.meeting_id)

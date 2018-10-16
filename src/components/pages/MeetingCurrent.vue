@@ -301,6 +301,7 @@ export default {
 			if($this.isMaster){
 				$this.startMeeting($this.curMeeting.id, function(res){
 					$this.meetCore.JoinConference();
+					$this.chatroom = $this.meetCore;
 				}, function(res){
 					$this.$message.error('启动会议失败！'+res.msg);
 				})
@@ -713,7 +714,7 @@ export default {
 				}
 		        $this.meetCore = new Meet($this.user.id, $this.user.nickname, $this.curMeeting.id, $this.onCallback).getXchatkit();
 		        // $this.chatroom = 'meeting:'+$this.formMeeting.meetingId.toString();
-		        $this.chatroom = $this.meetCore;
+		        
 			}
 		},
 

@@ -1,4 +1,9 @@
 <template>
+  <div>
+    <el-breadcrumb separator-class="el-icon-arrow-right">
+      <el-breadcrumb-item>视频会议</el-breadcrumb-item>
+      <el-breadcrumb-item>预约会议</el-breadcrumb-item>
+    </el-breadcrumb>
     <el-form class="once" ref="form" :model="form" label-width="30%">
       <el-form-item label="会议名称：">
           <el-input v-model="form.name" clearable></el-input>
@@ -53,19 +58,19 @@
               </div>
               <div id="tab3" style="text-align: left; padding: 10px;" v-show="form.formMutiSelects.curTab==3">
                 <div>
-									<el-checkbox
-										v-model="form.formMutiSelects.settings.email_notify"
-										label="邮件通知"
-										border
-									>
-									</el-checkbox>
-									<el-checkbox
-										v-model="form.formMutiSelects.settings.sms_notify"
-										label="短信通知"
-										border
-									>
-									</el-checkbox>
-								</div>
+                  <el-checkbox
+                    v-model="form.formMutiSelects.settings.email_notify"
+                    label="邮件通知"
+                    border
+                  >
+                  </el-checkbox>
+                  <el-checkbox
+                    v-model="form.formMutiSelects.settings.sms_notify"
+                    label="短信通知"
+                    border
+                  >
+                  </el-checkbox>
+                </div>
                 <!-- <el-checkbox-group style="text-align: left;display: flex;flex-direction: column;align-items: flex-start;" v-model="form.formMutiSelects.tarData.customSel" @change="handleCustomSelect">
                   <el-tag
                     :key="tag"
@@ -104,19 +109,19 @@
               </ul>
               <ul>
                 <li style="color: lightgray;font-style: italic;">通知方式</li>
-								<!-- <li style="margin-left: 1em; line-height: 15px" v-for="(item,index) in form.formMutiSelects.tarData.customSel" :key="index">{{item}}</li> -->
-								<li
-									v-show="form.formMutiSelects.settings.email_notify"
-									style="margin-left: 1em; line-height: 15px"
-								>
-									邮件
-								</li>
-								<li
-									v-show="form.formMutiSelects.settings.sms_notify"
-									style="margin-left: 1em; line-height: 15px"
-								>
-									短信
-								</li>
+                <!-- <li style="margin-left: 1em; line-height: 15px" v-for="(item,index) in form.formMutiSelects.tarData.customSel" :key="index">{{item}}</li> -->
+                <li
+                  v-show="form.formMutiSelects.settings.email_notify"
+                  style="margin-left: 1em; line-height: 15px"
+                >
+                  邮件
+                </li>
+                <li
+                  v-show="form.formMutiSelects.settings.sms_notify"
+                  style="margin-left: 1em; line-height: 15px"
+                >
+                  短信
+                </li>
                 <!-- <li style="margin-left: 1em;" v-for="(item,index) in form.formMutiSelects.tarData.customSel" :key="index">{{item}}</li> --> 
               </ul>
             </div>
@@ -128,6 +133,7 @@
         <el-button>取消</el-button>
       </el-form-item>
     </el-form>
+  </div>
 </template>
 <script>
 import SelectMember from '@/components/common/SelectMember'
@@ -361,8 +367,8 @@ export default {
       $this.createMeeting(
         this.form.name,members,
         this.form.start_time,
-        form.formMutiSelects.settings.email_notify,
-				form.formMutiSelects.settings.sms_notify,
+        this.form.formMutiSelects.settings.email_notify,
+				this.form.formMutiSelects.settings.sms_notify,
         function(res) {
           $this.$message.success('创建会议成功');
         }, function(res) {

@@ -1,4 +1,9 @@
 <template>
+	<div>
+		<el-breadcrumb separator-class="el-icon-arrow-right">
+			<el-breadcrumb-item>视频会议</el-breadcrumb-item>
+			<el-breadcrumb-item>马上开会</el-breadcrumb-item>
+		</el-breadcrumb>
 		<el-form class="once" ref="form" :model="form" label-width="30%">
 			<el-form-item label="会议名称：">
 					<el-input v-model="form.name" clearable></el-input>
@@ -9,7 +14,7 @@
 			<!-- <el-form-item label="参会人员：">
 					<select-member :curid="curid"></select-member>
 			</el-form-item> -->
-			<el-form-item label="与会成员">
+			<el-form-item label="与会成员：">
 				<div style="height: 260px;">
 					<el-col :span="11" style="height: 100%;display: flex;flex-wrap: nowrap;flex-direction: column;">
 						<div class="tabHeader" style="height: 40px;line-height: 40px; background-color: #f5f7fa;border: 1px solid #ebeef5; border-radius: 4px 4px 0px 0px;">
@@ -115,13 +120,14 @@
 			</el-form-item>
 			<el-form-item>
 				<el-button type="primary" @click="handleMeetingOrder">立即创建</el-button>
-				<el-button>取消</el-button>
 			</el-form-item>
 		</el-form>
+	</div>
 </template>
 <script>
 import SelectMember from '@/components/common/SelectMember'
 import {apiAuth,apiLinks,apiMeeting} from '@/properties/api.js';
+import {mapMutations} from 'vuex';
 import utils from '@/assets/js/utils.js'
 export default {
 	data() {
@@ -169,6 +175,9 @@ export default {
     SelectMember
 	},
 	methods:{
+		...mapMutations([
+			'setCurMeeting'
+		]),
 		handleClose(tag) {
 			this.form.formMutiSelects.settings.dynamicTags.splice(this.form.formMutiSelects.settings.dynamicTags.indexOf(tag), 1);
 		},
@@ -210,31 +219,31 @@ export default {
 			// 	}
 			// }
 			$this.form.formMutiSelects.tarData.members=[]
-	    var groups = $this.$refs.groupTree.getCheckedNodes();
-	    for (var i = 0; i < groups.length; i++) {
-	    	if(typeof(groups[i].children)=="undefined") {
-	    		$this.addMember(groups[i])
-	    	}
-	    }
-	    var friends = $this.$refs.friendTree.getCheckedNodes();
-	    for (var i = 0; i < friends.length; i++) {
-	    	if(typeof(friends[i].children)=="undefined") {
-	    		$this.addMember(friends[i])
-	    	}
-	    }
+		    var groups = $this.$refs.groupTree.getCheckedNodes();
+		    for (var i = 0; i < groups.length; i++) {
+		    	if(typeof(groups[i].children)=="undefined") {
+		    		$this.addMember(groups[i])
+		    	}
+		    }
+		    var friends = $this.$refs.friendTree.getCheckedNodes();
+		    for (var i = 0; i < friends.length; i++) {
+		    	if(typeof(friends[i].children)=="undefined") {
+		    		$this.addMember(friends[i])
+		    	}
+		    }
 			// groups.forEach(function(item,index){
 			// 	if(typeof(item.children)=="undefined"){
 			// 		$this.form.formMutiSelects.tarData.members.push(item.name);
 			// 	}
 			// })
-	  },
+	  	},
 
 		addMember(item){
 			var $this = this;
 			var members = $this.form.formMutiSelects.tarData.members;
 			var ret = members.findIndex((value, index, arr) => {
-	        	return value.id == item.id;
-	        })
+		    	return value.id == item.id;
+		    })
 			if(ret==-1){
 				$this.form.formMutiSelects.tarData.members.push(item);
 			}
@@ -252,98 +261,110 @@ export default {
 			}
 			console.log($this.form.formMutiSelects.tarData.members)
 		},
+
 		getInfo () {
-      var $this = this;
-      $this.getSelfInfo (function (res){
-        $this.form.founder = res.data.data.nickname;
-      }, function (res){
-        $this.$message.error('获取用户信息失败！');
-      })
-    },
+			var $this = this;
+			$this.getSelfInfo (function (res){
+				$this.form.founder = res.data.data.nickname;
+			}, function (res){
+				$this.$message.error('获取用户信息失败！');
+			})
+    	},
 
-    getSelfInfo (cbOk, cbErr) {
-      var $this = this;
-      $this.$axios.get(apiAuth.userInfo, null, cbOk, cbErr);
-    },
+		getSelfInfo (cbOk, cbErr) {
+			var $this = this;
+			$this.$axios.get(apiAuth.userInfo, null, cbOk, cbErr);
+		},
 
-    refreshDepartments() {
-      var $this = this;
-      $this.form.formMutiSelects.srcData.friends = [];
-      $this.getAllDepartments(function(res) {
-        var re = res.data.data
-        for (var i = 0; i < res.data.data.length; i++) {
-          $this.form.formMutiSelects.srcData.friends.push({id: re[i].department_id, name: re[i].department_name, children:[]})
-          for (var j = 0; j < re[i].departmemt_members.length; j++) {
-            $this.form.formMutiSelects.srcData.friends[i].children.push({
-              id: re[i].departmemt_members[j].id,
-              name: re[i].departmemt_members[j].nickname
-            })
-          }
-        }
-      },function(res){
-        $this.$message.error('获取用户分群组失败！');
-      })
-    },
+		refreshDepartments() {
+			var $this = this;
+			$this.form.formMutiSelects.srcData.friends = [];
+			$this.getAllDepartments(function(res) {
+				var re = res.data.data
+				for (var i = 0; i < res.data.data.length; i++) {
+					$this.form.formMutiSelects.srcData.friends.push({id: re[i].department_id, name: re[i].department_name, children:[]})
+					for (var j = 0; j < re[i].departmemt_members.length; j++) {
+						$this.form.formMutiSelects.srcData.friends[i].children.push({
+							id: re[i].departmemt_members[j].id,
+							name: re[i].departmemt_members[j].nickname
+						})
+					}
+				}
+			},function(res){
+				$this.$message.error('获取用户分群组失败！');
+			})
+		},
 
-    getAllDepartments(cbOk, cbErr) {
-      var $this = this;
-      this.$axios.get(apiLinks.friends.allDepartments, null, cbOk, cbErr)
-    },
+	    getAllDepartments(cbOk, cbErr) {
+			var $this = this;
+			this.$axios.get(apiLinks.friends.allDepartments, null, cbOk, cbErr)
+	    },
 
-    refreshGroups() {
-      var $this = this;
-      $this.form.formMutiSelects.srcData.groups = [];
-      $this.getAllGroups(function(res) {
-        var re = res.data.data
-        for (var i = 0; i < res.data.data.length; i++) {
-          $this.form.formMutiSelects.srcData.groups.push({id: re[i].group_id, name: re[i].group_name, children:[]})
-          for (var j = 0; j < re[i].member.length; j++) {
-            $this.form.formMutiSelects.srcData.groups[i].children.push({
-              id: re[i].member[j].id,
-              name: re[i].member[j].nickname
-            })
-          }
-        }
-      },function(res){
-        $this.$message.error('获取用户群组失败！');
-      })
-    },
+		refreshGroups() {
+			var $this = this;
+			$this.form.formMutiSelects.srcData.groups = [];
+			$this.getAllGroups(function(res) {
+				var re = res.data.data
+				for (var i = 0; i < res.data.data.length; i++) {
+					$this.form.formMutiSelects.srcData.groups.push({id: re[i].group_id, name: re[i].group_name, children:[]})
+					for (var j = 0; j < re[i].member.length; j++) {
+						$this.form.formMutiSelects.srcData.groups[i].children.push({
+						id: re[i].member[j].id,
+						name: re[i].member[j].nickname
+						})
+					}
+				}
+			},function(res){
+				$this.$message.error('获取用户群组失败！');
+			})
+		},
 
-    getAllGroups(cbOk, cbErr) {
-      var $this = this;
-      this.$axios.get(apiLinks.groups.allmember, null, cbOk, cbErr);
-    },
+		getAllGroups(cbOk, cbErr) {
+			var $this = this;
+			this.$axios.get(apiLinks.groups.allmember, null, cbOk, cbErr);
+		},
 
-    handleMeetingOrder() {
-      var $this = this
-      var members=[]
-      for (var i = 0; i < this.form.formMutiSelects.tarData.members.length; i++) {
-        members.push({"nickname": this.form.formMutiSelects.tarData.members[i].name})
-      }
-      console.log(members)
+	    handleMeetingOrder() {
+			var $this = this
+			var members=[]
+			for (var i = 0; i < this.form.formMutiSelects.tarData.members.length; i++) {
+				members.push({"nickname": this.form.formMutiSelects.tarData.members[i].name})
+			}
+			console.log(members)
 			$this.createMeeting(
 				this.form.name,
 				members,
-				form.formMutiSelects.settings.email_notify,
-				form.formMutiSelects.settings.sms_notify,
+				this.form.formMutiSelects.settings.email_notify,
+				this.form.formMutiSelects.settings.sms_notify,
 				function(res) {
-        	$this.$message.success('创建会议成功');
+					$this.setCurMeeting(res.data.data);
+					$this.$confirm('会议创建成功，是否去开会?', '提示', {
+						confirmButtonText: '确定',
+						cancelButtonText: '取消',
+						type: 'warning'
+					})
+					.then(() => {
+						$this.$router.push({name: 'current'})
+					})
+					.catch(() => {
+						         
+					});
 				}, function(res) {
 					$this.$message.error('创建会议失败');
 				}
 			)
-    },
+	    },
 
-    createMeeting (m_name, m_members, m_email, m_sms, cbOk, cbErr) {
-      var $this = this;
-      $this.$axios.put(apiMeeting.order.create, {
-        meeting_name: m_name,
-        members: m_members,
-				start_time: ((new Date()).getTime() + 180000).toString(),
+		createMeeting(m_name, m_members, m_email, m_sms, cbOk, cbErr) {
+			var $this = this;
+			$this.$axios.put(apiMeeting.order.create, {
+				meeting_name: m_name,
+				members: m_members,
+				start_time: ((new Date()).getTime()).toString(),
 				email_notify:m_email,
 				sms_notify:m_sms
-      }, cbOk, cbErr)
-    },
+			}, cbOk, cbErr)
+		},
 
 		// joinMeetings(mid) {
 		// 	axios.get('/meeting/' + mid)

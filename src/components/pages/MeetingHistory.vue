@@ -1,10 +1,13 @@
 <template>
   <div class="crad-group" style="height: 100%; overflow: scroll;">
+    <el-breadcrumb separator-class="el-icon-arrow-right">
+      <el-breadcrumb-item>视频会议</el-breadcrumb-item>
+      <el-breadcrumb-item>历史会议</el-breadcrumb-item>
+    </el-breadcrumb>
     <el-card 
       v-for="item in MeetingList" 
       :key="item.meeting_id" 
-      class="box-card"
-    >
+      class="box-card">
       <div @click="showInfo(item)">
         <div class="text item">
           会议名称：{{item.meetingName}}<br>

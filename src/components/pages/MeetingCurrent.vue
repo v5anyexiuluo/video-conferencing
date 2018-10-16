@@ -97,6 +97,7 @@ import BScroll from 'better-scroll'
 import Scroll from '@/components/common/Scroll.vue'
 import Chat from "@/components/common/Chat.vue"
 import Meet from '@/assets/js/meeting.core.js';
+import utils from '@/assets/js/utils.js'
 export default {
 	data () {
 		return {
@@ -147,6 +148,7 @@ export default {
 		},function(res){
 			$this.$message.error('获取正在进行的会议信息失败！');
 		});
+		$this.initXChatKit();
 	},
 	mounted() {
 		
@@ -187,7 +189,7 @@ export default {
 
 		refreshNowMembers(){
 			var $this = this;
-			$this.getMeetingMembers($this.meeting.id, function(res){
+			$this.getMeetingMembers($this.curMeeting.id, function(res){
 				$this.meetingMembers = res.data.data;
 			},function(res){
 				console.log("获取会议成员失败！")
@@ -241,7 +243,7 @@ export default {
 		onEventPartyAdded(json) {
 			var $this = this;
 			var meetingObj = json;
-			if(!$this.isMaster && $this.meeting.founderId==meetingObj.fromuser){
+			if(!$this.isMaster && $this.curMeeting.founderId==meetingObj.fromuser){
 				$this.remoteVideo.src=window.URL.createObjectURL(meetingObj.stream);
 				return;
 			}
@@ -297,13 +299,13 @@ export default {
 			var $this = this;
 			$this.refreshNowMembers();
 			if($this.isMaster){
-				$this.startMeeting($this.meeting.id, function(res){
+				$this.startMeeting($this.curMeeting.id, function(res){
 					$this.meetCore.JoinConference();
 				}, function(res){
 					$this.$message.error('启动会议失败！'+res.msg);
 				})
 			}else{
-				$this.entryMeeting($this.meeting.id, $this.user.nickname, function(res){
+				$this.entryMeeting($this.curMeeting.id, $this.user.nickname, function(res){
 					$this.meetCore.JoinConference();
 				}, function(res){
 					$this.$message.error('进入会议失败！'+res.msg);
@@ -350,7 +352,7 @@ export default {
 	    //加入会议事件
 	    onEventPartyAdded(json)
 	    {
-	      if(!this.isMaster && this.meeting.founderId==json.fromuser) {
+	      if(!this.isMaster && this.curMeeting.founderId==json.fromuser) {
 	       this.remoteVideo.src = window.URL.createObjectURL(json.stream);
 	      return;
 	      }
@@ -666,37 +668,53 @@ export default {
 			var $this = this;
 			$this.$axios.post(utils.handleParamInUrl(apiMeeting.now.members, {
 				mid: id.toString()
-			}), cbOk, cbErr)
+			}), {}, cbOk, cbErr)
 		},
 
 		startMeeting(meetingId, cbOk, cbErr){
 			var $this = this;
 			$this.$axios.post(utils.handleParamInUrl(apiMeeting.now.start, {
 				mid: meetingId.toString()
-			}), cbOk, cbErr)
+			}), {}, cbOk, cbErr)
 		},
 
 		endMeeting(meetingId, cbOk, cbErr){
 			var $this = this;
 			$this.$axios.post(utils.handleParamInUrl(apiMeeting.now.end, {
 				mid: meetingId.toString()
-			}), cbOk, cbErr)
+			}), {}, cbOk, cbErr)
 		},
 
 		entryMeeting(meetingId, nickname, cbOk, cbErr){
 			var $this = this;
 			$this.$axios.post(utils.handleParamInUrl(apiMeeting.now.entry, {
-				meeting_id: meetingId.toString(),
+				mid: meetingId.toString(),
+			}), {
 				user_nickname: nickname
-			}), cbOk, cbErr)
+			}, cbOk, cbErr)
 		},
 
 		exitMeeting(meetingId, nickname, cbOk, cbErr){
 			var $this = this;
 			$this.$axios.post(utils.handleParamInUrl(apiMeeting.now.exit, {
 				meeting_id: meetingId.toString(),
+			}), {
 				user_nickname: nickname
-			}), cbOk, cbErr)
+			}, cbOk, cbErr)
+		},
+
+		initXChatKit(){
+			var $this = this;
+			if($this.curMeeting){
+				if($this.user.id==$this.curMeeting.founderId){
+					$this.isMaster = true;
+				}else{
+					$this.isMaster = false;
+				}
+		        $this.meetCore = new Meet($this.user.id, $this.user.nickname, $this.curMeeting.id, $this.onCallback).getXchatkit();
+		        // $this.chatroom = 'meeting:'+$this.formMeeting.meetingId.toString();
+		        $this.chatroom = $this.meetCore;
+			}
 		},
 
 		...mapMutations([
@@ -720,14 +738,7 @@ export default {
 		curMeeting:{
 			handler:function(val, oldVal) {
 				var $this = this;
-				if($this.user.id==$this.meeting.founderId){
-					$this.isMaster = true;
-				}else{
-					$this.isMaster = false;
-				}
-		        $this.meetCore = new Meet($this.user.id, $this.user.nickname, $this.formMeeting.meetingId, $this.onCallback).getXchatkit();
-		        // $this.chatroom = 'meeting:'+$this.formMeeting.meetingId.toString();
-		        $this.chatroom = $this.meetCore;
+				$this.initXChatKit();
 			},
 			deep: true
 		}
@@ -738,7 +749,6 @@ export default {
 		}),
 		...mapGetters([
 			'user',
-			'meeting',
 			'curMeeting'
 		]),
 		videoSrc: function(){

@@ -1,6 +1,7 @@
 <template>
 	<div style="padding:20px;">
-		<template v-for="msg in msgs">
+		<template v-if="msgs.length==0">暂无消息</template>
+		<template v-else v-for="msg in msgs">
 			<div v-if="msg.category==msgType.PLAIN_TEXT" class="h-full-container v-center">
 				<span class="full-element">{{msg.content}}</span>
 				<div class="deal-actions" style="height: 40px;">
@@ -15,8 +16,8 @@
 			<div v-else-if="msg.category==msgType.CONTACT_ADDING" class="h-full-container v-center">
 				<span class="full-element">{{msg.content.plain_message}}</span>
 				<div class="deal-actions">
-					<el-button type="text" @click="agreeAdded(url)">同意</el-button>
-					<el-button type="text" @click="refuseAdded(url)">拒绝</el-button>
+					<el-button type="text" @click="handleAdded(msg.content.agree)">同意</el-button>
+					<el-button type="text" @click="handleAdded(msg.content.refuse)">拒绝</el-button>
 				</div>
 			</div>
 			<div v-else-if="msg.category==msgType.CONFERENCE_CREATION" class="h-full-container v-center">
@@ -78,7 +79,15 @@
         'setCurMeeting'
       ]),
       handleAdded(url){
-        this.$axios.get('https://xingshidream.cn:8082'+url, null, cbOk, cbErr)
+      	var $this = this;
+        this.$axios.put('https://xingshidream.cn:8082/api/v1'+url, {}, function(){
+        	$this.$message({
+	            message: '处理成功',
+	            type: 'success'
+	          });
+        },function(){
+        	$this.$message.error('处理失败');
+        })
       },
 
       pullUndoMsg(cbOk, cbErr){

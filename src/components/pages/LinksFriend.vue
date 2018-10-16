@@ -41,7 +41,7 @@
       </div>
     </div>
     <div v-if="showInfo" class="item-detail full-height">
-      <el-tabs v-model="activeTab" @tab-click="NULL">
+      <el-tabs v-model="activeTab">
         <el-tab-pane label="基本信息" name="first" class="h-full-container">
           <img src="https://picsum.photos/200/200" alt="">
           <div class="group-info">
@@ -360,6 +360,7 @@
         }, cbOk, cbErr)
       },
 
+      // bug 删除分组
       deleteDepartment(departmentId, cbOk, cbErr){
         var $this = this;
         $this.$axios.delete(utils.handleParamInUrl(apiLinks.friends.deleteDepartment,{

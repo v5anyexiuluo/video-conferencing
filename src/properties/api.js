@@ -56,7 +56,7 @@ export var apiLinks = {
 		// allmember: links + '/groups/get_group_member',
 		allmember: links + '/groups/members',
 		// exit: links + '/groups/exit_group',	
-		exit: links + '/groups/{group_id}/exit_group'
+		exit: links + '/groups/{group_id}/exit'
 	}
 }
 export var apiMeeting = {

@@ -2,25 +2,20 @@ export default {
     state:{
         loading: false,
         user: null,
-        meeting: null,
         activeIndex: "1",
         firstInit: true
     },
     mutations:{
         setActiveIndex(state, index){
             state.activeIndex = index;
-            //sessionStorage.setItem('activeIndex', index)
+            localStorage.setItem('activeIndex', index)
         },
         changeLoading(state, loading){
             state.loading = loading
         },
         setUser(state, user){
         	state.user = user;
-        	sessionStorage.setItem('user', user)
-        },
-        setMeeting(state, meeting){
-        	state.meeting = meeting;
-        	sessionStorage.setItem('meeting', meeting)
+        	localStorage.setItem('user', JSON.stringify(user));
         },
         setFirstInit(state, firstInit){
             state.firstInit = firstInit;
@@ -31,22 +26,16 @@ export default {
             return state.loading;
         },
         activeIndex(state){
-            if(sessionStorage.getItem('meeting')){
-                state.activeIndex = sessionStorage.getItem('meeting')
+            if(localStorage.getItem('meeting')){
+                state.activeIndex = localStorage.getItem('meeting')
             }
             return state.activeIndex;
         },
         user(state){
         	if(!state.user){
-        		state.user=sessionStorage.getItem('user')
+        		state.user=JSON.parse(localStorage.getItem('user'))
         	}
         	return state.user;
-        },
-        meeting(state){
-        	if(!state.meeting){
-        		state.meeting=sessionStorage.getItem('meeting')
-        	}
-        	return state.meeting;
         },
         firstInit(state){
             return state.firstInit;

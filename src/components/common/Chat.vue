@@ -20,11 +20,24 @@
 			}
 		},
 		props:[
-			'chatroom'
+			'chatroom',
+			// 'chatobj'
 		],
 		components: {
 			'chat-message': ChatMessage,
 			'chat-text': ChatText
+		},
+		created(){
+			var $this = this;
+			if(typeof $this.chatroom != 'string'){
+				$this.isMeeting = true;
+				$this.chatCore = $this.chatroom;
+				$this.initChat();
+				$this.messages=$this.historyMsg($this.chatCore.meetingjson.chatroom);
+			}
+		},
+		mounted() {
+
 		},
 		methods: {
 			...mapMutations([
@@ -64,10 +77,6 @@
 				}			
 			}
 		},
-		created(){
-		},
-		mounted() {
-		},
 		computed:{
 			...mapGetters([
 				'user',
@@ -78,29 +87,39 @@
 		watch:{
 			chatroom:function(newVal, oldVal){
 				var $this = this;
-				if(oldVal){
-					$this.addChatMsg({chatroom: oldVal, msg:$this.messages})
-				}
-				// var temp = newVal.split(":");
-				// if(temp[0]=='meeting'){
-				// 	$this.isMeeting = true;
-				// }else{
-				// 	$this.isMeeting = false;
-				// }
+				var chatroomId;
 				if(typeof newVal == 'string'){
 					$this.isMeeting = false;
 				}else{
 					$this.isMeeting = true;
 					$this.chatCore = newVal;
 				}
+				if(oldVal){
+					$this.addChatMsg({chatroom: (typeof oldVal == 'string'? oldVal:oldVal.meetingjson.chatroom), msg:$this.messages})
+				}
 				$this.initChat();
-				$this.messages=$this.historyMsg(newVal);
-			}
+				$this.messages=$this.historyMsg($this.isMeeting? newVal.meetingjson.chatroom:newVal);
+				// if(oldVal){
+				// 	$this.addChatMsg({chatroom: oldVal, msg:$this.messages})
+				// }
+				// $this.isMeeting = false;
+				// $this.initChat();
+				// $this.messages=$this.historyMsg(newVal);
+			},
+			// chatobj:function(newVal, oldVal){
+			// 	if(oldVal){
+			// 		$this.addChatMsg({chatroom: oldVal, msg:$this.messages})
+			// 	}
+			// 	$this.isMeeting = true;
+			// 	$this.chatCore = newVal;
+			// 	$this.initChat();
+			// 	$this.messages=$this.historyMsg(newVal);
+			// }
 		},
 		beforeDestroy: function () {
 		    this.chatCore.LeaveConference();
 		    this.chatCore.ClearXChatKit();
-		    this.addChatMsg({chatroom: this.chatroom, msg:this.messages})
+		    this.addChatMsg({chatroom: this.chatCore.meetingjson.chatroom, msg:this.messages})
 		},
 	}
 </script>

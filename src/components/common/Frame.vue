@@ -87,10 +87,10 @@ export default {
           var subcribePath = utils.handleParamInUrl(apiMsg.ws.subcribe,{
         id: md5.hex($this.user.nickname)
       })
-          // var subcribePath= '/topic/' + md5.hex($this.user.nickname);
-          // 开始订阅消息
-          // $this.subcribe(subcribePath);
-          $this.subcribe('/topic/93dd4de5cddba2c733c65f233097f05a');
+      var subcribePath= '/topic/' + md5.hex($this.user.nickname);
+      // 开始订阅消息
+      $this.subcribe(subcribePath);
+          // $this.subcribe('/topic/93dd4de5cddba2c733c65f233097f05a');
       },function(res){
         console.log(res)
       });

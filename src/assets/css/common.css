@@ -58,3 +58,11 @@ img{vertical-align:top;border:none}
 	flex-wrap: nowrap;
 	justify-content: flex-start;
 }
+
+.el-breadcrumb{
+	padding: 10px 20px;
+    background-color: #f5f7fa;
+}
+.el-breadcrumb *{
+	color: #F44336!important;
+}

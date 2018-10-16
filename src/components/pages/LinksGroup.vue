@@ -65,19 +65,14 @@
             <el-table-column
               fixed="right"
               label="操作"
-              width="120">
+              width="120"
+              v-if="curGroup.is_builder">
               <template slot-scope="scope">
                 <el-button
                   @click="handlerDelMember(scope.row.nickname)"
                   type="text"
                   size="small">
                   移除
-                </el-button>
-                <el-button
-                  @click.native.prevent="deleteRow(scope.$index, tableData4)"
-                  type="text"
-                  size="small">
-                  移动
                 </el-button>
               </template>
             </el-table-column>
@@ -260,7 +255,7 @@
         if(Object.keys($this.curGroup).length==0){
           return;
         }
-        $this.deleteGroupMember($this.curGroup.group_id, $this.user.nickname, function(res){
+        $this.exitFromGroup($this.curGroup.group_id, $this.user.nickname, function(res){
           $this.$message({
             message: '退群成功！',
             type: 'success'
@@ -298,7 +293,7 @@
             message: '向组内添加好友成功！',
             type: 'success'
           });
-          $this.dialogAddUserFromGroupVisible=false;
+          $this.dialogAddUserToGroupVisible=false;
           $this.refreshGroups();
         },function(res){
           $this.$message.error('向组内添加好友失败！');
@@ -356,16 +351,15 @@
         var $this = this;
         $this.$axios.get(utils.handleParamInUrl(apiLinks.groups.members, {
           group_id: groupId.toString()
-        }),null, cbOk, cbErr)
+        }), null, cbOk, cbErr)
       },
 
       createGroup(groupName, cbOk, cbErr) {
         var $this = this;
-        $this.$axios.put(utils.handleParamInUrl(
-          apiLinks.groups.create,
+        $this.$axios.put(apiLinks.groups.create,
           {
             group_name:groupName
-          }),
+          },
           cbOk,
           cbErr
         )
@@ -373,21 +367,10 @@
 
       deleteGroup(groupId, cbOk, cbErr) {
         var $this = this;
-        $this.$axios.post(utils.handleParamInUrl(apiLinks.groups.delete,
+        $this.$axios.delete(utils.handleParamInUrl(apiLinks.groups.delete,
           {
             group_id: groupId.toString()
-          }), cbOk, cbErr
-        )
-      },
-
-      deleteGroupMember(groupId, nickname, cbOk, cbErr) {
-        var self = this;
-        self.$axios.post(utils.handleParamInUrl(apiLinks.groups.deleteMember,
-          {
-            group_id:groupId.toString(),
-            nickname:nickname
-          }),
-          cbOk, cbErr
+          }), {}, cbOk, cbErr
         )
       },
 
@@ -397,8 +380,10 @@
         self.$axios.post(utils.handleParamInUrl(apiLinks.groups.modifyName,
           {
             group_id: groupId.toString(),
+          }), 
+          {
             group_name: newGroupName
-          }), cbOk, cbErr
+          }, cbOk, cbErr
         )
       },
 
@@ -407,9 +392,10 @@
         self.$axios.put(utils.handleParamInUrl(apiLinks.groups.addMembers, 
           {
             group_id:groupId.toString(),
-            members:members
           }),
-          cbOk, cbErr
+          {
+            members:members
+          }, cbOk, cbErr
         )
       },
 
@@ -426,7 +412,18 @@
             group_id:groupId.toString(),
             members:members
           }),
-          cbOk, cbErr
+          null, cbOk, cbErr
+        )
+      },
+
+      // bug 退出群
+      exitFromGroup(groupId, nickname, cbOk, cbErr) {
+        var self = this;
+        self.$axios.post(utils.handleParamInUrl(apiLinks.groups.exit,
+          {
+            group_id:groupId.toString()
+          }),
+          {}, cbOk, cbErr
         )
       },
 
@@ -435,9 +432,10 @@
         self.$axios.post(utils.handleParamInUrl(apiLinks.groups.deleteMember,
           {
             group_id:groupId.toString(),
-            nickname:nickname
           }),
-          cbOk, cbErr
+          {
+            nickname:nickname
+          }, cbOk, cbErr
         )
       },
       handleNowMeeting() {

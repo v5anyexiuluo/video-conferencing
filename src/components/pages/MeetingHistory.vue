@@ -57,16 +57,16 @@
 </template>
 
 <script>
-import {apiAuth, apiMeeting} from '@/properties/api.js';
+import { apiAuth, apiMeeting } from "@/properties/api.js";
 export default {
-  name: 'MeetingHistory',
+  name: "MeetingHistory",
   data() {
     return {
       MeetingList: [],
       dialogMeetingInfo: false,
       curMeeting: null,
       selfInfo: null
-    }
+    };
   },
   mounted() {
     this.refreshAllHistoryMeeting();
@@ -74,83 +74,93 @@ export default {
   },
   methods: {
     showInfo(info) {
-      this.curMeeting = info
-      console.log(this.curMeeting)
-      this.dialogMeetingInfo = true
+      this.curMeeting = info;
+      console.log(this.curMeeting);
+      this.dialogMeetingInfo = true;
     },
     handleClose(done) {
-      this.$confirm('确认关闭？')
+      this.$confirm("确认关闭？")
         .then(_ => {
           done();
         })
         .catch(_ => {});
     },
     timestampToTime(timestamp) {
-        var date = new Date(timestamp);
-        var Y = date.getFullYear() + '-';
-        var M = (date.getMonth()+1 < 10 ? '0'+(date.getMonth()+1) : date.getMonth()+1) + '-';
-        var D = date.getDate() + ' ';
-        var h = date.getHours() + ':';
-        var m = date.getMinutes() + ':';
-        var s = date.getSeconds();
-        return Y+M+D+h+m+s;
+      var date = new Date(timestamp);
+      var Y = date.getFullYear() + "-";
+      var M =
+        (date.getMonth() + 1 < 10
+          ? "0" + (date.getMonth() + 1)
+          : date.getMonth() + 1) + "-";
+      var D = date.getDate() + " ";
+      var h = date.getHours() + ":";
+      var m = date.getMinutes() + ":";
+      var s = date.getSeconds();
+      return Y + M + D + h + m + s;
     },
     refreshAllHistoryMeeting() {
       var $this = this;
-      this.getHistoryMeeting(function(res) {
-        res = res.data;
-        $this.MeetingList = res.data;
-      }, function(res) {
-        console.log("error" + res);
-      })
+      this.getHistoryMeeting(
+        function(res) {
+          res = res.data;
+          $this.MeetingList = res.data;
+        },
+        function(res) {
+          console.log("error" + res);
+        }
+      );
     },
-    getHistoryMeeting(cbOk, cbErr){
+    getHistoryMeeting(cbOk, cbErr) {
       var $this = this;
-      $this.$axios.get(apiMeeting.order.all, {
-      }, cbOk, cbErr)
+      $this.$axios.get(apiMeeting.order.all, {}, cbOk, cbErr);
     },
-    getInfo () {
+    getInfo() {
       var $this = this;
-      $this.getSelfInfo (function (res){
-        console.log("selfres")
-        console.log(res);
-        console.log(res.data.data.nickname)
-        $this.selfInfo = res.data.data.nickname
-        console.log("SELFINFO")
-        console.log($this.selfInfo)
-      }, function (res){
-        $this.$message.error('获取用户信息失败！');
-      })
+      $this.getSelfInfo(
+        function(res) {
+          console.log("selfres");
+          console.log(res);
+          console.log(res.data.data.nickname);
+          $this.selfInfo = res.data.data.nickname;
+          console.log("SELFINFO");
+          console.log($this.selfInfo);
+        },
+        function(res) {
+          $this.$message.error("获取用户信息失败！");
+        }
+      );
     },
 
-    getSelfInfo (cbOk, cbErr) {
+    getSelfInfo(cbOk, cbErr) {
       var $this = this;
       $this.$axios.get(apiAuth.userInfo, null, cbOk, cbErr);
     }
   }
-}
+};
 </script>
 
 <style scoped>
-  .text {
-    font-size: 14px;
-    margin-left: 20px;
-    text-align: left;
-  }
+.text {
+  font-size: 14px;
+  margin-left: 20px;
+  text-align: left;
+}
 
-  .box-card {
-    background-color: #ffffcc;
-    width: 270px;
-    margin: 15px;
-    float: left;
-  }
+.box-card {
+  background-color: #ffffcc;
+  width: 270px;
+  margin: 15px;
+  float: left;
+}
 
-  .crad-group {
-    overflow-y: scroll;
-  }
+.crad-group {
+  overflow-y: scroll;
+}
 
-  .member {
-    float: left;
-  }
-  ::-webkit-scrollbar {display: none}
+.member {
+  float: left;
+}
+::-webkit-scrollbar {
+  display: none;
+}
 </style>

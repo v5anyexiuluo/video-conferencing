@@ -25,7 +25,6 @@
           </el-date-picker>
         </div>
       </el-form-item>
-      
       <el-form-item label="通知方式：">
 				<div style="text-align: left;">
 					<el-checkbox
@@ -45,9 +44,21 @@
         <div style="height: 260px;">
           <el-col :span="11" style="height: 100%;display: flex;flex-wrap: nowrap;flex-direction: column;">
             <div class="tabHeader" style="height: 40px;line-height: 40px; background-color: #f5f7fa;border: 1px solid #ebeef5; border-radius: 4px 4px 0px 0px;">
-              <a href="javascript:void(0)" @click="form.formMutiSelects.curTab=1" :class="[form.formMutiSelects.curTab==1? 'activeTab tabItem':'tabItem']">群组</a>
-              <a href="javascript:void(0)" @click="form.formMutiSelects.curTab=2" :class="[form.formMutiSelects.curTab==2? 'activeTab tabItem':'tabItem']">好友</a>
-              <a href="javascript:void(0)" @click="form.formMutiSelects.curTab=3" :class="[form.formMutiSelects.curTab==3? 'activeTab tabItem':'tabItem']">通知方式</a>
+              <a
+                href="javascript:void(0)"
+                @click="form.formMutiSelects.curTab=1"
+                :class="[form.formMutiSelects.curTab==1? 'activeTab tabItem':'tabItem']"
+              >
+                群组
+              </a>
+              <a
+                href="javascript:void(0)"
+                @click="form.formMutiSelects.curTab=2"
+                :class="[form.formMutiSelects.curTab==2? 'activeTab tabItem':'tabItem']"
+              >
+                好友
+              </a>
+              <!-- <a href="javascript:void(0)" @click="form.formMutiSelects.curTab=3" :class="[form.formMutiSelects.curTab==3? 'activeTab tabItem':'tabItem']">通知方式</a> -->
             </div>
             <div style="flex: 1;flex-wrap: wrap;overflow-y: scroll;border-left: 1px solid #ebeef5;border-right: 1px solid #ebeef5;border-bottom: 1px solid #ebeef5;padding: 10px 0;">
               <div id="tab1" v-show="form.formMutiSelects.curTab==1">
@@ -71,21 +82,6 @@
                   ref="friendTree">
                 </el-tree>
               </div>
-              <div id="tab3" style="text-align: left; padding: 10px;" v-show="form.formMutiSelects.curTab==3">
-                <div>
-                  <el-checkbox
-                    v-model="form.formMutiSelects.settings.email_notify"
-                    label="邮件通知"
-                    border
-                  >
-                  </el-checkbox>
-                  <el-checkbox
-                    v-model="form.formMutiSelects.settings.sms_notify"
-                    label="短信通知"
-                    border
-                  >
-                  </el-checkbox>
-                </div>
                 <!-- <el-checkbox-group style="text-align: left;display: flex;flex-direction: column;align-items: flex-start;" v-model="form.formMutiSelects.tarData.customSel" @change="handleCustomSelect">
                   <el-tag
                     :key="tag"
@@ -106,11 +102,8 @@
                   >
                 </el-input>
                 <el-button v-else class="button-new-tag" size="small" @click="showInput">+ New Tag</el-button> -->
-              </div>
+              <!-- </div> -->
             </div>
-            <!-- <div style="height: 40px;line-height: 40px; background-color: #f5f7fa;border: 1px solid #ebeef5; border-radius: 0px 0px 4px 4px;">
-              
-            </div> -->
           </el-col>
           <el-col :span="2" style="height: 100%;display: flex;flex-direction: column;flex-wrap: nowrap;justify-content: center;align-items: center;">
           </el-col>
@@ -119,25 +112,13 @@
             </div>
             <div style="flex: 1;flex-wrap: wrap;overflow-y: scroll;border-left: 1px solid #ebeef5;border-right: 1px solid #ebeef5;border-bottom: 1px solid #ebeef5;padding: 10px;text-align: left;">
               <ul>
-                <li style="color: lightgray;font-style: italic;">好友</li>
+                <li
+                  v-show="form.formMutiSelects.tarData.members.length==0"
+                  style="color: lightgray;font-style: italic;"
+                >
+                  好友
+                </li>
                 <li style="margin-left: 1em; line-height: 15px" v-for="(item,index) in form.formMutiSelects.tarData.members" :key="index">{{item.name}}</li>
-              </ul>
-              <ul>
-                <li style="color: lightgray;font-style: italic;">通知方式</li>
-                <!-- <li style="margin-left: 1em; line-height: 15px" v-for="(item,index) in form.formMutiSelects.tarData.customSel" :key="index">{{item}}</li> -->
-                <li
-                  v-show="form.formMutiSelects.settings.email_notify"
-                  style="margin-left: 1em; line-height: 15px"
-                >
-                  邮件
-                </li>
-                <li
-                  v-show="form.formMutiSelects.settings.sms_notify"
-                  style="margin-left: 1em; line-height: 15px"
-                >
-                  短信
-                </li>
-                <!-- <li style="margin-left: 1em;" v-for="(item,index) in form.formMutiSelects.tarData.customSel" :key="index">{{item}}</li> --> 
               </ul>
             </div>
           </el-col>
@@ -190,14 +171,8 @@ export default {
         formMutiSelects: {
           curTab: 1,
           srcData: {
-            groups:[
-              {name: '分组1', children:[{ id: '1', name:'名字1'},{ id: '2',name:'名字2'}]},
-              {name: '分组2', children:[{ id: '3',name:'名字1'},{ id: '4',name:'名字2'}]}
-            ],
-            friends:[
-              {name: '分组1', children:[{ id: '1', name:'名字1'},{ id: '2',name:'名字2'}]},
-              {name: '分组2', children:[{ id: '3',name:'名字1'},{ id: '4',name:'名字2'}]}
-            ]
+            groups:[],
+            friends:[]
           },
           tarData: {
             members:[],
@@ -405,20 +380,6 @@ export default {
       }, cbOk, cbErr)
     },
 
-    // joinMeetings(mid) {
-    //  axios.get('/meeting/' + mid)
-    //  .then(function(response){
-    //    if(response.code == 0) {
-    //      this.url = response.url;
-    //      console.log(response.msg);
-    //    } else {
-    //      console.log(response.msg);
-    //    }
-    //  })
-    //  .catch(function(error) {
-    //    console.log(error);
-    //  })
-    // }
     getMeetingMember (id) {
       var $this = this;
       $this.meetingMember (id, function (res){

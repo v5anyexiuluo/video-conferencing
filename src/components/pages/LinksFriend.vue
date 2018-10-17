@@ -109,30 +109,30 @@
       </el-tabs>
     </div>
     <el-dialog title="添加分组" custom-class="start-meeting" width="400px" center :visible.sync="dialogAddDepartmentVisible">
-      <el-form :model="formAddDepartment" label-width="80px">
-        <el-form-item label="组名">
+      <el-form :model="formAddDepartment" :rules="adddepartmentrules" ref="adddepartmentForm" label-width="80px">
+        <el-form-item label="组名" prop="departmentName">
           <el-input v-model="formAddDepartment.departmentName"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogAddDepartmentVisible = false">取 消</el-button>
-        <el-button type="primary" @click="handleAddDepartment">确 定</el-button>
+        <el-button type="primary" @click="submitAddDepartmentForm('adddepartmentForm')">确 定</el-button>
       </div>
     </el-dialog>
-        <el-dialog title="修改分组名称" custom-class="start-meeting" width="400px" center :visible.sync="dialogModifyDepartmentNameVisible">
-      <el-form :model="formUpdateDepartmentName" label-width="80px">
-        <el-form-item label="分组名称">
+    <el-dialog title="修改分组名称" custom-class="start-meeting" width="400px" center :visible.sync="dialogModifyDepartmentNameVisible">
+      <el-form :model="formUpdateDepartmentName" :rules="updatedepartmentrules" ref="updatedepartmentForm" label-width="80px">
+        <el-form-item label="分组名称" prop="departmentName">
           <el-input v-model="formUpdateDepartmentName.departmentName"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogModifyDepartmentNameVisible = false">取 消</el-button>
-        <el-button type="primary" @click="handleUpdateDepartmentName">确 定</el-button>
+        <el-button type="primary" @click="submitUpdateDepartmentForm('updatedepartmentForm')">确 定</el-button>
       </div>
     </el-dialog>
     <el-dialog title="修改好友分组" custom-class="start-meeting" width="400px" center :visible.sync="dialogMoveFriendToDepartmentVisible">
-      <el-form :model="formMoveFriendToDepartment" label-width="80px">
-        <el-form-item label="选择新组">
+      <el-form :model="formMoveFriendToDepartment" :rules="movefriendrules" ref="movefriendForm" label-width="80px">
+        <el-form-item label="选择新组" prop="newDepartmentId">
           <el-select v-model="formMoveFriendToDepartment.newDepartmentId" collapse-tags style="width: 100%;" placeholder="选择新组">
             <el-option
               v-for="item in filteDepartments"
@@ -145,15 +145,16 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogMoveFriendToDepartmentVisible = false">取 消</el-button>
-        <el-button type="primary" @click="handlerMoveMember">确 定</el-button>
+        <el-button type="primary" @click="submitMoveMemberForm('movefriendForm')">确 定</el-button>
+        <!-- handlerMoveMember -->
       </div>
     </el-dialog>
     <el-dialog title="添加好友" custom-class="start-meeting" width="400px" center :visible.sync="dialogAddFriendVisible">
-      <el-form :model="formAddFriend" label-width="80px">
-        <el-form-item label="用户名">
+      <el-form :model="formAddFriend" :rules="addfriendrules" ref="addfriendForm" label-width="80px">
+        <el-form-item label="用户名" prop="nickName">
           <el-input v-model="formAddFriend.nickName" @focus="formAddFriend.formError=''"></el-input>
         </el-form-item>
-        <el-form-item label="选择分组">
+        <el-form-item label="选择分组" prop="departmentId">
           <el-select v-model="formAddFriend.departmentId" collapse-tags style="width: 100%;" placeholder="选择分组">
             <el-option
               v-for="item in departments"
@@ -169,7 +170,8 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogAddFriendVisible = false">取 消</el-button>
-        <el-button type="primary" @click="handleAddFriend">确 定</el-button>
+        <el-button type="primary" @click="submitAddFriendForm('addfriendForm')">确 定</el-button>
+        <!-- handleAddFriend -->
       </div>
     </el-dialog>
 	</div>
@@ -211,6 +213,29 @@
         formAddUser: {
           friends:[]
         },
+        adddepartmentrules: {
+          departmentName: [
+            { required: true, message: '请输入分组名称', trigger: 'blur' }
+          ]
+        },
+        addfriendrules: {
+          nickName: [
+            { required: true, message: '请输入对方昵称或者手机号', trigger: 'blur' },
+          ],
+          departmentId: [
+            { required: true, message: '请选择分组', trigger: 'change' }
+          ]
+        },
+        updatedepartmentrules: {
+          departmentName: [
+            { required: true, message: '请输入新分组名称', trigger: 'blur' }
+          ]
+        },
+        movefriendrules: {
+          newDepartmentId: [
+            { required: true, message: '请选择新分组', trigger: 'change' }
+          ]
+        }
       }
     },
     name: 'FriendsGroup',
@@ -229,6 +254,7 @@
           $this.depMembers = ret.departmemt_members;
         }        
       },
+
       refreshDepartments(){
         var $this = this;
         $this.getAllDepartments(function(res){
@@ -237,6 +263,17 @@
         },function(res){
           $this.$message.error('获取用户分组失败！');
         })
+      },
+
+      submitAddDepartmentForm (formName) {
+        this.$refs[formName].validate((valid) => {
+          if (valid) {
+            this.handleAddDepartment()
+          } else {
+            console.log('error submit!!');
+            return false;
+          }
+        });
       },
 
       handleAddDepartment(){
@@ -270,7 +307,18 @@
         })
       },
 
-      handleUpdateDepartmentName(){
+      submitUpdateDepartmentForm (formName) {
+        this.$refs[formName].validate((valid) => {
+          if (valid) {
+            this.handleUpdateDepartmentName();
+          } else {
+            console.log('error submit!!');
+            return false;
+          }
+        });
+      },
+
+      handleUpdateDepartmentName () {
         var $this = this;
         if(Object.keys($this.curDepartment).length==0){
           return;
@@ -287,7 +335,18 @@
         })
       },
 
-      handlerMoveMember(){
+      submitMoveMemberForm (formName) {
+        this.$refs[formName].validate((valid) => {
+          if (valid) {
+            this.handlerMoveMember();
+          } else {
+            console.log('error submit!!');
+            return false;
+          }
+        });
+      },
+
+      handlerMoveMember () {
         var $this = this;
         $this.moveMemberToDepartment($this.curDepartment.department_id, $this.formMoveFriendToDepartment.newDepartmentId, $this.formMoveFriendToDepartment.userId, function(res){
           $this.$message({
@@ -304,6 +363,17 @@
       handleAddFriendInner() {
         this.dialogAddFriendVisible = true
         this.formAddFriend.departmentId = this.curDepartment.department_id
+      },
+
+      submitAddFriendForm (formName) {
+        this.$refs[formName].validate((valid) => {
+          if (valid) {
+            this.handleAddFriend()
+          } else {
+            console.log('error submit!!')
+            return false
+          }
+        })
       },
 
       handleAddFriend() {

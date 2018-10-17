@@ -4,12 +4,12 @@
 			<el-breadcrumb-item>视频会议</el-breadcrumb-item>
 			<el-breadcrumb-item>马上开会</el-breadcrumb-item>
 		</el-breadcrumb>
-		<el-form class="once" ref="form" :model="form" label-width="30%">
-			<el-form-item label="会议名称：">
+		<el-form class="once" ref="form" :model="form" :rules="rules" label-width="30%">
+			<el-form-item label="会议名称：" prop="name">
 					<el-input v-model="form.name" clearable></el-input>
 			</el-form-item>
-			<el-form-item label="主持人：">
-					<el-input v-model="form.founder" clearable></el-input>
+			<el-form-item label="主持人：" prop="founder">
+					<el-input v-model="form.founder" :disabled="true" clearable></el-input>
 			</el-form-item>
 			<el-form-item label="通知方式：">
 				<div style="text-align: left;">
@@ -115,7 +115,8 @@
 				</div>
 			</el-form-item>
 			<el-form-item>
-				<el-button type="primary" @click="handleMeetingOrder">立即创建</el-button>
+				<el-button type="primary" @click="submitForm('form')">立即创建</el-button>
+        <!-- handleMeetingOrder -->
 			</el-form-item>
 		</el-form>
 	</div>
@@ -159,6 +160,15 @@ export default {
             inputValue: ""
           }
         }
+      },
+      rules: {
+        name: [
+          { required: true, message: '请输入会议名称', trigger: 'blur' },
+          { min : 3, max: 20, message: '长度在 3 到 20个字符', trigger: 'blur'}
+        ],
+        founder: [
+          { required: true, message: '请设置主持人', trigger: 'blur' },
+        ]
       }
     };
   },
@@ -334,6 +344,17 @@ export default {
     getAllGroups(cbOk, cbErr) {
       var $this = this;
       this.$axios.get(apiLinks.groups.allmember, null, cbOk, cbErr);
+    },
+
+    submitForm(formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          this.handleMeetingOrder();
+        } else {
+          console.log('error submit!!');
+          return false;
+        }
+      });
     },
 
     handleMeetingOrder() {

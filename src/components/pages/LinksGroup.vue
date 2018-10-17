@@ -98,30 +98,31 @@
       </div>
     </div>
     <el-dialog title="新建群组" custom-class="start-meeting" width="400px" center :visible.sync="dialogCreateGroupVisible">
-      <el-form :model="formNewGroup" label-width="80px">
-        <el-form-item label="组名">
+      <el-form :model="formNewGroup" :rules="newgrouprules" ref="newgroupForm" label-width="80px">
+        <el-form-item label="组名" prop="name">
           <el-input v-model="formNewGroup.name"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogCreateGroupVisible = false">取 消</el-button>
-        <el-button type="primary" @click="handleCreateGroup()">确 定</el-button>
+        <el-button type="primary" @click="submitNewGroupForm('newgroupForm')">确 定</el-button>
+        <!-- handleCreateGroup() -->
       </div>
     </el-dialog>
     <el-dialog title="修改群名称" custom-class="start-meeting" width="400px" center :visible.sync="dialogModifyGroupNameVisible">
-      <el-form :model="formModifyGroupName" label-width="80px">
-        <el-form-item label="新组名">
+      <el-form :model="formModifyGroupName" :rules="modifygrouprules" ref="modifygroupForm" label-width="80px">
+        <el-form-item label="新组名" prop="name">
           <el-input v-model="formModifyGroupName.name"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogModifyGroupNameVisible = false">取 消</el-button>
-        <el-button type="primary" @click="handlerModifyGroupName()">确 定</el-button>
+        <el-button type="primary" @click="submitModifyGroupForm('modifygroupForm')">确 定</el-button>
       </div>
     </el-dialog>
     <el-dialog title="添加好友到组" custom-class="start-meeting" width="400px" center :visible.sync="dialogAddUserToGroupVisible">
-      <el-form :model="formAddUser" label-width="80px">
-        <el-form-item label="选择好友">
+      <el-form :model="formAddUser" :rules="adduserrules" ref="adduserForm" label-width="80px">
+        <el-form-item label="选择好友" prop="friends">
           <el-select v-model="formAddUser.friends" multiple collapse-tags style="width: 100%;" placeholder="选择好友">
             <el-option
               v-for="item in filteUsers"
@@ -134,7 +135,8 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogAddUserToGroupVisible = false">取 消</el-button>
-        <el-button type="primary" @click="handlerAddUsers()">确 定</el-button>
+        <el-button type="primary" @click="submitAddUserForm('adduserForm')">确 定</el-button>
+        <!-- handlerAddUsers() -->
       </div>
     </el-dialog>
 	</div>
@@ -165,6 +167,23 @@
         formAddUser: {
           friends:[]
         },
+        newgrouprules: {
+          name:[
+            { required: true, message: '请输入群组名称', trigger: 'blur' },
+            { min: 3, max: 20, message: '长度在 1 到 20 个字符', trigger: 'blur' }
+          ]
+        },
+        modifygrouprules: {
+          name:[
+            { required: true, message: '请输入群组名称', trigger: 'blur' },
+            { min: 3, max: 20, message: '长度在 1 到 20 个字符', trigger: 'blur' }
+          ]
+        },
+        adduserrules: {
+          friends: [
+            { required: true, message: '请选择好友', trigger: 'change' }
+          ]
+        }
       }
     },
     name: 'FriendsGroup',
@@ -220,6 +239,19 @@
         }
       },
       
+      // 提交新建群的表单
+      submitNewGroupForm(formName) {
+        this.$refs[formName].validate((valid) => {
+          if (valid) {
+            this.handleCreateGroup();
+          } else {
+            console.log('error submit!!');
+            return false;
+          }
+        });
+      },
+
+      // 新建群
       handleCreateGroup() {
         var $this = this;
         $this.createGroup($this.formNewGroup.name,function(res){
@@ -245,6 +277,7 @@
             type: 'success'
           });
           $this.refreshGroups();
+          $this.curGroup={};
         },function(res){
           $this.$message.error('删除组失败！');
         })
@@ -266,7 +299,20 @@
         })
       },
 
-      handlerModifyGroupName(){
+      // 提交修改群组名的表单
+      submitModifyGroupForm(formName) {
+        this.$refs[formName].validate((valid) => {
+          if (valid) {
+            this.handlerModifyGroupName();
+          } else {
+            console.log('error submit!!');
+            return false;
+          }
+        });
+      },
+
+      // 修改群组名
+      handlerModifyGroupName () {
         var $this = this;
         if(Object.keys($this.curGroup).length==0){
           return;
@@ -283,7 +329,20 @@
         })
       },
 
-      handlerAddUsers(){
+      // 提交向群组中添加用户的表单
+      submitAddUserForm (formName) {
+        this.$refs[formName].validate((valid) => {
+          if (valid) {
+            this.handlerAddUsers();
+          } else {
+            console.log('error submit!!');
+            return false;
+          }
+        });
+      },
+
+      // 向群组中添加用户
+      handlerAddUsers () {
         var $this = this;
         if(Object.keys($this.curGroup).length==0){
           return;

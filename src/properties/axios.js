@@ -48,7 +48,7 @@ function apiAxios (method, url, params, success, failure) {
       if (failure) {
         failure(res)
       } else {
-        window.alert(res.code+":"+res.msg)
+        window.alert(res.data.code+":"+res.data.msg)
       }
     }
   })

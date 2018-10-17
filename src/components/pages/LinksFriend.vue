@@ -317,7 +317,7 @@
             $this.dialogAddFriendVisible=false;
             $this.refreshDepartments();
           },function(res){
-            $this.$message.error('添加好友失败！'+res.msg);
+            $this.$message.error('添加好友失败！'+res.data.msg);
           })
         },function(res){
           $this.formAddFriend.formError = '用户不存在！'

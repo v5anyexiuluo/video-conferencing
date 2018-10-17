@@ -172,7 +172,7 @@ export default {
 		// 				$this.isMaster = false;
 		// 			}
 		// 		},function(res){
-		// 			$this.$message.error('获取会议信息失败！'+res.msg);
+		// 			$this.$message.error('获取会议信息失败！'+res.data.msg);
 		// 		});
 		// 		$this.chatroom = $this.formMeeting.meetingId.toString();
 		// 		$this.meetingjson.fromuser = $this.user.id;
@@ -202,7 +202,7 @@ export default {
 	        $this.getMeetingInfo($this.formMeeting.meetingId, function(res){
 	          $this.setCurMeeting(res.data.data)
 	        },function(res){
-	          $this.$message.error('获取会议信息失败！'+res.msg);
+	          $this.$message.error('获取会议信息失败！'+res.data.msg);
 	        });
 	        $this.dialogSelectMeetingVisible = false;
 	      }
@@ -303,13 +303,13 @@ export default {
 					$this.meetCore.JoinConference();
 					$this.chatroom = $this.meetCore;
 				}, function(res){
-					$this.$message.error('启动会议失败！'+res.msg);
+					$this.$message.error('启动会议失败！'+res.data.msg);
 				})
 			}else{
 				$this.entryMeeting($this.curMeeting.id, $this.user.nickname, function(res){
 					$this.meetCore.JoinConference();
 				}, function(res){
-					$this.$message.error('进入会议失败！'+res.msg);
+					$this.$message.error('进入会议失败！'+res.data.msg);
 				})
 			}
 		},
@@ -432,13 +432,13 @@ export default {
 		// 		$this.startMeeting($this.meeting.id, function(res){
 		// 			$this.xchatkit.JoinConference($this.meetingjson);
 		// 		}, function(res){
-		// 			$this.$message.error('启动会议失败！'+res.msg);
+		// 			$this.$message.error('启动会议失败！'+res.data.msg);
 		// 		})
 		// 	}else{
 		// 		$this.entryMeeting($this.meeting.id, $this.user.nickname, function(res){
 		// 			$this.xchatkit.JoinConference($this.meetingjson);
 		// 		}, function(res){
-		// 			$this.$message.error('进入会议失败！'+res.msg);
+		// 			$this.$message.error('进入会议失败！'+res.data.msg);
 		// 		})
 		// 	}
 		// },
@@ -456,7 +456,7 @@ export default {
 		// 	//         //刷新与会人员列表
 		// 	//         $this.refreshNowMembers();
 		// 	// 	}, function(res){
-		// 	// 		$this.$message.error('结束会议失败！'+res.msg);
+		// 	// 		$this.$message.error('结束会议失败！'+res.data.msg);
 		// 	// 	})
 		// 	// }else{
 		// 	// 	$this.exitMeeting($this.meeting.id, $this.user.nickname, function(res){
@@ -465,7 +465,7 @@ export default {
 		// 	//         //刷新与会人员列表
 		// 	//         $this.refreshNowMembers();
 		// 	// 	}, function(res){
-		// 	// 		$this.$message.error('退出会议失败！'+res.msg);
+		// 	// 		$this.$message.error('退出会议失败！'+res.data.msg);
 		// 	// 	})
 		// 	// }
 		// },

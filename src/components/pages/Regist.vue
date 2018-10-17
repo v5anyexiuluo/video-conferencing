@@ -139,7 +139,7 @@
                             });
                             $this.$router.push({name: 'login'});
                         },function(res){
-                           $this.$message.error('注册失败！'+res.msg);
+                           $this.$message.error('注册失败！'+res.data.msg);
                         })
                     } else {
                         console.log('error submit!!');
@@ -164,7 +164,7 @@
                         }
                     }, 1000);
                 }, function(res){
-                    $this.$message.error('发送验证码失败！'+res.msg);
+                    $this.$message.error('发送验证码失败！'+res.data.msg);
                 })
                 
             },

@@ -16,10 +16,12 @@
     <div style="height: 50px;line-height: 50px;background-color: rgb(84, 92, 100);color: white;border-top: 1px solid;">版权所有@西安电子科技大学Mobisys实验室</div>
     <circle-menu v-drag slot="reference" class="drag" type="top" :number='2' :btn='true' animate="animated jello" mask='white' circle>
       <el-tooltip slot="item_1" class="item" effect="dark" content="新建会议" placement="left">
-        <router-link style="width: 48px;height: 48px;display: inline-block;" :to="{name: 'now'}"><span class="el-icon-plus"></span></router-link>
+        <!-- <router-link style="width: 48px;height: 48px;display: inline-block;" @click.stop="handleQuick" :to="{name: 'now'}"><span class="el-icon-plus"></span></router-link> -->
+        <span style="width: 48px;height: 48px;display: inline-block;" v-on:click="handleQuickAddMeeting"><span class="el-icon-plus"></span></span>
       </el-tooltip>
       <el-tooltip slot="item_2" class="item" effect="dark" content="添加好友" placement="left">
-        <router-link style="width: 48px;height: 48px;display: inline-block;" :to="{name: 'now'}"><span class="el-icon-plus"></span></router-link>
+        <span style="width: 48px;height: 48px;display: inline-block;" v-on:click="handleQuickAddFriend"><span class="el-icon-plus"></span></span>
+        <!-- <router-link style="width: 48px;height: 48px;display: inline-block;" :to="{name: 'now'}"><span class="el-icon-plus"></span></router-link> -->
       </el-tooltip>
     </circle-menu>
   </div>
@@ -75,6 +77,14 @@ export default {
       'setFirstInit',
       'addMsg'
     ]),
+
+    handleQuickAddMeeting(){
+      this.$message.error('此功能待开发！');
+    },
+
+    handleQuickAddFriend(){
+      this.$message.error('此功能待开发！');
+    },
     // websocket连接
     connect() {
       var $this = this;

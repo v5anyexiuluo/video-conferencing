@@ -13,11 +13,12 @@
 	<el-row type="flex" justify="end" class="header-wrap">
     <el-dropdown placement="bottom">
       <span class="el-dropdown-link v-center">
-        <el-button type="warning" icon="el-icon-bell" circle></el-button>
+        <el-badge :value="msgs.length">
+          <el-button type="warning" icon="el-icon-bell" circle></el-button>
+        </el-badge>
       </span>
       <el-dropdown-menu :popper-append-to-body="false" slot="dropdown">
-        <el-dropdown-item>你有一条系统通知</el-dropdown-item>
-        <el-dropdown-item>修罗请求添加你</el-dropdown-item>
+        <el-dropdown-item v-for="msg in msgs"><router-link tag="span" :to="{name: 'notifies'}">{{msg.content.plain_message}}</router-link></el-dropdown-item>
       </el-dropdown-menu>
     </el-dropdown>
 		<el-dropdown placement="bottom" style="cursor: pointer;" @command="handleUserCommand">
@@ -25,7 +26,7 @@
 		    <img src="@/assets/images/user.jpg" style="height: 40px;width: 40px;border-radius: 20px; margin-right: 6px;" alt="">{{user? user.nickname: "用户"}}<i class="el-icon-arrow-down el-icon--right"></i>
 		  </span>
 		  <el-dropdown-menu :popper-append-to-body="false" slot="dropdown">
-		    <el-dropdown-item command="center">用户中心</el-dropdown-item>
+		    <el-dropdown-item command="center"><router-link tag="span" :to="{name: 'usercenter'}">用户中心</router-link></el-dropdown-item>
         <el-dropdown-item command="logout">注销</el-dropdown-item>
 		  </el-dropdown-menu>
 		</el-dropdown>
@@ -103,7 +104,8 @@ export default {
       nav:state=>state.nav
     }),
     ...mapGetters([
-      'user'
+      'user',
+      'msgs'
     ])
   },
   watch: {
@@ -144,6 +146,9 @@ export default {
 .el-menu-item {
   text-align: left!important;
   padding-right: 0!important;
+}
+.el-badge >>> .el-badge__content.is-fixed{
+  top: 12px;
 }
 /*.el-menu-item.is-active {
   background-color: rgb(173, 173, 173) !important;

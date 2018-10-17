@@ -172,11 +172,31 @@ export default {
       }
     };
   },
+  name: "MeetingNow",
+  created(){
+
+  },
+  mounted() {
+  	var $this = this;
+    $this.getInfo();
+    $this.refreshDepartments();
+    $this.refreshGroups();
+    if($this.$route.query.group_id) {
+      $this.form.formMutiSelects.settings.curid.push($this.$route.query.group_id);
+    }
+    if($this.$route.query.meeting_id) {
+      $this.getMeetingMember($this.$route.query.meeting_id);
+    }
+  },
   components: {
     SelectMember
   },
+  computed: {
+  },
   methods: {
-    ...mapMutations(["setCurMeeting"]),
+    ...mapMutations([
+    	"setCurMeeting"
+	]),
     handleClose(tag) {
       this.form.formMutiSelects.settings.dynamicTags.splice(
         this.form.formMutiSelects.settings.dynamicTags.indexOf(tag),
@@ -444,18 +464,6 @@ export default {
       );
     }
   },
-  mounted() {
-    this.getInfo();
-    this.refreshDepartments();
-    this.refreshGroups();
-    if (this.$route.query.group_id) {
-      this.form.formMutiSelects.settings.curid.push(this.$route.query.group_id);
-    }
-    if (this.$route.query.meeting_id) {
-      this.getMeetingMember(this.$route.query.meeting_id);
-    }
-  },
-  name: "MeetingJoin"
 };
 </script>
 

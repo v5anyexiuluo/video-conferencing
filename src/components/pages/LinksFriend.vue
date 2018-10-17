@@ -48,7 +48,8 @@
             <p><span>群名称:</span><span>{{curDepartment? (curDepartment.department_name? curDepartment.department_name:''):''}}</span></p>
             <p><span>创建时间:</span><span></span></p>
             <p><span>分组简介:</span><span>暂无</span></p>
-            <p>
+            <!-- 做好的设计应该是后台返回的分组项里有一个属性标明这是默认分组 -->
+            <p v-if="curDepartment.department_name!='默认分组'">
               <el-button type="text" @click="handleDelDepartment">删除分组</el-button>
               <el-button type="text" @click="dialogModifyDepartmentNameVisible=true;">修改分组信息</el-button>
             </p>

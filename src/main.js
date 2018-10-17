@@ -71,6 +71,7 @@ Vue.prototype.$loading = Loading.service;
 Vue.prototype.$message = Message;
 Vue.prototype.$notify = Notification;
 Vue.prototype.$confirm = MessageBox.confirm;
+Vue.prototype.$alert = MessageBox.alert;
 
 Vue.config.productionTip = false
 Vue.config.debug = true

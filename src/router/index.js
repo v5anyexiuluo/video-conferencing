@@ -11,6 +11,8 @@ import LinksGroup from '@/components/pages/LinksGroup'
 import LinksFriend from '@/components/pages/LinksFriend'
 import Member from '@/components/pages/Member'
 import Abstract from '@/components/pages/Abstract'
+import Settings from '@/components/pages/Settings'
+import UserCenter from '@/components/pages/UserCenter'
 import NotFound from '@/components/pages/NotFound'
 import properties from '@/properties/properties.js';
 import store from '@/store/'
@@ -89,6 +91,11 @@ const router = new Router({
       component: Frame,
       children:[
         {
+          name: 'usercenter',
+          path: '/usercenter',
+          component: UserCenter
+        },
+        {
           name: 'member',
           path: '/member/:id',
           component: Member
@@ -97,7 +104,7 @@ const router = new Router({
           name: 'abstract',
           path: '/abstract/:id',
           component: Abstract
-        }
+        },
       ]
     },
     { path:'*' , component:NotFound}

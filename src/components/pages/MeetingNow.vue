@@ -177,15 +177,15 @@ export default {
 
   },
   mounted() {
-  	var $this = this;
-    $this.getInfo();
-    $this.refreshDepartments();
-    $this.refreshGroups();
-    if($this.$route.query.group_id) {
-      $this.form.formMutiSelects.settings.curid.push($this.$route.query.group_id);
+    this.getInfo();
+    this.refreshDepartments();
+    this.refreshGroups();
+    if(this.$route.query.group_id) {
+      this.form.formMutiSelects.settings.curid.push(this.$route.query.group_id);
+      this.getGroupMember(this.$route.query.group_id);
     }
-    if($this.$route.query.meeting_id) {
-      $this.getMeetingMember($this.$route.query.meeting_id);
+    if(this.$route.query.meeting_id) {
+      this.getMeetingMember(this.$route.query.meeting_id);
     }
   },
   components: {
@@ -425,6 +425,40 @@ export default {
           email_notify: m_email,
           sms_notify: m_sms
         },
+        cbOk,
+        cbErr
+      );
+    },
+
+    getGroupMember(id) {
+      var $this = this;
+      console.log("")
+      $this.groupMember(
+        id,
+        function(res) {
+          var re = res.data.data;
+          console.log("群组成员");
+          console.log(re);
+          for (var i = 0; i < re.length; i++) {
+            $this.form.formMutiSelects.tarData.members.push({
+              id:re[i].id,
+              name:re[i].nickname
+            })
+          }
+        },
+        function(res) {
+          $this.$message.error("获取群组成员信息失败！");
+        }
+      );
+    },
+
+    groupMember(id, cbOk, cbErr) {
+      var $this = this;
+      $this.$axios.get(
+        utils.handleParamInUrl(apiLinks.groups.members, {
+          group_id: id
+        }),
+        null,
         cbOk,
         cbErr
       );

@@ -35,7 +35,7 @@
       title="会议信息"
       :visible.sync="dialogMeetingInfo"
       width="30%"
-      :before-close="handleClose">
+    >
       <span>
         <div v-if="curMeeting" class="text item">
           会议名称：{{curMeeting.meetingName}}<br>
@@ -45,7 +45,7 @@
           会议成员： 
           <div>
             <div class="member" v-for="member in curMember" :key="member.id">
-              <img :src="'https://picsum.photos/20/20'" alt="">
+              <img :src="member.headimg ? member.headimg : 'https://picsum.photos/20/20'" alt="">
               <div>{{member.nickname}}</div>
             </div>
           </div>
@@ -85,13 +85,7 @@ export default {
       this.getMeetingMember(this.curMeeting.id)
       this.dialogMeetingInfo = true;
     },
-    handleClose(done) {
-      this.$confirm("确认关闭？")
-        .then(_ => {
-          done();
-        })
-        .catch(_ => {});
-    },
+    
     timestampToTime(timestamp) {
       var date = new Date(timestamp);
       var Y = date.getFullYear() + "-";
@@ -105,6 +99,7 @@ export default {
       var s = date.getSeconds();
       return Y + M + D + h + m + s;
     },
+
     refreshAllHistoryMeeting() {
       var $this = this;
       this.getHistoryMeeting(

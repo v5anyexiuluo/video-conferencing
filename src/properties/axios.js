@@ -42,6 +42,9 @@ function apiAxios (method, url, params, success, failure) {
     store.commit('changeLoading', false);
     if (res.data.code == 0) {
       if (success) {
+        if(typeof res.data.msg == 'undefined'){
+          res.data.msg = '未知错误！'
+        }
         success(res)
       }
     } else {

@@ -312,7 +312,7 @@
         $this.findFriendByNickname($this.formAddFriend.nickName, function(res){
           $this.addFriend($this.formAddFriend, function(res){
             $this.$message({
-              message: '添加好友成功！',
+              message: '已发出添加好友，待对方确认！',
               type: 'success'
             });
             $this.dialogAddFriendVisible=false;

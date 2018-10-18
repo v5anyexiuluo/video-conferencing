@@ -44,7 +44,10 @@
           视频回放：<div class="el-icon-service"></div><br>
           会议成员： 
           <div>
-            <div class="member" v-for="(n, index) in 10" :key="index">{{n + ","}}</div>
+            <div class="member" v-for="member in curMember" :key="member.id">
+              <img :src="'https://picsum.photos/20/20'" alt="">
+              <div>{{member.nickname}}</div>
+            </div>
           </div>
         </div>
       </span>
@@ -58,6 +61,7 @@
 
 <script>
 import { apiAuth, apiMeeting } from "@/properties/api.js";
+import utils from '@/assets/js/utils.js';
 export default {
   name: "MeetingHistory",
   data() {
@@ -65,6 +69,7 @@ export default {
       MeetingList: [],
       dialogMeetingInfo: false,
       curMeeting: null,
+      curMember:[],
       selfInfo: null
     };
   },
@@ -75,7 +80,9 @@ export default {
   methods: {
     showInfo(info) {
       this.curMeeting = info;
+      console.log("curMeeting")
       console.log(this.curMeeting);
+      this.getMeetingMember(this.curMeeting.id)
       this.dialogMeetingInfo = true;
     },
     handleClose(done) {
@@ -134,6 +141,35 @@ export default {
     getSelfInfo(cbOk, cbErr) {
       var $this = this;
       $this.$axios.get(apiAuth.userInfo, null, cbOk, cbErr);
+    },
+
+    // 获取会议成员
+    getMeetingMember(id) {
+      var $this = this;
+      $this.meetingMember(
+        id,
+        function(res) {
+          var re = res.data.data;
+          console.log("会议成员");
+          console.log(re);
+          $this.curMember = re;
+        },
+        function(res) {
+          $this.$message.error("获取会议成员信息失败！");
+        }
+      );
+    },
+
+    meetingMember(id, cbOk, cbErr) {
+      var $this = this;
+      $this.$axios.get(
+        utils.handleParamInUrl(apiMeeting.now.members, {
+          mid: id
+        }),
+        null,
+        cbOk,
+        cbErr
+      );
     }
   }
 };
@@ -158,7 +194,9 @@ export default {
 }
 
 .member {
+  margin-right: 10px;
   float: left;
+  text-align: center;
 }
 ::-webkit-scrollbar {
   display: none;

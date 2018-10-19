@@ -1,5 +1,6 @@
 import {msgType} from '@/assets/js/common.js';
 import utils from '@/assets/js/utils.js';
+import Vue from 'vue';
 function handleMsg(msg){
   // msg = JSON.parse(msg) 
   if(typeof msg.category == 'undefined'){
@@ -38,45 +39,41 @@ function formatToStamp(value){
 export default {
     state:{
     	msgs: [],
-        // filtedCountdownMsg:[]
+      countdown: {}
     },
     mutations:{
     	addMsg(state, msg) {
-            var result = state.msgs.findIndex((value, index, arr) => {
-                return value.messageId == msg.messageId;
-            })
-            if(result==-1){
-                // if(msg.category==msgType.CONFERENCE_CREATION){
-                //     var timerObj = {id:msg.messageId, timer: null, time: formatToStamp(msg.content.start_time)}
-                //     var timer = setTimeout(function(){
-                //         if(timerObj.time<=0){
-                //             clearTimeout(timerObj.time);
-                //         }else{
-                //             timerObj.time--;
-                //         }
-                //     },1000)
-                //     state.filtedCountdownMsg.push(timerObj);
-                //     localStorage.setItem('filtedCountdownMsg',JSON.stringify(state.filtedCountdownMsg))
-                // }
-                if(handleMsg(msg, state)){
-                    state.msgs.push(handleMsg(msg, state))
-                    localStorage.setItem('msgs',JSON.stringify(state.msgs))
-                }
+        var result = state.msgs.findIndex((value, index, arr) => {
+            return value.messageId == msg.messageId;
+        })
+        if(result==-1){
+            if(msg.category==msgType.CONFERENCE_CREATION||msg.category==msgType.CONFERENCE_READY_START){
+              state.countdown[msg.messageId]=formatToStamp(msg.content.start_time);
             }
-        },
+            if(handleMsg(msg, state)){
+                state.msgs.push(handleMsg(msg, state))
+                // localStorage.setItem('msgs',JSON.stringify(state.msgs))
+            }
+        }else{
+          // state.msgs[result]=handleMsg(msg, state)
+          Vue.set(state.msgs,result,handleMsg(msg, state));
+        }
+      },
+      setCountdownTime(state, id){
+        if(state.countdown[id]>0){
+          Vue.set(state.countdown,id,state.countdown[id]-1);
+        }
+      }
     },
     getters:{
     	msgs(state){
-            if(localStorage.getItem('msgs')){
-                state.msgs = JSON.parse(localStorage.getItem('msgs'))
-            }
-            return state.msgs;
-        },
-        // filtedCountdownMsg(state){
-        //     if(localStorage.getItem('filtedCountdownMsg')){
-        //         state.filtedCountdownMsg = JSON.parse(localStorage.getItem('filtedCountdownMsg'))
-        //     }
-        //     return state.filtedCountdownMsg;
+        // if(localStorage.getItem('msgs')){
+        //     state.msgs = JSON.parse(localStorage.getItem('msgs'))
         // }
+        return state.msgs;
+      },
+      countdown(state){
+        return state.countdown;
+      }
     }
 }

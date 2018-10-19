@@ -97,7 +97,8 @@ import BScroll from 'better-scroll'
 import Scroll from '@/components/common/Scroll.vue'
 import Chat from "@/components/common/Chat.vue"
 import Meet from '@/assets/js/meeting.core.js';
-import utils from '@/assets/js/utils.js'
+import utils from '@/assets/js/utils.js';
+import {meetingStatus} from '@/assets/js/common.js';
 export default {
 	data () {
 		return {
@@ -126,6 +127,7 @@ export default {
 			shareVideo: {
 				src: ''
 			},
+			meetingStatus: meetingStatus,
 			meetingMembers: [],
 			remoteResources: [],
 			meetCore: null,
@@ -142,6 +144,33 @@ export default {
 				callback: action => {
 				$this.$router.push({name: 'history'})
 				}
+			});
+	    }
+	  //   var tipsMsg = '';
+	  //   switch($this.curMeeting.available){
+	  //   	case $this.meetingStatus.BEFORE:
+	  //   		tipsMsg = '会议还未开始';
+   //  		case $this.meetingStatus.ENDED:
+   //  			tipsMsg = '会议已经结束';
+   //  			this.$notify({
+			// 		title: '提示',
+			// 		message: tipsMsg
+			// 	});
+			// 	return；
+			// default:
+			// 	break;
+	  //   }
+	    if($this.curMeeting.available==$this.meetingStatus.BEFORE){
+	    	this.$notify({
+				title: '提示',
+				message: '会议还未开始'
+			});
+			return;
+	    }
+	    if($this.curMeeting.available==$this.meetingStatus.ENDED){
+	    	this.$notify({
+				title: '提示',
+				message: '会议已经结束'
 			});
 	    }
 		$this.getNowMeetings(function(res){

@@ -7,6 +7,7 @@ var notify = process.env.API_NOTIFY_ROOT
 var websocket = process.env.API_WS_ROOT
 
 export var apiAuth = {
+	auth: auth,
 	login: auth+'/users/sign_in',
 	logout: auth+'/users/sign_out',
 	regist: auth+'/users/register',
@@ -17,9 +18,10 @@ export var apiAuth = {
 	userInfoByNickname: links+'/user/{nickname}'
 }
 export var apiChat = {
-	
+	chat: chat
 }
 export var apiLinks = {
+	links: links,
 	friends:{
 		// all: links+'/friends/get_friends_all',  //
 		all:links+'/friends',
@@ -60,6 +62,7 @@ export var apiLinks = {
 	}
 }
 export var apiMeeting = {
+	meeting: meeting,
 	base:{
 		info: meeting+'/meetings/',
 		all: '',
@@ -103,6 +106,8 @@ export var apiMeeting = {
 	}
 }
 export var apiMsg = {
+	websocket: websocket,
+	notify: notify,
 	ws:{
 		endpoint: websocket+'/ws/contacts',
 		subcribe: '/topic/{id}' 

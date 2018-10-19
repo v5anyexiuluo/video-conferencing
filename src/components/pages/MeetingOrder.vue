@@ -420,6 +420,7 @@ export default {
         $this.form.formMutiSelects.settings.sms_notify,
         function(res) {
           $this.$message.success("创建会议成功");
+          $this.$router.push({ name: "notifies" })
         },
         function(res) {
           $this.$message.error("创建会议失败");

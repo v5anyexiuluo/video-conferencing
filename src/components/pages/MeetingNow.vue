@@ -177,15 +177,15 @@ export default {
 
   },
   mounted() {
-  	var $this = this;
-    $this.getInfo();
-    $this.refreshDepartments();
-    $this.refreshGroups();
-    if($this.$route.query.group_id) {
-      $this.form.formMutiSelects.settings.curid.push($this.$route.query.group_id);
+    this.getInfo();
+    this.refreshDepartments();
+    this.refreshGroups();
+    if(this.$route.query.group_id) {
+      this.form.formMutiSelects.settings.curid.push(this.$route.query.group_id);
+      this.getGroupMember(this.$route.query.group_id);
     }
-    if($this.$route.query.meeting_id) {
-      $this.getMeetingMember($this.$route.query.meeting_id);
+    if(this.$route.query.meeting_id) {
+      this.getMeetingMember(this.$route.query.meeting_id);
     }
   },
   components: {
@@ -332,28 +332,60 @@ export default {
       this.$axios.get(apiLinks.friends.allDepartments, null, cbOk, cbErr);
     },
 
+    // refreshGroups() {
+    //   var $this = this;
+    //   $this.form.formMutiSelects.srcData.groups = [];
+    //   $this.getAllGroups(
+    //     function(res) {
+    //       var re = res.data.data;
+    //       //elementui tree数据不要循环往里添加，而是整理好以后，一次赋值，否则出现默认值不显示的问题
+    //       var temp = [];
+    //       for (var i = 0; i < re.length; i++) {
+    //         temp.push({
+    //           id: re[i].group_id,
+    //           name: re[i].group_name,
+    //           children: []
+    //         });
+    //         for (var j = 0; j < re[i].member.length; j++) {
+    //           temp[i].children.push({
+    //             id: re[i].member[j].id,
+    //             name: re[i].member[j].nickname
+    //           });
+    //         }
+    //       }
+    //       $this.form.formMutiSelects.srcData.groups = temp;
+    //     },
+    //     function(res) {
+    //       $this.$message.error("获取用户群组失败！");
+    //     }
+    //   );
+    // },
     refreshGroups() {
       var $this = this;
       $this.form.formMutiSelects.srcData.groups = [];
       $this.getAllGroups(
         function(res) {
           var re = res.data.data;
-          //elementui tree数据不要循环往里添加，而是整理好以后，一次赋值，否则出现默认值不显示的问题
-          var temp = [];
-          for (var i = 0; i < re.length; i++) {
-            temp.push({
-              id: re[i].group_id,
-              name: re[i].group_name,
-              children: []
-            });
-            for (var j = 0; j < re[i].member.length; j++) {
-              temp[i].children.push({
-                id: re[i].member[j].id,
-                name: re[i].member[j].nickname
+          $this.getSelfInfo(function(ret) {
+            var temp = [];
+            for (var i = 0; i < re.length; i++) {
+              temp.push({
+                id: re[i].group_id,
+                name: re[i].group_name,
+                children: []
               });
+              for (var j = 0; j < re[i].member.length; j++) {
+                if ( re[i].member[j].id != ret.data.data.id )
+                temp[i].children.push({
+                  id: re[i].member[j].id,
+                  name: re[i].member[j].nickname
+                });
+              }
             }
-          }
-          $this.form.formMutiSelects.srcData.groups = temp;
+            $this.form.formMutiSelects.srcData.groups = temp;
+          },function(ret){
+            $this.$message.error("获取用户信息失败！");
+          })
         },
         function(res) {
           $this.$message.error("获取用户群组失败！");
@@ -430,23 +462,66 @@ export default {
       );
     },
 
-    getMeetingMember(id) {
+    getGroupMember(id) {
+      var $this = this;
+      $this.groupMember(
+        id,
+        function(res) {
+          $this.getSelfInfo(function(ret){
+            var re = res.data.data;
+            for (var i = 0; i < re.length; i++) {
+              if(re[i].id != ret.data.data.id) {
+                $this.form.formMutiSelects.tarData.members.push({
+                  id:re[i].id,
+                  name:re[i].nickname
+                })
+              }
+            }
+          },
+          function(ret){
+            $this.$message.error("获取用户信息失败！");
+          })
+        },
+        function(res) {
+          $this.$message.error("获取群组成员信息失败！");
+        }
+      );
+    },
+
+    groupMember(id, cbOk, cbErr) {
+      var $this = this;
+      $this.$axios.get(
+        utils.handleParamInUrl(apiLinks.groups.members, {
+          group_id: id
+        }),
+        null,
+        cbOk,
+        cbErr
+      );
+    },
+
+    getMeetingMember (id) {
       var $this = this
       $this.meetingMember(
         id,
-        function(res) {
+        function (res) {
           var re = res.data.data
-          console.log("会议成员")
-          console.log(re)
-          for (var i = 0; i < re.length; i++) {
-						$this.form.formMutiSelects.settings.curid.push(re[i].id)
-						$this.form.formMutiSelects.tarData.members.push({
-              id:re[i].id,
-              name:re[i].nickname
-            })
-          }
+          $this.getSelfInfo( function (ret) {
+              for (var i = 0; i < re.length; i++) {
+                if(re[i].id != ret.data.data.id) {
+                  $this.form.formMutiSelects.settings.curid.push(re[i].id)
+                  $this.form.formMutiSelects.tarData.members.push({
+                    id:re[i].id,
+                    name:re[i].nickname
+                  })
+                }
+              }
+          },
+          function (ret) {
+            $this.$message.error("获取用户信息失败！");
+          })
         },
-        function(res) {
+        function (res) {
           $this.$message.error("获取会议成员信息失败！")
         }
       )

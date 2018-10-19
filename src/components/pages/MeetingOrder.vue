@@ -361,21 +361,26 @@ export default {
       $this.getAllGroups(
         function(res) {
           var re = res.data.data;
-          var temp = [];
-          for (var i = 0; i < re.length; i++) {
-            temp.push({
-              id: re[i].group_id,
-              name: re[i].group_name,
-              children: []
-            });
-            for (var j = 0; j < re[i].member.length; j++) {
-              temp[i].children.push({
-                id: re[i].member[j].id,
-                name: re[i].member[j].nickname
+          $this.getSelfInfo(function(ret) {
+            var temp = [];
+            for (var i = 0; i < re.length; i++) {
+              temp.push({
+                id: re[i].group_id,
+                name: re[i].group_name,
+                children: []
               });
+              for (var j = 0; j < re[i].member.length; j++) {
+                if ( re[i].member[j].id != ret.data.data.id )
+                temp[i].children.push({
+                  id: re[i].member[j].id,
+                  name: re[i].member[j].nickname
+                });
+              }
             }
-          }
-          $this.form.formMutiSelects.srcData.groups = temp;
+            $this.form.formMutiSelects.srcData.groups = temp;
+          },function(ret){
+            $this.$message.error("获取用户信息失败！");
+          })
         },
         function(res) {
           $this.$message.error("获取用户群组失败！");
@@ -445,19 +450,23 @@ export default {
 
     getGroupMember(id) {
       var $this = this;
-      console.log("")
       $this.groupMember(
         id,
         function(res) {
-          var re = res.data.data;
-          console.log("群组成员");
-          console.log(re);
-          for (var i = 0; i < re.length; i++) {
-            $this.form.formMutiSelects.tarData.members.push({
-              id:re[i].id,
-              name:re[i].nickname
-            })
-          }
+          $this.getSelfInfo(function(ret){
+            var re = res.data.data;
+            for (var i = 0; i < re.length; i++) {
+              if(re[i].id != ret.data.data.id) {
+                $this.form.formMutiSelects.tarData.members.push({
+                  id:re[i].id,
+                  name:re[i].nickname
+                })
+              }
+            }
+          },
+          function(ret){
+            $this.$message.error("获取用户信息失败！");
+          })
         },
         function(res) {
           $this.$message.error("获取群组成员信息失败！");
@@ -477,26 +486,31 @@ export default {
       );
     },
 
-    getMeetingMember(id) {
-      var $this = this;
-      $this.groupMember(
+    getMeetingMember (id) {
+      var $this = this
+      $this.meetingMember(
         id,
-        function(res) {
-          var re = res.data.data;
-          console.log("会议成员");
-          console.log(re);
-          for (var i = 0; i < re.length; i++) {
-            $this.form.formMutiSelects.settings.curid.push(re[i].id);
-            $this.form.formMutiSelects.tarData.members.push({
-              id:re[i].id,
-              name:re[i].nickname
-            })
-          }
+        function (res) {
+          var re = res.data.data
+          $this.getSelfInfo( function (ret) {
+              for (var i = 0; i < re.length; i++) {
+                if(re[i].id != ret.data.data.id) {
+                  $this.form.formMutiSelects.settings.curid.push(re[i].id)
+                  $this.form.formMutiSelects.tarData.members.push({
+                    id:re[i].id,
+                    name:re[i].nickname
+                  })
+                }
+              }
+          },
+          function (ret) {
+            $this.$message.error("获取用户信息失败！");
+          })
         },
-        function(res) {
-          $this.$message.error("获取会议成员信息失败！");
+        function (res) {
+          $this.$message.error("获取会议成员信息失败！")
         }
-      );
+      )
     },
 
     meetingMember(id, cbOk, cbErr) {

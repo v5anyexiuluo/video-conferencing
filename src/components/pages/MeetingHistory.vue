@@ -215,13 +215,17 @@ export default {
        return b.createTime-a.createTime  
     },
 
+    sortTime2(a,b){  
+       return a.createTime-b.createTime  
+    },
+
     refreshAllUnreadyMeeting() {
       var $this = this;
       this.getUnreadyMeeting(
         function(res) {
           res = res.data;
           $this.UnreadyMeetingList = res.data;
-          $this.UnreadyMeetingList.sort($this.sortTime);
+          $this.UnreadyMeetingList.sort($this.sortTime2);
         },
         function(res) {
           console.log("error" + res);
@@ -239,7 +243,7 @@ export default {
         function(res) {
           res = res.data;
           $this.NowMeetingList = res.data;
-          $this.NowMeetingList.sort($this.sortTime);
+          $this.NowMeetingList.sort($this.sortTime2);
         },
         function(res) {
           console.log("error" + res);

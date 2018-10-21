@@ -13,7 +13,15 @@
 	  		<div class="v-full-container" style="width:200px;background-color: #ecf5ff;">
 				<scroll ref="videoScroll" class="full-element" style="overflow: hidden;padding: 0 10px;height: 0px;">
 					<div>
-						<video v-if="item.id!=user.id" v-for="(item, index) in meetingMembers" :src="videoSrc(item.id)" style="width: 100%;height: 110px;background: red;object-fit: fill;" poster="avatar.png" playsinline autoplay controls muted>
+						<video
+							v-if="item.id!=user.id"
+							v-for="(item, index) in meetingMembers"
+							:key="index"
+							:src="videoSrc(item.id)"
+							style="width: 100%;height: 110px;background: red;object-fit: fill;"
+							poster="avatar.png"
+							playsinline autoplay controls muted
+						>
 							您的浏览器不支持 video 标签。
 						</video>
 					</div>
@@ -357,7 +365,31 @@ export default {
 	      $this.meetCore.ClearXChatKit();
 	      //刷新与会人员列表
 	      $this.refreshNowMembers();
-	    },
+			},
+			
+		// onLeaveConferenceClicked () {
+		// 	var $this = this;
+		// 	if($this.isMaster){
+		// 		$this.endMeeting($this.curMeeting.id, function(res){
+		// 			$this.$message.success('结束会议成功！'+res.data.msg);
+		// 			$this.meetCore.LeaveConference();
+	  //   		$this.meetCore.ClearXChatKit();
+		// 			$this.refreshNowMembers();
+		// 		}, function(res){
+		// 			$this.$message.error('结束会议失败！'+res.data.msg);
+		// 		})
+		// 	}else{
+		// 		$this.exitMeeting($this.curMeeting.id, $this.user.nickname, function(res){
+		// 			$this.$message.success('退出会议成功！'+res.data.msg);
+		// 			$this.meetCore.LeaveConference();
+	  //   		$this.meetCore.ClearXChatKit();
+		// 			$this.refreshNowMembers();
+		// 		}, function(res){
+		// 			$this.$message.error('退出会议失败！'+res.data.msg);
+		// 		})
+		// 	}
+	  // },
+
 	    //共享桌面与停止共享
 	    onStartOrEndShare()
 	    {
@@ -815,9 +847,9 @@ export default {
 	.el-row{
 		margin: 0px;
 	}
-	.content{
+	/* .content{
 		
-	}
+	} */
 	.btn-group a{
 		color: gray;
 		text-decoration: none;

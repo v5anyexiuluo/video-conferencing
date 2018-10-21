@@ -4,33 +4,95 @@
       <el-breadcrumb-item>视频会议</el-breadcrumb-item>
       <el-breadcrumb-item>历史会议</el-breadcrumb-item>
     </el-breadcrumb>
-    <el-card 
-      v-for="item in MeetingList" 
-      :key="item.meeting_id" 
-      class="box-card">
-      <div @click="showInfo(item)">
-        <div class="text item">
-          会议名称：{{item.meetingName}}<br>
-          会议时间：<span v-text="timestampToTime(item.createTime)"></span><br>
-          主持人：{{item.founder_user_nickname}}<br>
-          视频回放：<div class="el-icon-service"></div>
-          <!-- "item.videoPath" -->
-        </div>
-        <div style="text-align: left; font-size: 14px; margin: 5px;">会议纪要：这是一段会议纪要{{item.reviewtime}}</div>
-      </div>
-      <div v-if="item.founder_user_nickname==selfInfo">
-        <!-- <router-link :to="{name: 'now', query:{group_id:curGroup.group_id}}" > -->
-        <router-link :to="{name: 'now', query:{meeting_id:item.id}}">
-          <el-button type="primary">马上开会</el-button>
-        </router-link>
-        <router-link :to="{name: 'order', query:{meeting_id:item.id}}">
-          <el-button type="primary">预约会议</el-button>
-        </router-link>
-      </div>
-      <div v-else>
-        <el-button type="primary" @click="showInfo(item)">查看会议详情</el-button>
-      </div>
-    </el-card>
+    <el-tabs v-model="activeName" @tab-click="handleClick">
+      <el-tab-pane label="历史会议" name="first">
+        <el-card 
+          v-for="item in EndMeetingList" 
+          :key="item.meeting_id" 
+          class="box-card">
+          <div @click="showInfo(item)">
+            <div class="text item">
+              会议名称：{{item.meetingName}}<br>
+              会议时间：<span v-text="timestampToTime(item.createTime)"></span><br>
+              主持人：{{item.founder_user_nickname}}<br>
+              视频回放：<div class="el-icon-service"></div>
+              <!-- "item.videoPath" -->
+            </div>
+            <div style="text-align: left; font-size: 14px; margin: 5px;">会议纪要：这是一段会议纪要{{item.reviewtime}}</div>
+          </div>
+          <div v-if="item.founder_user_nickname==selfInfo">
+            <!-- <router-link :to="{name: 'now', query:{group_id:curGroup.group_id}}" > -->
+            <router-link :to="{name: 'now', query:{meeting_id:item.id}}">
+              <el-button type="primary">马上开会</el-button>
+            </router-link>
+            <router-link :to="{name: 'order', query:{meeting_id:item.id}}">
+              <el-button type="primary">预约会议</el-button>
+            </router-link>
+          </div>
+          <div v-else>
+            <el-button type="primary" @click="showInfo(item)">查看会议详情</el-button>
+          </div>
+        </el-card>
+      </el-tab-pane>
+      <el-tab-pane label="待参加会议" name="second">
+        <el-card 
+          v-for="item in UnreadyMeetingList" 
+          :key="item.meeting_id" 
+          class="box-card">
+          <div @click="showInfo(item)">
+            <div class="text item">
+              会议名称：{{item.meetingName}}<br>
+              会议时间：<span v-text="timestampToTime(item.createTime)"></span><br>
+              主持人：{{item.founder_user_nickname}}<br>
+              视频回放：<div class="el-icon-service"></div>
+              <!-- "item.videoPath" -->
+            </div>
+            <div style="text-align: left; font-size: 14px; margin: 5px;">会议纪要：这是一段会议纪要{{item.reviewtime}}</div>
+          </div>
+          <div v-if="item.founder_user_nickname==selfInfo">
+            <!-- <router-link :to="{name: 'now', query:{group_id:curGroup.group_id}}" > -->
+            <router-link :to="{name: 'now', query:{meeting_id:item.id}}">
+              <el-button type="primary">马上开会</el-button>
+            </router-link>
+            <router-link :to="{name: 'order', query:{meeting_id:item.id}}">
+              <el-button type="primary">预约会议</el-button>
+            </router-link>
+          </div>
+          <div v-else>
+            <el-button type="primary" @click="showInfo(item)">查看会议详情</el-button>
+          </div>
+        </el-card>
+      </el-tab-pane>
+      <el-tab-pane label="正在进行" name="third">
+        <el-card 
+          v-for="item in StartingMeetingList" 
+          :key="item.meeting_id" 
+          class="box-card">
+          <div @click="showInfo(item)">
+            <div class="text item">
+              会议名称：{{item.meetingName}}<br>
+              会议时间：<span v-text="timestampToTime(item.createTime)"></span><br>
+              主持人：{{item.founder_user_nickname}}<br>
+              视频回放：<div class="el-icon-service"></div>
+              <!-- "item.videoPath" -->
+            </div>
+            <div style="text-align: left; font-size: 14px; margin: 5px;">会议纪要：这是一段会议纪要{{item.reviewtime}}</div>
+          </div>
+          <div v-if="item.founder_user_nickname==selfInfo">
+            <!-- <router-link :to="{name: 'now', query:{group_id:curGroup.group_id}}" > -->
+            <router-link :to="{name: 'now', query:{meeting_id:item.id}}">
+              <el-button type="primary">马上开会</el-button>
+            </router-link>
+            <router-link :to="{name: 'order', query:{meeting_id:item.id}}">
+              <el-button type="primary">预约会议</el-button>
+            </router-link>
+          </div>
+          <div v-else>
+            <el-button type="primary" @click="showInfo(item)">查看会议详情</el-button>
+          </div>
+        </el-card>
+      </el-tab-pane>
+    </el-tabs>
     <el-dialog
       title="会议信息"
       :visible.sync="dialogMeetingInfo"
@@ -66,18 +128,26 @@ export default {
   name: "MeetingHistory",
   data() {
     return {
-      MeetingList: [],
+      EndMeetingList: [],
+      StartingMeetingList: [],
+      UnreadyMeetingList: [],
       dialogMeetingInfo: false,
       curMeeting: null,
       curMember:[],
-      selfInfo: null
+      selfInfo: null,
+      activeName: 'second'
     };
   },
   mounted() {
-    this.refreshAllHistoryMeeting();
+    this.refreshAllUnreadyMeeting();
+    this.refreshAllStartingMeeting();
+    this.refreshAllEndMeeting();
     this.getInfo();
   },
   methods: {
+    handleClick(tab, event) {
+      console.log(tab, event);
+    },
     showInfo(info) {
       this.curMeeting = info;
       console.log("curMeeting")
@@ -100,32 +170,61 @@ export default {
       return Y + M + D + h + m + s;
     },
 
-    refreshAllHistoryMeeting() {
+    refreshAllUnreadyMeeting() {
       var $this = this;
-      this.getHistoryMeeting(
+      this.getUnreadyMeeting(
         function(res) {
           res = res.data;
-          $this.MeetingList = res.data;
+          $this.UnreadyMeetingList = res.data;
         },
         function(res) {
           console.log("error" + res);
         }
       );
     },
-    getHistoryMeeting(cbOk, cbErr) {
+    getUnreadyMeeting(cbOk, cbErr) {
       var $this = this;
       $this.$axios.get(apiMeeting.order.all, {}, cbOk, cbErr);
+    },
+
+    refreshAllStartingMeeting() {
+      var $this = this;
+      this.getStartingMeeting(
+        function(res) {
+          res = res.data;
+          $this.NowMeetingList = res.data;
+        },
+        function(res) {
+          console.log("error" + res);
+        }
+      );
+    },
+    getStartingMeeting(cbOk, cbErr) {
+      var $this = this;
+      $this.$axios.get(apiMeeting.now.all, {}, cbOk, cbErr);
+    },
+
+    refreshAllEndMeeting() {
+      var $this = this;
+      this.getEndMeeting(
+        function(res) {
+          res = res.data;
+          $this.EndMeetingList = res.data;
+        },
+        function(res) {
+          console.log("error" + res);
+        }
+      );
+    },
+    getEndMeeting(cbOk, cbErr) {
+      var $this = this;
+      $this.$axios.get(apiMeeting.miss.all, {}, cbOk, cbErr);
     },
     getInfo() {
       var $this = this;
       $this.getSelfInfo(
         function(res) {
-          console.log("selfres");
-          console.log(res);
-          console.log(res.data.data.nickname);
           $this.selfInfo = res.data.data.nickname;
-          console.log("SELFINFO");
-          console.log($this.selfInfo);
         },
         function(res) {
           $this.$message.error("获取用户信息失败！");

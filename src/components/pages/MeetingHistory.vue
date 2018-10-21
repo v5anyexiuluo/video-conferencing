@@ -6,104 +6,137 @@
     </el-breadcrumb>
     <el-tabs v-model="activeName" @tab-click="handleClick">
       <el-tab-pane label="历史会议" name="first">
-        <el-card 
-          v-for="item in EndMeetingList" 
-          :key="item.meeting_id" 
-          class="box-card">
-          <div @click="showInfo(item)">
-            <div class="text item">
-              会议名称：{{item.meetingName}}<br>
-              会议时间：<span v-text="timestampToTime(item.createTime)"></span><br>
-              主持人：{{item.founder_user_nickname}}<br>
-              视频回放：<div class="el-icon-service"></div>
-              <!-- "item.videoPath" -->
+        <div style="width:100%;height:500px;">
+          <el-card 
+            v-for="item in EndMeetingList.slice((currentPage-1)*pagesize,currentPage*pagesize)" 
+            :key="item.meeting_id" 
+            class="box-card"
+          >
+            <div @click="showInfo(item)">
+              <div class="text item">
+                会议名称：{{item.meetingName}}<br>
+                会议时间：<span v-text="timestampToTime(item.createTime)"></span><br>
+                主持人：{{item.founder_user_nickname}}<br>
+                视频回放：<div class="el-icon-service"></div>
+                <!-- "item.videoPath" -->
+              </div>
+              <div style="text-align: left; font-size: 14px; margin: 5px;">会议纪要：这是一段会议纪要{{item.reviewtime}}</div>
             </div>
-            <div style="text-align: left; font-size: 14px; margin: 5px;">会议纪要：这是一段会议纪要{{item.reviewtime}}</div>
-          </div>
-          <div v-if="item.founder_user_nickname==selfInfo">
-            <!-- <router-link :to="{name: 'now', query:{group_id:curGroup.group_id}}" > -->
-            <router-link :to="{name: 'now', query:{meeting_id:item.id}}">
-              <el-button type="primary">马上开会</el-button>
-            </router-link>
-            <router-link :to="{name: 'order', query:{meeting_id:item.id}}">
-              <el-button type="primary">预约会议</el-button>
-            </router-link>
-          </div>
-          <div v-else>
-            <el-button type="primary" @click="showInfo(item)">查看会议详情</el-button>
-          </div>
-        </el-card>
+            <div v-if="item.founder_user_nickname==selfInfo">
+              <router-link :to="{name: 'now', query:{meeting_id:item.id}}">
+                <el-button type="primary">马上开会</el-button>
+              </router-link>
+              <router-link :to="{name: 'order', query:{meeting_id:item.id}}">
+                <el-button type="primary">预约会议</el-button>
+              </router-link>
+            </div>
+            <div v-else>
+              <el-button type="primary" @click="showInfo(item)">查看会议详情</el-button>
+            </div>
+          </el-card>
+        </div>
+
+        <el-pagination
+          @current-change="handleCurrentChange"
+          layout="total, prev, pager, next, jumper"
+          :total="EndMeetingList.length"
+          :current-page="currentPage"
+        >
+        </el-pagination>
       </el-tab-pane>
+
       <el-tab-pane label="待参加会议" name="second">
-        <el-card 
-          v-for="item in UnreadyMeetingList" 
-          :key="item.meeting_id" 
-          class="box-card">
-          <div @click="showInfo(item)">
-            <div class="text item">
-              会议名称：{{item.meetingName}}<br>
-              会议时间：<span v-text="timestampToTime(item.createTime)"></span><br>
-              主持人：{{item.founder_user_nickname}}<br>
-              视频回放：<div class="el-icon-service"></div>
-              <!-- "item.videoPath" -->
+        <div style="width:100%;height:500px;">
+          <el-card 
+            v-for="item in UnreadyMeetingList.slice((currentPage-1)*pagesize,currentPage*pagesize)" 
+            :key="item.meeting_id" 
+            class="box-card"
+          >
+            <div @click="showInfo(item)">
+              <div class="text item">
+                会议名称：{{item.meetingName}}<br>
+                会议时间：<span v-text="timestampToTime(item.createTime)"></span><br>
+                主持人：{{item.founder_user_nickname}}<br>
+                视频回放：<div class="el-icon-service"></div>
+                <!-- "item.videoPath" -->
+              </div>
+              <div style="text-align: left; font-size: 14px; margin: 5px;">会议纪要：这是一段会议纪要{{item.reviewtime}}</div>
             </div>
-            <div style="text-align: left; font-size: 14px; margin: 5px;">会议纪要：这是一段会议纪要{{item.reviewtime}}</div>
-          </div>
-          <div v-if="item.founder_user_nickname==selfInfo">
-            <!-- <router-link :to="{name: 'now', query:{group_id:curGroup.group_id}}" > -->
-            <router-link :to="{name: 'now', query:{meeting_id:item.id}}">
-              <el-button type="primary">马上开会</el-button>
-            </router-link>
-            <router-link :to="{name: 'order', query:{meeting_id:item.id}}">
-              <el-button type="primary">预约会议</el-button>
-            </router-link>
-          </div>
-          <div v-else>
-            <el-button type="primary" @click="showInfo(item)">查看会议详情</el-button>
-          </div>
-        </el-card>
+            <div v-if="item.founder_user_nickname==selfInfo">
+              <router-link :to="{name: 'now', query:{meeting_id:item.id}}">
+                <el-button type="primary">马上开会</el-button>
+              </router-link>
+              <router-link :to="{name: 'order', query:{meeting_id:item.id}}">
+                <el-button type="primary">预约会议</el-button>
+              </router-link>
+            </div>
+            <div v-else>
+              <el-button type="primary" @click="showInfo(item)">查看会议详情</el-button>
+            </div>
+          </el-card>
+        </div>
+
+        <el-pagination
+          @current-change="handleCurrentChange"
+          layout="total, prev, pager, next, jumper"
+          :total="UnreadyMeetingList.length"
+          :current-page="currentPage"
+        >
+        </el-pagination>
       </el-tab-pane>
+
       <el-tab-pane label="正在进行" name="third">
-        <el-card 
-          v-for="item in StartingMeetingList" 
-          :key="item.meeting_id" 
-          class="box-card">
-          <div @click="showInfo(item)">
-            <div class="text item">
-              会议名称：{{item.meetingName}}<br>
-              会议时间：<span v-text="timestampToTime(item.createTime)"></span><br>
-              主持人：{{item.founder_user_nickname}}<br>
-              视频回放：<div class="el-icon-service"></div>
-              <!-- "item.videoPath" -->
+        <div style="width:100%;height:500px;">
+          <el-card 
+            v-for="item in StartingMeetingList.slice((currentPage-1)*pagesize,currentPage*pagesize)" 
+            :key="item.meeting_id" 
+            class="box-card"
+          >
+            <div @click="showInfo(item)">
+              <div class="text item">
+                会议名称：{{item.meetingName}}<br>
+                会议时间：<span v-text="timestampToTime(item.createTime)"></span><br>
+                主持人：{{item.founder_user_nickname}}<br>
+                视频回放：<div class="el-icon-service"></div>
+                <!-- "item.videoPath" -->
+              </div>
+              <div style="text-align: left; font-size: 14px; margin: 5px;">会议纪要：这是一段会议纪要{{item.reviewtime}}</div>
             </div>
-            <div style="text-align: left; font-size: 14px; margin: 5px;">会议纪要：这是一段会议纪要{{item.reviewtime}}</div>
-          </div>
-          <div v-if="item.founder_user_nickname==selfInfo">
-            <!-- <router-link :to="{name: 'now', query:{group_id:curGroup.group_id}}" > -->
-            <router-link :to="{name: 'now', query:{meeting_id:item.id}}">
-              <el-button type="primary">马上开会</el-button>
-            </router-link>
-            <router-link :to="{name: 'order', query:{meeting_id:item.id}}">
-              <el-button type="primary">预约会议</el-button>
-            </router-link>
-          </div>
-          <div v-else>
-            <el-button type="primary" @click="showInfo(item)">查看会议详情</el-button>
-          </div>
-        </el-card>
+            <div v-if="item.founder_user_nickname==selfInfo">
+              <router-link :to="{name: 'now', query:{meeting_id:item.id}}">
+                <el-button type="primary">马上开会</el-button>
+              </router-link>
+              <router-link :to="{name: 'order', query:{meeting_id:item.id}}">
+                <el-button type="primary">预约会议</el-button>
+              </router-link>
+            </div>
+            <div v-else>
+              <el-button type="primary" @click="showInfo(item)">查看会议详情</el-button>
+            </div>
+          </el-card>
+        </div>
+
+        <el-pagination
+          @current-change="handleCurrentChange"
+          layout="total, prev, pager, next, jumper"
+          :total="StartingMeetingList.length"
+          :current-page="currentPage"
+        >
+        </el-pagination>
       </el-tab-pane>
     </el-tabs>
+
     <el-dialog
       title="会议信息"
       :visible.sync="dialogMeetingInfo"
-      width="30%"
-    >
+      width="30%">
       <span>
         <div v-if="curMeeting" class="text item">
           会议名称：{{curMeeting.meetingName}}<br>
           会议时间：<span v-text="timestampToTime(curMeeting.createTime)"></span><br>
           主持人：{{curMeeting.founder_user_nickname}}<br>
           视频回放：<div class="el-icon-service"></div><br>
+          会议纪要：这是一段会议纪要<br>
           会议成员： 
           <div>
             <div class="member" v-for="member in curMember" :key="member.id">
@@ -128,6 +161,8 @@ export default {
   name: "MeetingHistory",
   data() {
     return {
+      currentPage:1,  //    初始页
+      pagesize:8,    //    每页的数据
       EndMeetingList: [],
       StartingMeetingList: [],
       UnreadyMeetingList: [],
@@ -148,6 +183,12 @@ export default {
     handleClick(tab, event) {
       console.log(tab, event);
     },
+
+    handleCurrentChange(currentPage) {
+      this.currentPage = currentPage;
+      console.log(this.currentPage)  //点击第几页
+    },
+
     showInfo(info) {
       this.curMeeting = info;
       console.log("curMeeting")
@@ -170,12 +211,17 @@ export default {
       return Y + M + D + h + m + s;
     },
 
+    sortTime(a,b){  
+       return b.createTime-a.createTime  
+    },
+
     refreshAllUnreadyMeeting() {
       var $this = this;
       this.getUnreadyMeeting(
         function(res) {
           res = res.data;
           $this.UnreadyMeetingList = res.data;
+          $this.UnreadyMeetingList.sort($this.sortTime);
         },
         function(res) {
           console.log("error" + res);
@@ -193,6 +239,7 @@ export default {
         function(res) {
           res = res.data;
           $this.NowMeetingList = res.data;
+          $this.NowMeetingList.sort($this.sortTime);
         },
         function(res) {
           console.log("error" + res);
@@ -210,6 +257,7 @@ export default {
         function(res) {
           res = res.data;
           $this.EndMeetingList = res.data;
+          $this.EndMeetingList.sort($this.sortTime);
         },
         function(res) {
           console.log("error" + res);
@@ -278,7 +326,8 @@ export default {
 
 .box-card {
   background-color: #ffffcc;
-  width: 270px;
+  width: 22%;
+  height: 210px;
   margin: 15px;
   float: left;
 }

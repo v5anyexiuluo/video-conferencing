@@ -35,7 +35,7 @@
                 },
                 rules: {
                     username: [
-                        { required: true, message: '请输入用户名', trigger: 'blur' }
+                        { required: true, message: '请输入用户名或手机号', trigger: 'blur' }
                     ],
                     password: [
                         { required: true, message: '请输入密码', trigger: 'blur' }
@@ -51,13 +51,24 @@
             //登录
             login(user, cbOk, cbErr) {
                 var $this = this;
-                $this.$axios.post(apiAuth.login,
-                    {
-                        nickname: user.username,
-                        password: user.password
-                    },
-                    cbOk, cbErr
-                )
+                var MobileRegex = /^1[34578]\d{9}$/;
+                if (MobileRegex.test(user.username)) {
+                    $this.$axios.post(apiAuth.login,
+                        {
+                            phone: user.username,
+                            password: user.password
+                        },
+                        cbOk, cbErr
+                    )
+                } else {
+                    $this.$axios.post(apiAuth.login,
+                        {
+                            nickname: user.username,
+                            password: user.password
+                        },
+                        cbOk, cbErr
+                    )
+                }
             },
             submitForm(formName) {
                 var $this = this

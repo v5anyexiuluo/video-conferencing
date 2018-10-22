@@ -81,7 +81,7 @@
                         { required: true, message: '请输入手机号码', trigger: 'blur' },
                         {
                             validator: function (rule, value, callback) {
-                                var MobileRegex = /^1[0-9]{10}$/;
+                                var MobileRegex = /^1[34578]\d{9}$/;
                                 if (!MobileRegex.test(value)) {
                                     callback(new Error('手机号码格式不正确！'))
                                 } else {

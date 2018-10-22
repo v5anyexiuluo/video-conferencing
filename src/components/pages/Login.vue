@@ -4,15 +4,18 @@
         <div class="ms-login">
             <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="0px" class="demo-ruleForm">
                 <el-form-item prop="username">
-                    <el-input v-model="ruleForm.username" placeholder="用户名或手机号"></el-input>
+                    <el-input v-model="ruleForm.username" clearable placeholder="用户名或手机号"></el-input>
                 </el-form-item>
-                <el-form-item prop="password">
+                <el-form-item prop="password" style="margin-bottom:0;">
                     <el-input type="password" placeholder="密码" v-model="ruleForm.password" @keyup.enter.native="submitForm('ruleForm')"></el-input>
                 </el-form-item>
+                <el-form-item class="reset">
+                    <router-link to="/reset">忘记密码？</router-link>
+                </el-form-item>
                 <el-form-item>
-                    <router-link to="/frame">
+                    <!-- <router-link to="/frame"> -->
                         <el-button type="primary" @click="submitForm('ruleForm')">登录</el-button>
-                    </router-link>
+                    <!-- </router-link> -->
                     <router-link to="/regist"><el-button>去注册</el-button></router-link>
                 </el-form-item>
                 <p style="font-size:12px;margin:0px;color:#999;">Tips : 请填写用户名和密码。</p>
@@ -68,6 +71,7 @@
                                 message: '登录成功！',
                                 type: 'success'
                             });
+                            $this.$router.push('/frame');
                         },function(res){
                             $this.$router.push({name: 'login'})
                             $this.$message.error('用户名或密码错误！');
@@ -109,5 +113,12 @@
         padding:40px;
         border-radius: 5px;
         background: #fff;
+    }
+    .reset {
+        margin: 0;
+        text-align: right;
+        height: 40px;
+        line-height: 40px;
+        font-size: 10px;
     }
 </style>

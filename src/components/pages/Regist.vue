@@ -2,7 +2,7 @@
     <div class="login-wrap">
         <div class="ms-title">用户注册</div>
         <div class="ms-login">
-            <el-form :model="user" :rules="rules" ref="user" label-width="0px" class="demo-ruleForm">
+            <el-form :model="user" :rules="rules" ref="user" label-width="0px" class="demo-ruleForm" size="small">
                 <el-form-item prop="nickname">
                     <el-input v-model="user.nickname" placeholder="输入用户名"></el-input>
                 </el-form-item>
@@ -15,6 +15,9 @@
                 <el-form-item prop="phone">
                     <el-input v-model="user.phone" placeholder="输入手机号"></el-input>
                 </el-form-item>
+                <el-form-item prop="email">
+                    <el-input v-model="user.email" placeholder="输入邮箱"></el-input>
+                </el-form-item>
                 <el-form-item prop="smscode">
                     <div class="inline-ele">
                         <el-input type="text" placeholder="请输入短信验证码" v-model="user.smscode" @keyup.enter.native="submitForm('user')"></el-input>
@@ -25,7 +28,6 @@
                     <el-button type="primary" @click="submitForm('user')">注册</el-button>
                     <router-link to="/login"><el-button>去登录</el-button></router-link>
                 </el-form-item>
-                <p style="font-size:12px;margin:0px;color:#999;">Tips : 请填写用户名和密码。</p>
             </el-form>
         </div>
     </div>
@@ -82,6 +84,20 @@
                                 var MobileRegex = /^1[0-9]{10}$/;
                                 if (!MobileRegex.test(value)) {
                                     callback(new Error('手机号码格式不正确！'))
+                                } else {
+                                    callback();
+                                }
+                            },
+                            trigger: 'blur'
+                        }
+                    ],
+                    email: [
+                        { required: true, message: '请输入邮箱', trigger: 'blur' },
+                        {
+                            validator: function (rule, value, callback) {
+                                var MobileRegex = /^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z0-9]{2,6}$/;
+                                if (!MobileRegex.test(value)) {
+                                    callback(new Error('邮箱格式不正确！'))
                                 } else {
                                     callback();
                                 }
@@ -195,6 +211,9 @@
 </script>
 
 <style scoped>
+    el-form-item {
+        margin: 0
+    }
     .login-wrap{
         position: relative;
         width:100%;

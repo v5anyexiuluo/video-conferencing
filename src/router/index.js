@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import Frame from '@/components/common/Frame'
 import Login from '@/components/pages/Login'
 import Regist from '@/components/pages/Regist'
+import Reset from '@/components/pages/Reset'
 import MeetingOrder from '@/components/pages/MeetingOrder'
 import MeetingHistory from '@/components/pages/MeetingHistory'
 import MeetingCurrent from '@/components/pages/MeetingCurrent'
@@ -84,6 +85,11 @@ const router = new Router({
       name: 'regist',
       path: '/regist',
       component: Regist
+    },
+    {
+      name: 'reset',
+      path: '/reset',
+      component: Reset
     },
     {
       name: 'frame',

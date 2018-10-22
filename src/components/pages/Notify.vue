@@ -10,7 +10,7 @@
 			<div v-else-if="msg.category==msgType.CONFERENCE_READY_START" class="h-full-container v-center">
 				<span class="full-element">{{msg.content.plain_message}}</span>
 				<div class="deal-actions">
-					<el-button type="text" :disabled="timedown(msg.messageId)>0" @click="entryMeeting(msg.meetingInfoEntity)">{{timedown(msg.messageId)>0? timedown(msg.messageId):'进入会议'}}</el-button>
+					<el-button type="text" :disabled="countdown[msg.messageId]>0" @click="entryMeeting(msg.meetingInfoEntity)">{{countdown[msg.messageId] | countdownBtnText}}</el-button>
 				</div>
 			</div>
 			<div v-else-if="msg.category==msgType.CONTACT_ADDING" class="h-full-container v-center">
@@ -24,7 +24,7 @@
 			<div v-else-if="msg.category==msgType.CONFERENCE_CREATION" class="h-full-container v-center">
 				<span class="full-element">{{msg.content.plain_message}}</span>
         <div class="deal-actions">
-          <el-button type="text" :disabled="timedown(msg.messageId)>0" @click="entryMeeting(msg.meetingInfoEntity)">{{timedown(msg.messageId)>0? timedown(msg.messageId):'进入会议'}}</el-button>
+          <el-button type="text" :disabled="countdown[msg.messageId]>0" @click="entryMeeting(msg.meetingInfoEntity)">{{countdown[msg.messageId] | countdownBtnText}}</el-button>
         </div>
 			</div>
 			<div v-else-if="msg.category==msgType.CONFERENCE_CANCEL" class="h-full-container v-center">
@@ -89,7 +89,8 @@
             { required: true, message: '请选择分组', trigger: 'change' }
           ]
         },
-        timer: null
+        timer: null,
+        count: 0
       }
     },
     name: 'Login',
@@ -217,13 +218,15 @@
           clearTimeout($this.timer);
         }
         if($this.countdown){
-          $this.timer = setTimeout(function(){
+          $this.timer = setInterval(function(){
             for(var key in $this.countdown) {
+              // console.log($this.countdown[key]);
               $this.setCountdownTime(key);
             }
+            $this.$forceUpdate();
           },1000)
         }
-      }
+      },
       
     },
     watch:{
@@ -244,15 +247,27 @@
         'msgs',
         'countdown'
       ]),
-      timedown: function(){
-      	var $this = this
-      	return function(id){
-      		return $this.countdown[id];
-      	}
-      }
+      // timedown: function(){
+      // 	var $this = this;
+      // 	return function(id){
+      // 		return $this.countdown[id]+($this.count-$this.count);
+      // 	}
+      // }
     },
-    filters:{
-      
+    filters: {
+      countdownBtnText: function(stamp){
+        var $this = this;
+        if(stamp>0){
+          var day = Math.floor(stamp/(24*60*60));
+          var hour = Math.floor((stamp%(24*60*60))/(60*60));
+          var minute = Math.floor(((stamp%(24*60*60))%(60*60))/60);
+          var second = ((stamp%(24*60*60))%(60*60))%60;
+          return '剩余 '+day+'天'+hour+'小时'+minute+'分钟'+second+'秒';
+        }else{
+          return '进入会议'
+        }
+        
+      }
     }
   }
 </script>

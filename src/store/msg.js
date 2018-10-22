@@ -31,9 +31,9 @@ function handleMsg(msg){
 }
 
 function formatToStamp(value){
-    var arr = value.replace(' ', '').replace(/年|月|日|时|分|秒/g, '-').split('-')
-    var date = new Date(Date.UTC(arr[0], arr[1], arr[2], arr[3], arr[4], arr[5])).getTime();
-    return Math.ceil(((new Date()).getTime()-date)/1000);
+    var timeStr = value.replace(/年|月/g, '/').replace(/时|分/g,':').replace(/日|秒/g,'')
+    var date = new Date(timeStr).getTime();
+    return Math.ceil((date-(new Date()).getTime())/1000);
 }
 
 export default {

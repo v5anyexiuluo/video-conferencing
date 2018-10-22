@@ -13,9 +13,15 @@
 	  		<div class="v-full-container" style="width:200px;background-color: #ecf5ff;">
 				<scroll ref="videoScroll" class="full-element" style="overflow: hidden;padding: 0 10px;height: 0px;">
 					<div>
-						<video v-if="item.id!=user.id" v-for="(item, index) in meetingMembers" :src="videoSrc(item.id)" style="width: 100%;height: 110px;background: red;object-fit: fill;" poster="avatar.png" playsinline autoplay controls muted>
-							您的浏览器不支持 video 标签。
-						</video>
+						<div style="width: 100%;height: 110px;position: relative;" v-if="item.id!=user.id" v-for="(item, index) in meetingMembers">
+							<video :src="videoSrc(item.id)" style="width: 100%;height: 110px;background: #9E9E9E;object-fit: fill;" poster="avatar.png" playsinline autoplay controls muted>
+								您的浏览器不支持 video 标签。
+							</video>
+							<div style="position: absolute;top: 6px;right: 6px; font-size: 12px;color: white;">
+								<span>{{item.nickname}}</span>
+								<span style="margin-left: 10px;" :style="{color: item.status!=memberStatus.USER_ENTERED? 'red':''}">{{item.status==memberStatus.USER_ENTERED? '在线':'离线'}}</span>
+							</div>
+						</div>
 					</div>
 				</scroll>
 	  		</div>
@@ -98,7 +104,8 @@ import Scroll from '@/components/common/Scroll.vue'
 import Chat from "@/components/common/Chat.vue"
 import Meet from '@/assets/js/meeting.core.js';
 import utils from '@/assets/js/utils.js';
-import {meetingStatus} from '@/assets/js/common.js';
+import {meetingStatus, memberStatus} from '@/assets/js/common.js';
+import Vue from 'vue';
 export default {
 	data () {
 		return {
@@ -128,6 +135,7 @@ export default {
 				src: ''
 			},
 			meetingStatus: meetingStatus,
+			memberStatus: memberStatus,
 			meetingMembers: [],
 			remoteResources: [],
 			meetCore: null,
@@ -185,6 +193,7 @@ export default {
 		},function(res){
 			$this.$message.error('获取正在进行的会议信息失败！');
 		});
+		$this.refreshNowMembers();
 		$this.initXChatKit();
 	},
 	mounted() {
@@ -229,7 +238,7 @@ export default {
 			$this.getMeetingMembers($this.curMeeting.id, function(res){
 				$this.meetingMembers = res.data.data;
 			},function(res){
-				console.log("获取会议成员失败！")
+				$this.$message.error('获取与会成员失败！'+res.data.msg);
 			})
 		},
 
@@ -276,34 +285,43 @@ export default {
 			}
 		},
 
-		//加入会议回调
-		onEventPartyAdded(json) {
-			var $this = this;
-			var meetingObj = json;
-			if(!$this.isMaster && $this.curMeeting.founderId==meetingObj.fromuser){
-				$this.remoteVideo.src=window.URL.createObjectURL(meetingObj.stream);
-				return;
-			}
-			var result = $this.remoteResources.findIndex((value, index, arr) => {
-				return value.id == meetingObj.id;
-			})
-			if(result==-1){
-				$this.remoteResources.push(meetingObj);
-			}
-		},
+		//加入会议事件
+	    onEventPartyAdded(json)
+	    {
+	      if(!this.isMaster && this.curMeeting.founderId==json.fromuser) {
+	       	this.remoteVideo.src = window.URL.createObjectURL(json.stream);
+	      	return;
+	      }
+	      var result = this.meetingMembers.findIndex((value, index, arr) => {
+	        return value.id == json.fromuser;
+	      })
+	      if(result!=-1) {
+	        Vue.set(this.meetingMembers[result],'status', memberStatus.USER_ENTERED);;
+	      }
+	      result = this.remoteResources.findIndex((value, index, arr) => {
+	        return value.fromuser == json.fromuser;
+	      })
+	      if(result==-1) {
+	        this.remoteResources.push(json);
+	      }
+	    },
 
-		// 离开会议的回调
-		onEventPartyRemoved(json) {
-			var $this = this;
-			var meetingObj = json;
-			var result = $this.remoteResources.findIndex((value, index, arr) => {
-				return value.id == meetingObj.id;
-			})
-			if(result != -1) {
-				$this.remoteResources.splice(result,1);
-			}
-
-		},
+	    //离开会议
+	    onEventPartyRemoved(json)
+	    {
+	      var result = this.meetingMembers.findIndex((value, index, arr) => {
+	        return value.id == json.fromuser;
+	      })
+	      if(result!=-1) {
+	        Vue.set(this.meetingMembers[result],'status', memberStatus.USER_LEFT);;
+	      }
+	      result = this.remoteResources.findIndex((value, index, arr) => {
+	        return value.fromuser == json.fromuser;
+	      })
+	      if(result!=-1){
+	        this.remoteResources.splice(result,1);
+	      }
+	    },
 
 		// 开始录像
 		onEventPartyConnected(json) {
@@ -334,7 +352,6 @@ export default {
 
 		onJoinConferenceClicked () {
 			var $this = this;
-			$this.refreshNowMembers();
 			if($this.isMaster){
 				$this.startMeeting($this.curMeeting.id, function(res){
 					$this.meetCore.JoinConference();
@@ -387,32 +404,7 @@ export default {
 	      $this.meetCore.StopShare();
 	      $this.localVideo.src = window.URL.createObjectURL($this.meetCore.GetLocalStream());
 	    },
-	    //加入会议事件
-	    onEventPartyAdded(json)
-	    {
-	      if(!this.isMaster && this.curMeeting.founderId==json.fromuser) {
-	       this.remoteVideo.src = window.URL.createObjectURL(json.stream);
-	      return;
-	      }
-	      var result = this.remoteResources.findIndex((value, index, arr) => {
-	        return value.id == json.id;
-	      })
-	      if(result==-1) {
-	        this.remoteResources.push(json);
-	      }
-	    },
-	    //离开会议
-	    onEventPartyRemoved(json)
-	    {
-	      var result = this.remoteResources.findIndex((value, index, arr) => {
-	        return value.id == json.id;
-	      })
-	      if(result!=-1){
-	        this.remoteResources.splice(result,1);
-	      }
-	    },
-
-
+	    
 	    //启用摄像头
 	    onEnableCameraClicked()
 	    {
@@ -704,7 +696,7 @@ export default {
 
 		getMeetingMembers(id, cbOk, cbErr){
 			var $this = this;
-			$this.$axios.post(utils.handleParamInUrl(apiMeeting.now.members, {
+			$this.$axios.get(utils.handleParamInUrl(apiMeeting.now.members, {
 				mid: id.toString()
 			}), {}, cbOk, cbErr)
 		},

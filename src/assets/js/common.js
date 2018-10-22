@@ -24,3 +24,15 @@ export const meetingStatus={
 	USER_LEFT: 1007
 }
 
+export const memberStatus={
+	BEFOR: 2001,
+	STARTED: 2002,
+	ENDED: 2003,
+	NOT_EXIST: 2004,
+	CANCELED: 2005,
+	USER_ALLOWED: 3001,
+	USER_REJECTED: 3002,
+	USER_ENTERED: 3003,
+	USER_LEFT: 3004,
+}
+

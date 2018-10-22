@@ -75,7 +75,18 @@
                 },
                 rules: {
                     nickname: [
-                        { required: true, message: '请输入用户名', trigger: 'blur' }
+                        { required: true, message: '请输入用户名', trigger: 'blur' },
+                        {
+                            validator: function (rule, value, callback) {
+                                var MobileRegex = /^1[34578]\d{9}$/;
+                                if (MobileRegex.test(value)) {
+                                    callback(new Error('用户名不可以是手机号！'))
+                                } else {
+                                    callback();
+                                }
+                            },
+                            trigger: 'blur'
+                        }
                     ],
                     phone: [
                         { required: true, message: '请输入手机号码', trigger: 'blur' },

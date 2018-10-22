@@ -3,14 +3,15 @@ import Router from 'vue-router'
 import Frame from '@/components/common/Frame'
 import Login from '@/components/pages/Login'
 import Regist from '@/components/pages/Regist'
-import MeetingOrder from '@/components/pages/MeetingOrder'
-import MeetingHistory from '@/components/pages/MeetingHistory'
-import MeetingCurrent from '@/components/pages/MeetingCurrent'
-import MeetingNow from '@/components/pages/MeetingNow'
-import LinksGroup from '@/components/pages/LinksGroup'
-import LinksFriend from '@/components/pages/LinksFriend'
+// import MeetingOrder from '@/components/pages/MeetingOrder'
+// import MeetingHistory from '@/components/pages/MeetingHistory'
+// import MeetingCurrent from '@/components/pages/MeetingCurrent'
+// import MeetingNow from '@/components/pages/MeetingNow'
+// import LinksGroup from '@/components/pages/LinksGroup'
+// import LinksFriend from '@/components/pages/LinksFriend'
 import Member from '@/components/pages/Member'
 import Abstract from '@/components/pages/Abstract'
+import MeetingVideo from '@/components/pages/MeetingVideo'
 import Settings from '@/components/pages/Settings'
 import UserCenter from '@/components/pages/UserCenter'
 import NotFound from '@/components/pages/NotFound'
@@ -104,6 +105,11 @@ const router = new Router({
           name: 'abstract',
           path: '/abstract/:id',
           component: Abstract
+        },
+        {
+          name: 'video',
+          path: '/video/:id',
+          component: MeetingVideo
         },
       ]
     },

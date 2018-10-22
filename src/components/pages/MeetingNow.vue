@@ -164,7 +164,7 @@ export default {
       rules: {
         name: [
           { required: true, message: '请输入会议名称', trigger: 'blur' },
-          { min : 3, max: 20, message: '长度在 3 到 20个字符', trigger: 'blur'}
+          { min : 3, max: 10, message: '长度在 3 到 10个字符', trigger: 'blur'}
         ],
         founder: [
           { required: true, message: '请设置主持人', trigger: 'blur' },

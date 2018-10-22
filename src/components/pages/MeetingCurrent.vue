@@ -374,7 +374,31 @@ export default {
 	      $this.meetCore.ClearXChatKit();
 	      //刷新与会人员列表
 	      $this.refreshNowMembers();
-	    },
+			},
+			
+		// onLeaveConferenceClicked () {
+		// 	var $this = this;
+		// 	if($this.isMaster){
+		// 		$this.endMeeting($this.curMeeting.id, function(res){
+		// 			$this.$message.success('结束会议成功！'+res.data.msg);
+		// 			$this.meetCore.LeaveConference();
+	  //   		$this.meetCore.ClearXChatKit();
+		// 			$this.refreshNowMembers();
+		// 		}, function(res){
+		// 			$this.$message.error('结束会议失败！'+res.data.msg);
+		// 		})
+		// 	}else{
+		// 		$this.exitMeeting($this.curMeeting.id, $this.user.nickname, function(res){
+		// 			$this.$message.success('退出会议成功！'+res.data.msg);
+		// 			$this.meetCore.LeaveConference();
+	  //   		$this.meetCore.ClearXChatKit();
+		// 			$this.refreshNowMembers();
+		// 		}, function(res){
+		// 			$this.$message.error('退出会议失败！'+res.data.msg);
+		// 		})
+		// 	}
+	  // },
+
 	    //共享桌面与停止共享
 	    onStartOrEndShare()
 	    {
@@ -807,9 +831,9 @@ export default {
 	.el-row{
 		margin: 0px;
 	}
-	.content{
+	/* .content{
 		
-	}
+	} */
 	.btn-group a{
 		color: gray;
 		text-decoration: none;

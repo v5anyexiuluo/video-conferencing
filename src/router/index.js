@@ -9,6 +9,7 @@ import Regist from '@/components/pages/Regist'
 // import MeetingNow from '@/components/pages/MeetingNow'
 // import LinksGroup from '@/components/pages/LinksGroup'
 // import LinksFriend from '@/components/pages/LinksFriend'
+import Reset from '@/components/pages/Reset'
 import Member from '@/components/pages/Member'
 import Abstract from '@/components/pages/Abstract'
 import MeetingVideo from '@/components/pages/MeetingVideo'
@@ -85,6 +86,11 @@ const router = new Router({
       name: 'regist',
       path: '/regist',
       component: Regist
+    },
+    {
+      name: 'reset',
+      path: '/reset',
+      component: Reset
     },
     {
       name: 'frame',

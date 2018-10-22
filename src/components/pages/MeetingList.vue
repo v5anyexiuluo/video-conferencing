@@ -352,7 +352,7 @@ export default {
 
 .box-card {
   background-color: #ffffcc;
-  width: 22%;
+  width: 20%;
   height: 210px;
   margin: 15px;
   float: left;

@@ -3,10 +3,10 @@
 	  <div class="content-main full-element v-full-container">
 	  	<div v-if="isMaster" ref="videoWindows" id="videoWindows" align="center" class="full-element h-full-container" style="background-color: #145">
 	  		<div class="full-element h-full-container" style="position: relative;">
-	  			<video :src="isShare? shareVideo.src:localVideo.src" ref="mainVideo" id="mainVideo" class="full-element" style="object-fit: fill;position:absolute; left: 0px; bottom: 0px; right: 0px; width: 100%; height: 100%;" poster="avatar.png" playsinline autoplay controls muted>
+	  			<video :src="isShare? shareVideo.src:localVideo.src" ref="mainVideo" id="mainVideo" class="full-element" style="object-fit: fill;position:absolute; left: 0px; bottom: 0px; right: 0px; width: 100%; height: 100%;" poster="@/assets/images/master-away.jpg" playsinline autoplay controls muted>
 					您的浏览器不支持 video 标签。
 				</video>
-				<video v-if="isShare" :src="localVideo.src" ref="localVideo" id="localVideo" style="position: absolute;left: 20px;top: 20px;width: 200px;height: 120px;background: gray;object-fit: fill;" poster="avatar.png" playsinline autoplay controls muted>
+				<video v-if="isShare" :src="localVideo.src" ref="localVideo" id="localVideo" style="position: absolute;left: 20px;top: 20px;width: 200px;height: 120px;background: gray;object-fit: fill;" poster="@/assets/images/master-away.jpg" playsinline autoplay controls muted>
 					您的浏览器不支持 video 标签。
 				</video>
 	  		</div>
@@ -27,14 +27,14 @@
 	  		</div>
 		</div>
 		<div v-else ref="videoWindows" id="videoWindows" align="center" class="full-element h-full-container" style="background-color: #145;position: relative;">
-	  		<video :src="remoteVideo.src" ref="mainVideo" id="mainVideo" class="full-element" style="object-fit: fill;position:absolute; left: 0px; bottom: 0px; right: 0px; width: 100%; height: 100%;" poster="avatar.png" playsinline autoplay controls muted>
+	  		<video :src="remoteVideo.src" ref="mainVideo" id="mainVideo" class="full-element" style="object-fit: fill;position:absolute; left: 0px; bottom: 0px; right: 0px; width: 100%; height: 100%;" poster="@/assets/images/master-away.jpg" playsinline autoplay controls muted>
 				您的浏览器不支持 video 标签。
 			</video>
-			<video :src="localVideo.src" ref="remoteVideo" id="remoteVideo" style="position: absolute;right: 20px;top: 20px;width: 200px;height: 120px;background: gray;object-fit: fill;" poster="avatar.png" playsinline autoplay controls muted>
+			<video :src="localVideo.src" ref="remoteVideo" id="remoteVideo" style="position: absolute;right: 20px;top: 20px;width: 200px;height: 120px;background: gray;object-fit: fill;" poster="@/assets/images/master-away.jpg" playsinline autoplay controls muted>
 				您的浏览器不支持 video 标签。
 			</video>
 			<!-- {{isShare}} -->
-			<video v-if="isShare" :src="shareVideo.src" ref="localVideo" id="localVideo" style="position: absolute;right: 20px;top: 200px;width: 200px;height: 120px;background: gray;" poster="avatar.png" playsinline autoplay controls muted>
+			<video v-if="isShare" :src="shareVideo.src" ref="localVideo" id="localVideo" style="position: absolute;right: 20px;top: 200px;width: 200px;height: 120px;background: gray;" poster="@/assets/images/master-away.jpg" playsinline autoplay controls muted>
 				您的浏览器不支持 video 标签。
 			</video>
 		</div>
@@ -140,7 +140,7 @@ export default {
 			remoteResources: [],
 			meetCore: null,
 			chatroom: '',
-			Conference: '开始会议',
+			Conference: '离开会议',
 			Share: '共享桌面',
 		}
 	},
@@ -180,19 +180,20 @@ export default {
 				title: '提示',
 				message: '会议已经结束'
 			});
+			return;
 	    }
-		$this.getNowMeetings(function(res){
-			if(res.data.data.length<1){
-				$this.$message({
-		            message: '暂无正在进行的会议！',
-		            type: 'success'
-		        });
-			}else{
-				$this.nowMeetings=res.data.data;
-			}
-		},function(res){
-			$this.$message.error('获取正在进行的会议信息失败！');
-		});
+		// $this.getNowMeetings(function(res){
+		// 	if(res.data.data.length<1){
+		// 		$this.$message({
+		//             message: '暂无正在进行的会议！',
+		//             type: 'success'
+		//         });
+		// 	}else{
+		// 		$this.nowMeetings=res.data.data;
+		// 	}
+		// },function(res){
+		// 	$this.$message.error('获取正在进行的会议信息失败！');
+		// });
 		$this.refreshNowMembers();
 		$this.initXChatKit();
 	},
@@ -341,21 +342,20 @@ export default {
 	    onStartOrEndConference()
 	    {
 	      var $this = this;
-	      if($this.Conference == '开始会议') {
-	        $this.onJoinConferenceClicked();
-	        $this.Conference = '结束会议';
+	      if($this.Conference == '进入会议') {
+	        $this.JoinConference();
+	        $this.Conference = '离开会议';
 	      } else {
-	        $this.onLeaveConferenceClicked();
-	        $this.Conference = '开始会议';
+	        $this.LeaveConference();
+	        $this.Conference = '进入会议';
 	      }
 	    },
 
-		onJoinConferenceClicked () {
+		JoinConference(){
 			var $this = this;
 			if($this.isMaster){
 				$this.startMeeting($this.curMeeting.id, function(res){
 					$this.meetCore.JoinConference();
-					$this.chatroom = $this.meetCore;
 				}, function(res){
 					$this.$message.error('启动会议失败！'+res.data.msg);
 				})
@@ -368,13 +368,13 @@ export default {
 			}
 		},
 
-	    onLeaveConferenceClicked () {
+	    LeaveConference(){
 	      var $this = this;
 	      $this.meetCore.LeaveConference();
 	      $this.meetCore.ClearXChatKit();
 	      //刷新与会人员列表
 	      $this.refreshNowMembers();
-			},
+		},
 			
 		// onLeaveConferenceClicked () {
 		// 	var $this = this;
@@ -440,7 +440,7 @@ export default {
 	    onDisableCameraClicked()
 	    {
 	      $this.localVideo.src = '';
-	      localVideo.poster = "avatar.png";
+	      localVideo.poster = "@/assets/images/master-away.jpg";
 	      $this.meetCore.DisableCamera();
 	    },
 
@@ -642,7 +642,7 @@ export default {
 		// onDisableCameraClicked()
 		// {
 	 //        $this.localVideo.src = '';
-	 //        localVideo.poster = "avatar.png";
+	 //        localVideo.poster = "@/assets/images/master-away.jpg";
 	 //        json = $this.meetingjson;
 	 //        json.chatroom = '';
 	 //        xchatkit.DisableCamera(json);
@@ -766,6 +766,8 @@ export default {
 					$this.isMaster = false;
 				}
 		        $this.meetCore = new Meet($this.user.id, $this.user.nickname, $this.curMeeting.id, $this.onCallback).getXchatkit();
+		        $this.chatroom = $this.meetCore;
+		        $this.JoinConference();
 		        // $this.chatroom = 'meeting:'+$this.formMeeting.meetingId.toString();
 		        
 			}
@@ -819,7 +821,7 @@ export default {
 		}
 	},
 	beforeDestroy: function () {
-	    this.onLeaveConferenceClicked();
+	    this.LeaveConference();
 	},
 }
 </script>

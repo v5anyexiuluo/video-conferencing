@@ -67,6 +67,11 @@ export default {
       
     }
   },
+  beforeDestroy: function () {
+      this.stompClient.client.disconnect(function(){
+      })
+      this.stompClient = null;
+  },
   components: {
     'side-nav': SideNav,
     'head-nav': HeadNav,

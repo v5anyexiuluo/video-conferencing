@@ -710,7 +710,7 @@ export default {
 
 		getNowMeetings(cbOk, cbErr){
 			var $this = this;
-			$this.$axios.get(apiMeeting.now.all, null, cbOk, cbErr)
+			$this.$axios.get(apiMeeting.now.all+'?page=1&size=100', {}, cbOk, cbErr)
 		},
 
 		getMeetingInfo(id, cbOk, cbErr){

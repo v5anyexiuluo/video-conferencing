@@ -150,7 +150,7 @@ export default {
 			$this.$alert('暂无正在进行的会议，确定后跳转到会议列表！', '提示', {
 				confirmButtonText: '确定',
 				callback: action => {
-				$this.$router.push({name: 'history'})
+				$this.$router.push({name: 'list'})
 				}
 			});
 	    }

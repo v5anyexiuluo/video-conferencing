@@ -784,7 +784,7 @@ export default {
 			if(val){
 				$this.getNowMeetings(function(res){
 					if(res.data.data.length>0){
-						$this.nowMeetings=res.data.data;
+						$this.nowMeetings=res.data.data.data;
 					}
 				},function(res){
 					$this.$message.error('获取正在进行的会议信息失败！');

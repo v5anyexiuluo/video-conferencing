@@ -85,25 +85,28 @@
 			]),
 		},
 		watch:{
-			chatroom: function(newVal, oldVal){
-				var $this = this;
-				if(typeof newVal == 'string'){
-					$this.isMeeting = false;
-				}else{
-					$this.isMeeting = true;
-					$this.chatCore = newVal;
+			chatroom: {
+				immediate:true,
+				handler: function(newVal, oldVal){
+					var $this = this;
+					if(typeof newVal == 'string'){
+						$this.isMeeting = false;
+					}else{
+						$this.isMeeting = true;
+						$this.chatCore = newVal;
+					}
+					if(oldVal){
+						$this.addChatMsg({chatroom: (typeof oldVal == 'string'? oldVal:oldVal.meetingjson.chatroom), msg:$this.messages})
+					}
+					$this.initChat();
+					$this.messages=$this.historyMsg($this.isMeeting? newVal.meetingjson.chatroom:newVal);
+					// if(oldVal){
+					// 	$this.addChatMsg({chatroom: oldVal, msg:$this.messages})
+					// }
+					// $this.isMeeting = false;
+					// $this.initChat();
+					// $this.messages=$this.historyMsg(newVal);
 				}
-				if(oldVal){
-					$this.addChatMsg({chatroom: (typeof oldVal == 'string'? oldVal:oldVal.meetingjson.chatroom), msg:$this.messages})
-				}
-				$this.initChat();
-				$this.messages=$this.historyMsg($this.isMeeting? newVal.meetingjson.chatroom:newVal);
-				// if(oldVal){
-				// 	$this.addChatMsg({chatroom: oldVal, msg:$this.messages})
-				// }
-				// $this.isMeeting = false;
-				// $this.initChat();
-				// $this.messages=$this.historyMsg(newVal);
 			}
 			// chatobj:function(newVal, oldVal){
 			// 	if(oldVal){

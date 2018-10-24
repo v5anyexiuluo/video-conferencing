@@ -22,16 +22,18 @@
               </div>
               <div style="text-align: left; font-size: 14px; margin: 5px;">会议纪要：这是一段会议纪要{{item.reviewtime}}</div>
             </div>
-            <div v-if="item.founder_user_nickname==selfInfo">
+            <div v-if="item.founder_user_nickname==selfInfo" style="display: flex; flex-wrap: nowrap; justify-content: center;">
               <router-link :to="{name: 'now', query:{meeting_id:item.id}}">
-                <el-button type="primary">马上开会</el-button>
+                <el-button size="mini" type="primary">马上开会</el-button>
               </router-link>
               <router-link :to="{name: 'order', query:{meeting_id:item.id}}">
-                <el-button type="primary">预约会议</el-button>
+                <el-button size="mini" type="primary">预约会议</el-button>
               </router-link>
+              <el-button size="mini" type="primary" @click="entryMeeting(item)">进入会议</el-button>
             </div>
-            <div v-else>
-              <el-button type="primary" @click="showInfo(item)">查看会议详情</el-button>
+            <div v-else style="display: flex; flex-wrap: nowrap; justify-content: center;">
+              <el-button size="mini" type="primary" @click="showInfo(item)">查看会议详情</el-button>
+              <el-button size="mini" type="primary" @click="entryMeeting(item)">进入会议</el-button>
             </div>
           </el-card>
         </div>
@@ -61,16 +63,16 @@
               </div>
               <div style="text-align: left; font-size: 14px; margin: 5px;">会议纪要：这是一段会议纪要{{item.reviewtime}}</div>
             </div>
-            <div v-if="item.founder_user_nickname==selfInfo">
+            <div v-if="item.founder_user_nickname==selfInfo" style="display: flex; flex-wrap: nowrap; justify-content: center;">
               <router-link :to="{name: 'now', query:{meeting_id:item.id}}">
-                <el-button type="primary">马上开会</el-button>
+                <el-button size="mini" type="primary">马上开会</el-button>
               </router-link>
               <router-link :to="{name: 'order', query:{meeting_id:item.id}}">
-                <el-button type="primary">预约会议</el-button>
+                <el-button size="mini" type="primary">预约会议</el-button>
               </router-link>
             </div>
-            <div v-else>
-              <el-button type="primary" @click="showInfo(item)">查看会议详情</el-button>
+            <div v-else style="display: flex; flex-wrap: nowrap; justify-content: center;">
+              <el-button size="mini" type="primary" @click="showInfo(item)">查看会议详情</el-button>
             </div>
           </el-card>
         </div>
@@ -100,19 +102,22 @@
               </div>
               <div style="text-align: left; font-size: 14px; margin: 5px;">会议纪要：这是一段会议纪要{{item.reviewtime}}</div>
             </div>
-            <div v-if="item.founder_user_nickname==selfInfo">
+            <div v-if="item.founder_user_nickname==selfInfo" style="display: flex; flex-wrap: nowrap; justify-content: center;">
               <router-link :to="{name: 'now', query:{meeting_id:item.id}}">
-                <el-button type="primary">马上开会</el-button>
+                <el-button size="mini" type="primary">马上开会</el-button>
               </router-link>
               <router-link :to="{name: 'order', query:{meeting_id:item.id}}">
-                <el-button type="primary">预约会议</el-button>
+                <el-button size="mini" type="primary">预约会议</el-button>
               </router-link>
               <router-link :to="{name: 'video', query:{id:item.id}}">
-                <el-button type="primary">查看回放</el-button>
+                <el-button size="mini" type="primary">查看回放</el-button>
               </router-link>
             </div>
-            <div v-else>
-              <el-button type="primary" @click="showInfo(item)">查看会议详情</el-button>
+            <div v-else style="display: flex; flex-wrap: nowrap; justify-content: center;">
+              <el-button size="mini" type="primary" @click="showInfo(item)">查看会议详情</el-button>
+              <router-link :to="{name: 'video', params:{id: item.id}}">
+                <el-button size="mini" type="primary">查看回放</el-button>
+              </router-link>
             </div>
           </el-card>
         </div>
@@ -158,6 +163,7 @@
 <script>
 import { apiAuth, apiMeeting } from "@/properties/api.js";
 import utils from '@/assets/js/utils.js';
+import {mapMutations} from 'vuex';
 export default {
   name: "MeetingHistory",
   data() {
@@ -179,6 +185,10 @@ export default {
     this.getInfo();
   },
   methods: {
+    ...mapMutations([
+      'setCurMeeting'
+    ]),
+
     refreshTab(){
       var $this = this;
       if($this.activeName=="first"){
@@ -325,7 +335,13 @@ export default {
         cbOk,
         cbErr
       );
-    }
+    },
+
+    entryMeeting(meeting){
+      var $this = this;
+      $this.setCurMeeting(meeting);
+      $this.$router.push({name: 'current'})
+    },
   },
   computed:{
     splice: function(){

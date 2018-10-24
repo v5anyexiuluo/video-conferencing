@@ -783,7 +783,7 @@ export default {
 			var $this = this;
 			if(val){
 				$this.getNowMeetings(function(res){
-					if(res.data.data.length>0){
+					if(res.data.data.data.length>0){
 						$this.nowMeetings=res.data.data.data;
 					}
 				},function(res){

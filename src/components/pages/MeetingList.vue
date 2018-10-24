@@ -2,7 +2,7 @@
   <div class="crad-group" style="height: 100%; overflow: scroll;">
     <el-breadcrumb separator-class="el-icon-arrow-right">
       <el-breadcrumb-item>视频会议</el-breadcrumb-item>
-      <el-breadcrumb-item>历史会议</el-breadcrumb-item>
+      <el-breadcrumb-item>会议列表</el-breadcrumb-item>
     </el-breadcrumb>
     <el-tabs v-model="activeName" type="card" @tab-click="handleClick">    
       <el-tab-pane label="正在进行" name="first">

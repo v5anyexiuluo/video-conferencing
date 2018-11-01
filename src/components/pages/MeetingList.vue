@@ -1,12 +1,12 @@
 <template>
-  <div class="crad-group" style="height: 100%; overflow: scroll;">
+  <div class="crad-group">
     <el-breadcrumb separator-class="el-icon-arrow-right">
       <el-breadcrumb-item>视频会议</el-breadcrumb-item>
-      <el-breadcrumb-item>历史会议</el-breadcrumb-item>
+      <el-breadcrumb-item>会议列表</el-breadcrumb-item>
     </el-breadcrumb>
-    <el-tabs v-model="activeName" type="card" @tab-click="handleClick">    
-      <el-tab-pane label="正在进行" name="first">
-        <div style="width:100%;height:500px;">
+    <el-tabs style="height:94%;" v-model="activeName" type="card" @tab-click="handleClick">    
+      <el-tab-pane label="正在进行" name="first" style="height:95%;">
+        <div class="box-win">
           <el-card 
             v-for="item in StartingMeetingList.data" 
             :key="item.meeting_id" 
@@ -14,40 +14,41 @@
           >
             <div @click="showInfo(item)">
               <div class="text item">
-                会议名称：{{item.meetingName}}<br>
-                会议时间：<span v-text="timestampToTime(item.createTime)"></span><br>
-                主持人：{{item.founder_user_nickname}}<br>
-                视频回放：<div class="el-icon-service"></div>
-                <!-- "item.videoPath" -->
+                <h1 class="m-title">{{item.meetingName}}</h1>
+                <div class="m-time"><span v-text="timestampToTime(item.createTime)"></span></div>
+                <div class="m-founder">
+                  <img :src="item.headimg ? item.headimg : 'https://picsum.photos/20/20'" class="m-img" alt="">
+                  <div>{{item.founder_user_nickname}}</div>
+                </div>
+                <div class="m-desc">会议正在进行中。。。</div>
               </div>
-              <div style="text-align: left; font-size: 14px; margin: 5px;">会议纪要：这是一段会议纪要{{item.reviewtime}}</div>
             </div>
-            <div v-if="item.founder_user_nickname==selfInfo" style="display: flex; flex-wrap: nowrap; justify-content: center;">
-              <router-link :to="{name: 'now', query:{meeting_id:item.id}}">
-                <el-button size="mini" type="primary">马上开会</el-button>
-              </router-link>
+            <div v-if="item.founder_user_nickname==selfInfo" class="box-crl">
+              <!-- <router-link :to="{name: 'now', query:{meeting_id:item.id}}">
+                <el-button size="small" type="primary">马上开会</el-button>
+              </router-link> -->
               <router-link :to="{name: 'order', query:{meeting_id:item.id}}">
-                <el-button size="mini" type="primary">预约会议</el-button>
+                <el-button size="small" type="primary">预约会议</el-button>
               </router-link>
-              <el-button size="mini" type="primary" @click="entryMeeting(item)">进入会议</el-button>
+              <el-button size="small" type="primary" @click="entryMeeting(item)">进入会议</el-button>
+              <el-button size="small" type="primary" @click="showInfo(item)">查看详情</el-button>
             </div>
-            <div v-else style="display: flex; flex-wrap: nowrap; justify-content: center;">
-              <el-button size="mini" type="primary" @click="showInfo(item)">查看会议详情</el-button>
-              <el-button size="mini" type="primary" @click="entryMeeting(item)">进入会议</el-button>
+            <div v-else class="box-crl">
+              <el-button size="small" type="primary" @click="entryMeeting(item)">进入会议</el-button>
+              <el-button size="small" type="primary" @click="showInfo(item)">查看详情</el-button>
             </div>
           </el-card>
         </div>
-
         <el-pagination
           @current-change="handleCurrentChange"
-          layout="total, prev, pager, next, jumper"
+          layout="prev, pager, next, jumper"
           :page-count="StartingMeetingList.total"
           :current-page="currentPage"
         >
         </el-pagination>
       </el-tab-pane>
-      <el-tab-pane label="待参加会议" name="second">
-        <div style="width:100%;height:500px;">
+      <el-tab-pane label="待参加会议" name="second" style="height:95%;">
+        <div class="box-win">
           <el-card 
             v-for="item in UnreadyMeetingList.data" 
             :key="item.meeting_id" 
@@ -55,24 +56,26 @@
           >
             <div @click="showInfo(item)">
               <div class="text item">
-                会议名称：{{item.meetingName}}<br>
-                会议时间：<span v-text="timestampToTime(item.createTime)"></span><br>
-                主持人：{{item.founder_user_nickname}}<br>
-                视频回放：<div class="el-icon-service"></div>
-                <!-- "item.videoPath" -->
+                <h1 class="m-title">{{item.meetingName}}</h1>
+                <div class="m-time"><span v-text="timestampToTime(item.createTime)"></span></div>
+                <div class="m-founder">
+                  <img :src="item.headimg ? item.headimg : 'https://picsum.photos/20/20'" class="m-img" alt="">
+                  <div>{{item.founder_user_nickname}}</div>
+                </div>
+                <div class="m-desc">待参加的会议。。。</div>
               </div>
-              <div style="text-align: left; font-size: 14px; margin: 5px;">会议纪要：这是一段会议纪要{{item.reviewtime}}</div>
             </div>
-            <div v-if="item.founder_user_nickname==selfInfo" style="display: flex; flex-wrap: nowrap; justify-content: center;">
+            <div v-if="item.founder_user_nickname==selfInfo" class="box-crl">
               <router-link :to="{name: 'now', query:{meeting_id:item.id}}">
-                <el-button size="mini" type="primary">马上开会</el-button>
+                <el-button size="small" type="primary">马上开会</el-button>
               </router-link>
               <router-link :to="{name: 'order', query:{meeting_id:item.id}}">
-                <el-button size="mini" type="primary">预约会议</el-button>
+                <el-button size="small" type="primary">预约会议</el-button>
               </router-link>
+              <el-button size="small" type="primary" @click="showInfo(item)">查看详情</el-button>
             </div>
-            <div v-else style="display: flex; flex-wrap: nowrap; justify-content: center;">
-              <el-button size="mini" type="primary" @click="showInfo(item)">查看会议详情</el-button>
+            <div v-else class="box-crl">
+              <el-button size="small" type="primary" @click="showInfo(item)">查看详情</el-button>
             </div>
           </el-card>
         </div>
@@ -85,8 +88,8 @@
         >
         </el-pagination>
       </el-tab-pane>
-      <el-tab-pane label="历史会议" name="third">
-        <div style="width:100%;height:500px;">
+      <el-tab-pane label="历史会议" name="third" style="height:95%;">
+        <div class="box-win">
           <el-card 
             v-for="item in EndMeetingList.data" 
             :key="item.meeting_id" 
@@ -94,30 +97,35 @@
           >
             <div @click="showInfo(item)">
               <div class="text item">
-                会议名称：{{item.meetingName}}<br>
-                会议时间：<span v-text="timestampToTime(item.createTime)"></span><br>
-                主持人：{{item.founder_user_nickname}}<br>
-                视频回放：<div class="el-icon-service"></div>
-                <!-- "item.videoPath" -->
+                <h1 class="m-title">{{item.meetingName}}</h1>
+                <div class="m-time"><span v-text="timestampToTime(item.createTime)"></span></div>
+                <div class="m-desc">这是一段会议纪要</div>
+                <div class="m-founder">
+                  <img :src="item.headimg ? item.headimg : 'https://picsum.photos/20/20'" class="m-img" alt="">
+                  <div>{{item.founder_user_nickname}}</div>
+                </div>
+                视频回放：
+                <router-link :to="{name: 'video', params:{id: item.id}}">
+                  <el-button type="success" size="mini" icon="el-icon-arrow-right" circle></el-button>
+                </router-link>
               </div>
-              <div style="text-align: left; font-size: 14px; margin: 5px;">会议纪要：这是一段会议纪要{{item.reviewtime}}</div>
             </div>
-            <div v-if="item.founder_user_nickname==selfInfo" style="display: flex; flex-wrap: nowrap; justify-content: center;">
+            <div v-if="item.founder_user_nickname==selfInfo" class="box-crl">
               <router-link :to="{name: 'now', query:{meeting_id:item.id}}">
-                <el-button size="mini" type="primary">马上开会</el-button>
+                <el-button size="small" type="primary">马上开会</el-button>
               </router-link>
               <router-link :to="{name: 'order', query:{meeting_id:item.id}}">
-                <el-button size="mini" type="primary">预约会议</el-button>
+                <el-button size="small" type="primary">预约会议</el-button>
               </router-link>
-              <router-link :to="{name: 'video', query:{id:item.id}}">
-                <el-button size="mini" type="primary">查看回放</el-button>
-              </router-link>
+              <!-- <router-link :to="{name: 'video', query:{id:item.id}}"> -->
+                <el-button size="small" type="primary" @click="showInfo(item)">查看详情</el-button>
+              <!-- </router-link> -->
             </div>
-            <div v-else style="display: flex; flex-wrap: nowrap; justify-content: center;">
-              <el-button size="mini" type="primary" @click="showInfo(item)">查看会议详情</el-button>
-              <router-link :to="{name: 'video', params:{id: item.id}}">
-                <el-button size="mini" type="primary">查看回放</el-button>
-              </router-link>
+            <div v-else class="box-crl">
+              <!-- <el-button size="small" type="primary" @click="showInfo(item)">查看会议详情</el-button> -->
+              <!-- <router-link :to="{name: 'video', params:{id: item.id}}"> -->
+                <el-button size="small" type="primary" @click="showInfo(item)">查看详情</el-button>
+              <!-- </router-link> -->
             </div>
           </el-card>
         </div>
@@ -133,16 +141,19 @@
     </el-tabs>
 
     <el-dialog
-      title="会议信息"
+      title="会议详细信息"
       :visible.sync="dialogMeetingInfo"
       width="30%">
       <span>
         <div v-if="curMeeting" class="text item">
-          会议名称：{{curMeeting.meetingName}}<br>
-          会议时间：<span v-text="timestampToTime(curMeeting.createTime)"></span><br>
+          <h1 class="m-title"> {{curMeeting.meetingName}}</h1>
+          <div class="m-time"><span v-text="timestampToTime(curMeeting.createTime)"></span></div>
           主持人：{{curMeeting.founder_user_nickname}}<br>
-          视频回放：<div class="el-icon-service"></div><br>
-          会议纪要：这是一段会议纪要<br>
+          <div v-if="curMeeting.videoPath==''">
+          视频回放：
+            <el-button type="success" size="small" icon="el-icon-arrow-right" circle @click="handlePlayback"></el-button>
+          </div>
+          会议纪要：这是一段会议纪要,记录了会议的简要信息<br>
           会议成员： 
           <div>
             <div class="member" v-for="member in curMember" :key="member.id">
@@ -221,6 +232,11 @@ export default {
       console.log(this.curMeeting);
       this.getMeetingMember(this.curMeeting.id)
       this.dialogMeetingInfo = true;
+    },
+
+    handlePlayback() {
+      this.dialogMeetingInfo = false;
+      this.$router.push({path:'/video/'+this.curMeeting.id});
     },
     
     timestampToTime(timestamp) {
@@ -360,19 +376,75 @@ export default {
 </script>
 
 <style scoped>
+
+.crad-group {
+  height: 100%;
+}
+
+.crad-group >>> .el-tabs__content {
+  height: 90%;
+}
+
 .text {
   font-size: 14px;
-  margin-left: 20px;
   text-align: left;
 }
 
+.box-win {
+  width: 100%;
+  height: 100%;
+}
+
 .box-card {
-  background-color: #ffffcc;
-  width: 20%;
-  height: 210px;
+  background-color: #ffff99;
+  width: 22%;
+  height: 40%;
   margin: 15px;
   float: left;
+  position: relative;
 }
+
+.box-crl {
+  position: absolute;
+  bottom: 10%;
+  right: 0;
+  left: 0;
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: center;
+}
+
+.m-title {
+  overflow: hidden;
+  text-overflow:ellipsis;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.m-time {
+  margin-top: 5%;
+  margin-bottom: 5%;
+  text-align: right;
+  color:#999999;
+}
+
+.m-founder {
+  float: left;
+  width: 30%;
+  text-align: center;
+}
+
+.m-img {
+  width: 50%;
+  height: 50%;
+}
+
+.m-desc {
+  float: right;
+  width: 70%;
+  height: 40%;
+}
+
 
 .crad-group {
   overflow-y: scroll;
@@ -383,6 +455,7 @@ export default {
   float: left;
   text-align: center;
 }
+
 ::-webkit-scrollbar {
   display: none;
 }

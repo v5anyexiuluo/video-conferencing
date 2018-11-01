@@ -306,7 +306,7 @@ export default {
     opacity: 1;
     position: absolute;
     top:0;
-    // right:1167px
+    /* right:1167px */
 }
 .btn{
     bottom: 20px;

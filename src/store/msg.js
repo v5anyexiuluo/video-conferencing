@@ -48,6 +48,9 @@ export default {
         })
         if(result==-1){
             if(msg.category==msgType.CONFERENCE_CREATION||msg.category==msgType.CONFERENCE_READY_START){
+              if(Object.prototype.toString.call(msg.content.start_time) !== "[object String]"){
+                return;
+              }
               state.countdown[msg.messageId]=formatToStamp(msg.content.start_time);
             }
             if(handleMsg(msg, state)){

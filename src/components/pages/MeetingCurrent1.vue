@@ -1,62 +1,45 @@
 <template>
 	<div class="full-height content full-width h-full-container">
 	  <div class="content-main full-element v-full-container">
-	  	<div class="full-element h-full-container" v-if="videoShow">
-	  		<div v-if="isMaster" ref="videoWindows" id="videoWindows" align="center" class="full-element h-full-container" style="background-color: #145">
-		  		<div class="full-element h-full-container" style="position: relative;">
-		  			<video :src="isShare? shareVideo.src:localVideo.src" ref="mainVideo" id="mainVideo" class="full-element" style="object-fit: contain;position:absolute; left: 0px; bottom: 0px; right: 0px; width: 100%; height: 100%;" poster="@/assets/images/master-away.jpg" playsinline autoplay controls muted>
-						您的浏览器不支持 video 标签。
-					</video>
-					<div class="full-element" style="position:absolute; left: 0px; bottom: 0px; right: 0px; width: 100%; height: 100%;background-image: url('@/assets/images/master-away.jpg')"></div>
-					<video v-if="isShare" :src="localVideo.src" ref="localVideo" id="localVideo" style="position: absolute;left: 20px;top: 20px;width: 200px;height: 120px;background: gray;object-fit: contain;" poster="@/assets/images/master-away.jpg" playsinline autoplay controls muted>
-						您的浏览器不支持 video 标签。
-					</video>
-		  		</div>
-		  		<div class="v-full-container" style="width:200px;background-color: #ecf5ff;">
-					<scroll ref="videoScroll" class="full-element" style="overflow: hidden;padding: 0 10px;height: 0px;">
-						<div>
-							<div style="width: 100%;height: 110px;position: relative;" v-if="item.id!=user.id" v-for="(item, index) in meetingMembers">
-								<video :src="videoSrc(item.id)" style="width: 100%;height: 110px;background: #9E9E9E;object-fit: contain;" poster="avatar.png" playsinline autoplay controls >
-									您的浏览器不支持 video 标签。
-								</video>
-								<div style="position: absolute;top: 6px;right: 6px; font-size: 12px;color: white;">
-									<span>{{item.nickname}}</span>
-									<span style="margin-left: 10px;" :style="{color: item.status!=memberStatus.USER_ENTERED? 'red':''}">{{item.status==memberStatus.USER_ENTERED? '在线':'离线'}}</span>
-								</div>
-							</div>
-						</div>
-					</scroll>
-		  		</div>
-			</div>
-			<div v-else ref="videoWindows" id="videoWindows" align="center" class="full-element h-full-container" style="background-color: #145">
-		  		<div class="full-element h-full-container" style="position: relative;">
-		  			<video :src="remoteVideo.src" ref="mainVideo" id="mainVideo" class="full-element" style="object-fit: contain;position:absolute; left: 0px; bottom: 0px; right: 0px; width: 100%; height: 100%;" poster="@/assets/images/master-away.jpg" playsinline autoplay controls >
-						您的浏览器不支持 video 标签。
-					</video>
-					<video :src="isShare? shareVideo.src:localVideo.src" ref="localVideo" id="localVideo" style="position: absolute;left: 20px;top: 20px;width: 200px;height: 120px;background: gray;object-fit: contain;" poster="@/assets/images/master-away.jpg" playsinline autoplay controls muted>
-						您的浏览器不支持 video 标签。
-					</video>
-		  		</div>
-		  		<div class="v-full-container" style="width:200px;background-color: #ecf5ff;">
-					<scroll ref="videoScroll" class="full-element" style="overflow: hidden;padding: 0 10px;height: 0px;">
-						<div>
-							<div style="width: 100%;height: 110px;position: relative;" v-if="item.id!=user.id && item.id!=curMeeting.founderId" v-for="(item, index) in meetingMembers">
-								<video :src="videoSrc(item.id)" style="width: 100%;height: 110px;background: #9E9E9E;object-fit: contain;" poster="avatar.png" playsinline autoplay controls >
-									您的浏览器不支持 video 标签。
-								</video>
-								<div style="position: absolute;top: 6px;right: 6px; font-size: 12px;color: white;">
-									<span>{{item.nickname}}</span>
-									<span style="margin-left: 10px;" :style="{color: item.status!=memberStatus.USER_ENTERED? 'red':''}">{{item.status==memberStatus.USER_ENTERED? '在线':'离线'}}</span>
-								</div>
-							</div>
-						</div>
-					</scroll>
-		  		</div>
-			</div>
-			<div ref="audioWindows" id="audioWindows" align="center">
+	  	<div v-if="isMaster" ref="videoWindows" id="videoWindows" align="center" class="full-element h-full-container" style="background-color: #145">
+	  		<div class="full-element h-full-container" style="position: relative;">
+	  			<video :src="isShare? shareVideo.src:localVideo.src" ref="mainVideo" id="mainVideo" class="full-element" style="object-fit: contain;position:absolute; left: 0px; bottom: 0px; right: 0px; width: 100%; height: 100%;" poster="@/assets/images/master-away.jpg" playsinline autoplay controls muted>
+					您的浏览器不支持 video 标签。
+				</video>
+				<video v-if="isShare" :src="localVideo.src" ref="localVideo" id="localVideo" style="position: absolute;left: 20px;top: 20px;width: 200px;height: 120px;background: gray;object-fit: contain;" poster="@/assets/images/master-away.jpg" playsinline autoplay controls muted>
+					您的浏览器不支持 video 标签。
+				</video>
 	  		</div>
-	  	</div>
-	  	<div v-else class="full-element v-full-container" style="background-size: 100% 100%;" :style="{backgroundImage:'url(' + require('@/assets/images/master-away.jpg') + ')'}"></div>
+	  		<div class="v-full-container" style="width:200px;background-color: #ecf5ff;">
+				<scroll ref="videoScroll" class="full-element" style="overflow: hidden;padding: 0 10px;height: 0px;">
+					<div>
+						<div style="width: 100%;height: 110px;position: relative;" v-if="item.id!=user.id" v-for="(item, index) in meetingMembers">
+							<video :src="videoSrc(item.id)" style="width: 100%;height: 110px;background: #9E9E9E;object-fit: contain;" poster="avatar.png" playsinline autoplay controls >
+								您的浏览器不支持 video 标签。
+							</video>
+							<div style="position: absolute;top: 6px;right: 6px; font-size: 12px;color: white;">
+								<span>{{item.nickname}}</span>
+								<span style="margin-left: 10px;" :style="{color: item.status!=memberStatus.USER_ENTERED? 'red':''}">{{item.status==memberStatus.USER_ENTERED? '在线':'离线'}}</span>
+							</div>
+						</div>
+					</div>
+				</scroll>
+	  		</div>
+		</div>
+		<div v-else ref="videoWindows" id="videoWindows" align="center" class="full-element h-full-container" style="background-color: #145;position: relative;">
+	  		<video :src="remoteVideo.src" ref="mainVideo" id="mainVideo" class="full-element" style="object-fit: contain;position:absolute; left: 0px; bottom: 0px; right: 0px; width: 100%; height: 100%;" poster="@/assets/images/master-away.jpg" playsinline autoplay controls >
+				您的浏览器不支持 video 标签。
+			</video>
+			<video :src="localVideo.src" ref="remoteVideo" id="remoteVideo" style="position: absolute;right: 20px;top: 20px;width: 200px;height: 120px;background: gray;object-fit: contain;" poster="@/assets/images/master-away.jpg" playsinline autoplay controls muted>
+				您的浏览器不支持 video 标签。
+			</video>
+			<!-- {{isShare}} -->
+			<video v-if="isShare" :src="shareVideo.src" ref="localVideo" id="localVideo" style="position: absolute;right: 20px;top: 200px;width: 200px;height: 120px;background: gray;" poster="@/assets/images/master-away.jpg" playsinline autoplay controls >
+				您的浏览器不支持 video 标签。
+			</video>
+		</div>
+		<div ref="audioWindows" id="audioWindows" align="center">
+  		</div>
 		<el-row class="btn-group" type="flex" align="middle" justify="space-between" style="width:100%;height: 50px;line-height: 50px;background-color: white;">
 			<el-col :span="3"><a @click="dialogSelectMeetingVisible = true" href="javascript:void(0)">切换会议</a></el-col>
 			<el-col :span="3"><a @click="dialogInviteFriendVisible = true" href="javascript:void(0)">邀请+</a></el-col>
@@ -159,8 +142,6 @@ export default {
 			chatroom: '',
 			Conference: '离开会议',
 			Share: '共享桌面',
-			isLeft: true,
-			isMasterLeft: true
 		}
 	},
 	created(){
@@ -308,9 +289,6 @@ export default {
 		//加入会议事件
 	    onEventPartyAdded(json)
 	    {
-	      if(this.curMeeting.founderId==json.fromuser){
-	      	this.isMasterLeft = false;
-	      }
 	      if(!this.isMaster && this.curMeeting.founderId==json.fromuser) {
 	       	this.remoteVideo.src = window.URL.createObjectURL(json.stream);
 	      	return;
@@ -319,32 +297,24 @@ export default {
 	        return value.id == json.fromuser;
 	      })
 	      if(result!=-1) {
-	        Vue.set(this.meetingMembers[result],'status', memberStatus.USER_ENTERED);
-	      }
-	      if(json.fromuser==this.user.id){
-	      	return
+	        Vue.set(this.meetingMembers[result],'status', memberStatus.USER_ENTERED);;
 	      }
 	      result = this.remoteResources.findIndex((value, index, arr) => {
-			return value.fromuser == json.fromuser;
-		  })
-		  if(result==-1) {
-			  this.remoteResources.push(json);
-		  }else{
-			  Vue.set(this.remoteResources, result, json);
-		  }
+	        return value.fromuser == json.fromuser;
+	      })
+	      if(result==-1) {
+	        this.remoteResources.push(json);
+	      }
 	    },
 
 	    //离开会议
 	    onEventPartyRemoved(json)
 	    {
-	      if(this.curMeeting.founderId==json.fromuser){
-	      	this.isMasterLeft = true;
-	      }
 	      var result = this.meetingMembers.findIndex((value, index, arr) => {
 	        return value.id == json.fromuser;
 	      })
 	      if(result!=-1) {
-	        Vue.set(this.meetingMembers[result],'status', memberStatus.USER_LEFT);
+	        Vue.set(this.meetingMembers[result],'status', memberStatus.USER_LEFT);;
 	      }
 	      result = this.remoteResources.findIndex((value, index, arr) => {
 	        return value.fromuser == json.fromuser;
@@ -373,11 +343,11 @@ export default {
 	    {
 	      var $this = this;
 	      if($this.Conference == '进入会议') {
-	        $this.Conference = '离开会议';
 	        $this.JoinConference();
+	        $this.Conference = '离开会议';
 	      } else {
-	        $this.Conference = '进入会议';
 	        $this.LeaveConference();
+	        $this.Conference = '进入会议';
 	      }
 	    },
 
@@ -386,32 +356,22 @@ export default {
 			if($this.isMaster){
 				$this.startMeeting($this.curMeeting.id, function(res){
 					$this.meetCore.JoinConference();
-					$this.isLeft = false;
 				}, function(res){
-					if(res.data.code==2006){
-						$this.meetCore.JoinConference();
-						$this.isLeft = false;
-					}else{
-						$this.$message.error('启动会议失败！'+res.data.msg);
-						$this.isLeft = true;
-					}
+					$this.$message.error('启动会议失败！'+res.data.msg);
 				})
 			}else{
 				$this.entryMeeting($this.curMeeting.id, $this.user.nickname, function(res){
 					$this.meetCore.JoinConference();
-					$this.isLeft = false;
 				}, function(res){
 					$this.$message.error('进入会议失败！'+res.data.msg);
-					$this.isLeft = true;
 				})
 			}
 		},
 
 	    LeaveConference(){
 	      var $this = this;
-	      $this.isLeft = true;
 	      $this.meetCore.LeaveConference();
-	      // $this.meetCore.ClearXChatKit();
+	      $this.meetCore.ClearXChatKit();
 	      //刷新与会人员列表
 	      $this.refreshNowMembers();
 		},
@@ -861,18 +821,10 @@ export default {
 	          		// remoteVideo.srcObject=json.stream;
 	          	}
 			}
-		},
-		videoShow: function(){
-			var $this = this;
-			if($this.isMaster){
-				return $this.isLeft? false: true;
-			}else{
-				return $this.isLeft || $this.isMasterLeft? false: true;
-			}
 		}
 	},
 	beforeDestroy: function () {
-	    this.meetCore.ClearXChatKit();
+	    this.LeaveConference();
 	},
 }
 </script>

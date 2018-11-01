@@ -44,7 +44,7 @@ export default (function(){
 
 
     this.ClearXChatKit = function (){
-      // this.xchatkit.ClearXChatKit(this.meetingjson);
+      this.xchatkit.ClearXChatKit(this.meetingjson);
     }
 
     //开始会议
@@ -57,6 +57,7 @@ export default (function(){
     this.LeaveConference = function()
     {
       this.xchatkit.LeaveConference(this.meetingjson);
+      // this.xchatkit.ClearXChatKit(this.meetingjson);
     }
 
     // //回调函数

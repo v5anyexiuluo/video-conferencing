@@ -119,7 +119,6 @@
 			// }
 		},
 		beforeDestroy: function () {
-		    this.chatCore.LeaveConference();
 		    this.chatCore.ClearXChatKit();
 		    this.addChatMsg({chatroom: this.chatCore.meetingjson.chatroom, msg:this.messages})
 		},

@@ -15,21 +15,17 @@ export const msgStatus={
 }
 
 export const meetingStatus={
-	BEFORE: 1001,
-	STARTED: 1002,
-	ENDED: 1003,
-	USER_ALLOWED: 1004,
-	USER_ENTERED: 1005,
-	USER_REJECTED: 1006,
-	USER_LEFT: 1007
-}
-
-export const memberStatus={
-	BEFOR: 2001,
+	BEFORE: 2001,
 	STARTED: 2002,
 	ENDED: 2003,
 	NOT_EXIST: 2004,
 	CANCELED: 2005,
+	STARTED_NODO: 2006,
+	ENDED_NODO: 2007,
+	CANCELED_NODO: 2008,
+}
+
+export const memberStatus={
 	USER_ALLOWED: 3001,
 	USER_REJECTED: 3002,
 	USER_ENTERED: 3003,

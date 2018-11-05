@@ -13,6 +13,7 @@ export default (function(){
     }
 
     this.meetingjson = {
+      // mgw : "wss://www.xingshidream.cn/ws",
       mgw : "wss://webrtc.myegoo.com.cn/ws",
       turn : "turn:webrtc.myegoo.com.cn",
       fromuser : fromuser,

@@ -89,6 +89,9 @@
 				immediate:true,
 				handler: function(newVal, oldVal){
 					var $this = this;
+					if(!newVal){
+						return;
+					}
 					if(typeof newVal == 'string'){
 						$this.isMeeting = false;
 					}else{

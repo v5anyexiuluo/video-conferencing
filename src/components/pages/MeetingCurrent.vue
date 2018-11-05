@@ -56,18 +56,18 @@
 			<div ref="audioWindows" id="audioWindows" align="center">
 	  		</div>
 	  	</div>
-	  	<div v-else class="full-element v-full-container" style="background-size: 100% 100%;" :style="{backgroundImage:'url(' + require('@/assets/images/master-away.jpg') + ')'}"></div>
+	  	<div v-else class="full-element v-full-container" style="background-size: 100% 100%;" :style="{backgroundImage:'url(' + (curMeeting.available==meetingStatus.BEFORE? require('@/assets/images/meeting-before.jpg'):(curMeeting.available==meetingStatus.ENDED? require('@/assets/images/meeting-ended.jpg'):(isMasterLeft? require('@/assets/images/master-away.jpg'):require('@/assets/images/client-away.jpg')))) + ')'}"></div>
 		<el-row class="btn-group" type="flex" align="middle" justify="space-between" style="width:100%;height: 50px;line-height: 50px;background-color: white;">
 			<el-col :span="3"><a @click="dialogSelectMeetingVisible = true" href="javascript:void(0)">切换会议</a></el-col>
-			<el-col :span="3"><a @click="dialogInviteFriendVisible = true" href="javascript:void(0)">邀请+</a></el-col>
+			<!-- <el-col :span="3"><a @click="dialogInviteFriendVisible = true" href="javascript:void(0)">邀请+</a></el-col> -->
 			<!-- <el-col :span="3"><a href="javascript:void(0)">主持人</a></el-col> -->
-			<el-col :span="3"><a @click="onStartOrEndShare" href="javascript:void(0)">{{Share}}</a></el-col>
+			<el-col :span="3"><a @click="onStartOrEndShare" href="javascript:void(0)">{{isShare? '结束共享':'共享桌面'}}</a></el-col>
 			<!-- <el-col :span="3"><a href="javascript:void(0)">聊天</a></el-col> -->
-			<el-col :span="3"><a href="javascript:void(0)">设置</a></el-col>
-			<el-col :span="3"></el-col>
+			<!-- <el-col :span="3"><a href="javascript:void(0)">设置</a></el-col> -->
 			<el-col :span="3"></el-col>
 			<!-- <el-col :span="3" @click="uploadVideoVisible=true;">上传视频</el-col> -->
-			<el-col :span="3"><a @click="onStartOrEndConference" href="javascript:void(0)">{{Conference}}</a></el-col>
+			<el-col :span="3"></el-col>
+			<el-col :span="3"><a v-if="curMeeting.available==meetingStatus.STARTED" @click="onPlayOrPauseConference" href="javascript:void(0)">{{isLeft? '继续':'暂停'}}</a>&nbsp;&nbsp;&nbsp;&nbsp;<span v-if="isMaster"><a v-if="curMeeting.available==meetingStatus.BEFORE" @click="onStartOrEndConference" href="javascript:void(0)">开始</a><a :disabled="curMeeting.available!=meetingStatus.STARTED" v-if="curMeeting.available!=meetingStatus.BEFORE" @click="onStartOrEndConference" href="javascript:void(0)">结束</a></span></el-col>
 		</el-row>
 	  </div>
 	  <div class="content-right">
@@ -157,8 +157,6 @@ export default {
 			remoteResources: [],
 			meetCore: null,
 			chatroom: '',
-			Conference: '离开会议',
-			Share: '共享桌面',
 			isLeft: true,
 			isMasterLeft: true
 		}
@@ -173,48 +171,22 @@ export default {
 				}
 			});
 	    }
-	  //   var tipsMsg = '';
-	  //   switch($this.curMeeting.available){
-	  //   	case $this.meetingStatus.BEFORE:
-	  //   		tipsMsg = '会议还未开始';
-   //  		case $this.meetingStatus.ENDED:
-   //  			tipsMsg = '会议已经结束';
-   //  			this.$notify({
-			// 		title: '提示',
-			// 		message: tipsMsg
-			// 	});
-			// 	return；
-			// default:
-			// 	break;
-	  //   }
 	    if($this.curMeeting.available==$this.meetingStatus.BEFORE){
-	    	this.$notify({
+	    	$this.refreshNowMembers();
+	    	$this.$notify({
 				title: '提示',
 				message: '会议还未开始'
 			});
 			return;
 	    }
 	    if($this.curMeeting.available==$this.meetingStatus.ENDED){
-	    	this.$notify({
+	    	$this.$notify({
 				title: '提示',
 				message: '会议已经结束'
 			});
 			return;
 	    }
-		// $this.getNowMeetings(function(res){
-		// 	if(res.data.data.length<1){
-		// 		$this.$message({
-		//             message: '暂无正在进行的会议！',
-		//             type: 'success'
-		//         });
-		// 	}else{
-		// 		$this.nowMeetings=res.data.data;
-		// 	}
-		// },function(res){
-		// 	$this.$message.error('获取正在进行的会议信息失败！');
-		// });
-		$this.refreshNowMembers();
-		$this.initXChatKit();
+		// $this.initXChatKit();
 	},
 	mounted() {
 		
@@ -260,6 +232,15 @@ export default {
 			},function(res){
 				$this.$message.error('获取与会成员失败！'+res.data.msg);
 			})
+		},
+
+		refreshCurMeetingStatus(){
+			var $this = this;
+			$this.getMeetingInfo($this.curMeeting.id, function(res){
+	          $this.setCurMeetingStatus(res.data.data)
+	        },function(res){
+	          $this.$message.error('更新会议信息失败！'+res.data.msg);
+	        });
 		},
 
 	    handleSelectMeeting () {
@@ -310,6 +291,8 @@ export default {
 	    {
 	      if(this.curMeeting.founderId==json.fromuser){
 	      	this.isMasterLeft = false;
+	      	this.isLeft = false;
+	      	this.refreshCurMeetingStatus();
 	      }
 	      if(!this.isMaster && this.curMeeting.founderId==json.fromuser) {
 	       	this.remoteVideo.src = window.URL.createObjectURL(json.stream);
@@ -339,6 +322,7 @@ export default {
 	    {
 	      if(this.curMeeting.founderId==json.fromuser){
 	      	this.isMasterLeft = true;
+	      	this.refreshCurMeetingStatus();
 	      }
 	      var result = this.meetingMembers.findIndex((value, index, arr) => {
 	        return value.id == json.fromuser;
@@ -372,48 +356,68 @@ export default {
 	    onStartOrEndConference()
 	    {
 	      var $this = this;
-	      if($this.Conference == '进入会议') {
-	        $this.Conference = '离开会议';
-	        $this.JoinConference();
-	      } else {
-	        $this.Conference = '进入会议';
-	        $this.LeaveConference();
+	      if($this.curMeeting.available==$this.meetingStatus.BEFORE) {
+	        $this.startConference();
+	      } else if($this.curMeeting.available==$this.meetingStatus.STARTED) {
+	        $this.endConference();
 	      }
 	    },
 
-		JoinConference(){
+	    onPlayOrPauseConference(){
+	    	var $this = this;
+			if($this.isLeft) {
+				$this.PlayConference();
+			} else {
+				$this.PauseConference();
+			}
+	    },
+
+		startConference(){
 			var $this = this;
 			if($this.isMaster){
 				$this.startMeeting($this.curMeeting.id, function(res){
-					$this.meetCore.JoinConference();
-					$this.isLeft = false;
+					$this.PlayConference();
+					$this.refreshCurMeetingStatus();
 				}, function(res){
-					if(res.data.code==2006){
-						$this.meetCore.JoinConference();
-						$this.isLeft = false;
-					}else{
-						$this.$message.error('启动会议失败！'+res.data.msg);
-						$this.isLeft = true;
-					}
-				})
-			}else{
-				$this.entryMeeting($this.curMeeting.id, $this.user.nickname, function(res){
-					$this.meetCore.JoinConference();
-					$this.isLeft = false;
-				}, function(res){
-					$this.$message.error('进入会议失败！'+res.data.msg);
+					$this.$message.error('启动会议失败！'+res.data.msg);
 					$this.isLeft = true;
 				})
 			}
 		},
 
-	    LeaveConference(){
-	      var $this = this;
-	      $this.isLeft = true;
-	      $this.meetCore.LeaveConference();
-	      // $this.meetCore.ClearXChatKit();
-	      //刷新与会人员列表
-	      $this.refreshNowMembers();
+	   endConference(){
+	    	var $this = this;
+			if($this.isMaster){
+				$this.endMeeting($this.curMeeting.id, function(res){
+					$this.PauseConference();
+					$this.refreshCurMeetingStatus();
+				}, function(res){
+					$this.$message.error('结束会议失败！'+res.data.msg);
+					$this.isLeft = false;
+				})
+			}
+		},
+
+		PlayConference(){
+			var $this = this;
+			$this.entryMeeting($this.curMeeting.id, $this.user.nickname, function(res){
+				$this.isLeft = false;
+				$this.meetCore.JoinConference();
+			}, function(res){
+				$this.$message.error('进入会议失败！'+res.data.msg);
+				$this.isLeft = true;
+			})
+		},
+
+		PauseConference(){
+			var $this = this;
+			$this.exitMeeting($this.curMeeting.id, $this.user.nickname, function(res){
+				$this.isLeft = true;
+				$this.meetCore.LeaveConference();
+			}, function(res){
+				$this.$message.error('退出会议失败！'+res.data.msg);
+				$this.isLeft = false;
+			})
 		},
 			
 		// onLeaveConferenceClicked () {
@@ -443,12 +447,10 @@ export default {
 	    onStartOrEndShare()
 	    {
 	      var $this = this;
-	      if($this.Share == '共享桌面') {
-	        $this.onStartShareClicked();
-	        $this.Share = '停止共享';
-	      } else {
+	      if($this.isShare) {
 	        $this.onStopShareClicked();
-	        $this.Share = '共享桌面';
+	      } else {
+	        $this.onStartShareClicked();
 	      }
 	    },
 
@@ -456,17 +458,17 @@ export default {
 	    onStartShareClicked()
 	    {
 	      var $this = this;
-	      $this.isShare = true;
 	      $this.meetCore.StartShare();
+	      $this.isShare = true;
 	    },
 
 	    //停止屏幕共享
 	    onStopShareClicked()
 	    {
 	      var $this = this;
-	      $this.isShare = false;
 	      $this.meetCore.StopShare();
 	      $this.localVideo.src = window.URL.createObjectURL($this.meetCore.GetLocalStream());
+	      $this.isShare = false;
 	    },
 	    
 	    //启用摄像头
@@ -791,7 +793,7 @@ export default {
 		exitMeeting(meetingId, nickname, cbOk, cbErr){
 			var $this = this;
 			$this.$axios.post(utils.handleParamInUrl(apiMeeting.now.exit, {
-				meeting_id: meetingId.toString(),
+				mid: meetingId.toString(),
 			}), {
 				user_nickname: nickname
 			}, cbOk, cbErr)
@@ -807,14 +809,21 @@ export default {
 				}
 		        $this.meetCore = new Meet($this.user.id, $this.user.nickname, $this.curMeeting.id, $this.onCallback).getXchatkit();
 		        $this.chatroom = $this.meetCore;
-		        $this.JoinConference();
+		        // 其他与会人员进入开会页面就进入会议，以便及时收到开会的通知（回调），主持人点击开会才能进入会议，避免重复进入会议，第二次进入不再触发其他与会人员有人员加入的回调
+		        if(!$this.isMaster){
+		        	// 新的SDK，重复的进入会议，其他与会人员再收不到回调
+		        	// $this.PlayConference();
+		        	$this.meetCore.JoinConference();
+		        }
+		        
 		        // $this.chatroom = 'meeting:'+$this.formMeeting.meetingId.toString();
 		        
 			}
 		},
 
 		...mapMutations([
-			'setCurMeeting'
+			'setCurMeeting',
+			'setCurMeetingStatus'
 		]),
 	},
 	name: 'MeetingNow',
@@ -835,11 +844,19 @@ export default {
 			}
 		},
 		curMeeting:{
+			immediate:true,
 			handler:function(val, oldVal) {
 				var $this = this;
-				$this.initXChatKit();
+				if(val){
+					$this.refreshCurMeetingStatus();
+				}
+				if(val.available==$this.meetingStatus.BEFORE||val.available==$this.meetingStatus.STARTED){
+					if((oldVal && val.id != oldVal.id)||!oldVal){
+						$this.initXChatKit();
+					}
+				}
 			},
-			deep: true
+			deep: false
 		}
 	},
 	computed:{
@@ -864,10 +881,14 @@ export default {
 		},
 		videoShow: function(){
 			var $this = this;
+			if($this.curMeeting.available==$this.meetingStatus.BEFORE||$this.curMeeting.available==$this.meetingStatus.ENDED){
+				return false;
+			}
+			console.log($this.isMasterLeft);
 			if($this.isMaster){
 				return $this.isLeft? false: true;
 			}else{
-				return $this.isLeft || $this.isMasterLeft? false: true;
+				return ($this.isLeft || $this.isMasterLeft)? false: true;
 			}
 		}
 	},

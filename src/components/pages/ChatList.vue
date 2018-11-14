@@ -72,7 +72,7 @@
         var $this = this;
         var chatroom;
         if(chat.type=="friend"){
-          chatroom = (userId.id>chat.data.id? (chat.data.id.toString()+userId.id):(userId.toString()+chat.data.id))
+          chatroom = (userId>chat.data.id? (chat.data.id.toString()+userId.toString()):(userId.toString()+chat.data.id.toString()))
         }else if(chat.type=="group"){
           chatroom = (chat.data.group_id.toString());
         }

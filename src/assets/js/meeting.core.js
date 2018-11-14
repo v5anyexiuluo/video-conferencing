@@ -13,15 +13,15 @@ export default (function(){
     }
 
     this.meetingjson = {
-      // mgw : "wss://www.xingshidream.cn/ws",
-      mgw : "wss://webrtc.myegoo.com.cn/ws",
-      turn : "turn:webrtc.myegoo.com.cn",
+      mgw : "wss://www.xingshidream.cn/ws",
+      // mgw : "wss://webrtc.myegoo.com.cn/ws",
+      // turn : "turn:webrtc.myegoo.com.cn",
       fromuser : fromuser,
       fromname : fromname,
       chatroom : chatroom,
       callback : this.onCallback,
-      camera : 0,
-      bps : null
+      camera : 0
+      // bps : null
     }
     this.xchatkit = null,
 

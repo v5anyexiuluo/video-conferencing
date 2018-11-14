@@ -67,7 +67,7 @@
 			<el-col :span="3"></el-col>
 			<!-- <el-col :span="3" @click="uploadVideoVisible=true;">上传视频</el-col> -->
 			<el-col :span="3"></el-col>
-			<el-col :span="3"><a v-if="curMeeting.available==meetingStatus.STARTED" @click="onPlayOrPauseConference" href="javascript:void(0)">{{isLeft? '继续':'暂停'}}</a>&nbsp;&nbsp;&nbsp;&nbsp;<span v-if="isMaster"><a v-if="curMeeting.available==meetingStatus.BEFORE" @click="onStartOrEndConference" href="javascript:void(0)">开始</a><a :disabled="curMeeting.available!=meetingStatus.STARTED" v-if="curMeeting.available!=meetingStatus.BEFORE" @click="onStartOrEndConference" href="javascript:void(0)">结束</a></span></el-col>
+			<el-col :span="3"><a v-if="curMeeting.available==meetingStatus.STARTED && (isMaster || (!isMaster&&!isMasterLeft))" @click="onPlayOrPauseConference" href="javascript:void(0)">{{isLeft? '继续':'暂停'}}</a>&nbsp;&nbsp;&nbsp;&nbsp;<span v-if="isMaster"><a v-if="curMeeting.available==meetingStatus.BEFORE" @click="onStartOrEndConference" href="javascript:void(0)">开始</a><a :disabled="curMeeting.available!=meetingStatus.STARTED" v-if="curMeeting.available!=meetingStatus.BEFORE" @click="onStartOrEndConference" href="javascript:void(0)">结束</a></span></el-col>
 		</el-row>
 	  </div>
 	  <div class="content-right">
@@ -186,6 +186,7 @@ export default {
 			});
 			return;
 	    }
+	    $this.refreshNowMembers();
 		// $this.initXChatKit();
 	},
 	mounted() {
@@ -267,11 +268,14 @@ export default {
 		      this.onEventPartyRemoved(json);
 		    }
 		    else if("EventPartyConnected" === json.msgtype){
-		      this.onEventPartyConnected(json);
+		    	this.onEventPartyConnected(json);
 		    }
 		    else if("EventPartyDisconnected" === json.msgtype){
-		      this.onEventPartyDisconnected(json);
+		    	this.onEventPartyDisconnected(json);
 		    }
+	    	// else if("EventPartyClosed" === json.msgtype){
+		    //   this.onEventPartyDisconnected(json);
+		    // }
 		},
 
 		// 设置会议流回调
@@ -402,7 +406,7 @@ export default {
 			var $this = this;
 			$this.entryMeeting($this.curMeeting.id, $this.user.nickname, function(res){
 				$this.isLeft = false;
-				$this.meetCore.JoinConference();
+				$this.MeetingJoin();
 			}, function(res){
 				$this.$message.error('进入会议失败！'+res.data.msg);
 				$this.isLeft = true;
@@ -413,11 +417,23 @@ export default {
 			var $this = this;
 			$this.exitMeeting($this.curMeeting.id, $this.user.nickname, function(res){
 				$this.isLeft = true;
-				$this.meetCore.LeaveConference();
+				$this.MeetingExit();
 			}, function(res){
 				$this.$message.error('退出会议失败！'+res.data.msg);
 				$this.isLeft = false;
 			})
+		},
+
+		MeetingJoin(){
+			var $this = this;
+			$this.meetCore = new Meet($this.user.id, $this.user.nickname, $this.curMeeting.id, $this.onCallback).getXchatkit();
+	        $this.chatroom = $this.meetCore;
+	        $this.meetCore.JoinConference();
+		},
+
+		MeetingExit(){
+			var $this = this;
+			$this.meetCore.ClearXChatKit();
 		},
 			
 		// onLeaveConferenceClicked () {
@@ -807,17 +823,10 @@ export default {
 				}else{
 					$this.isMaster = false;
 				}
-		        $this.meetCore = new Meet($this.user.id, $this.user.nickname, $this.curMeeting.id, $this.onCallback).getXchatkit();
-		        $this.chatroom = $this.meetCore;
-		        // 其他与会人员进入开会页面就进入会议，以便及时收到开会的通知（回调），主持人点击开会才能进入会议，避免重复进入会议，第二次进入不再触发其他与会人员有人员加入的回调
-		        if(!$this.isMaster){
-		        	// 新的SDK，重复的进入会议，其他与会人员再收不到回调
-		        	// $this.PlayConference();
-		        	$this.meetCore.JoinConference();
-		        }
-		        
 		        // $this.chatroom = 'meeting:'+$this.formMeeting.meetingId.toString();
-		        
+		        if(!$this.isMaster){
+		        	$this.MeetingJoin();		        	
+		        }
 			}
 		},
 

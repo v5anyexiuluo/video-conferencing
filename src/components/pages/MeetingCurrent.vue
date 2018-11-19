@@ -327,6 +327,7 @@ export default {
 	      if(this.curMeeting.founderId==json.fromuser){
 	      	this.isMasterLeft = true;
 	      	this.refreshCurMeetingStatus();
+	      	this.MeetingExit();
 	      }
 	      var result = this.meetingMembers.findIndex((value, index, arr) => {
 	        return value.id == json.fromuser;

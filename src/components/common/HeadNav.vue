@@ -10,26 +10,30 @@
         <el-menu-item class="v-center" index="3" disabled>消息中心</el-menu-item>
         <el-menu-item class="v-center" index="4">订单管理</el-menu-item>
       </el-menu> -->
-	<el-row type="flex" justify="end" class="header-wrap">
+  <!-- <img src="@/assets/images/logo.png" style="height: 30px;width: 120px;" alt=""> -->
+	<el-row type="flex" justify="end" class="header-wrap" style="margin: 0px;">
+    <!-- <div class="iconfont el-icon-lg-collapse-on" style="margin: 0 20px;"></div>
+    <div> -->
     <el-dropdown placement="bottom">
       <span class="el-dropdown-link v-center">
-        <el-badge :value="msgs.length">
+        <el-badge :value="undoMsgs.length">
           <el-button type="warning" icon="el-icon-bell" circle></el-button>
         </el-badge>
       </span>
       <el-dropdown-menu :popper-append-to-body="false" slot="dropdown">
-        <el-dropdown-item v-for="msg in msgs"><router-link tag="span" :to="{name: 'notifies'}">{{msg.content.plain_message}}</router-link></el-dropdown-item>
+        <el-dropdown-item v-for="msg in undoMsgs"><router-link tag="span" :to="{name: 'notifies'}">{{msg.content.plain_message}}</router-link></el-dropdown-item>
       </el-dropdown-menu>
     </el-dropdown>
-		<el-dropdown placement="bottom" style="cursor: pointer;" @command="handleUserCommand">
-		  <span class="el-dropdown-link v-center">
-		    <img src="@/assets/images/user.jpg" style="height: 40px;width: 40px;border-radius: 20px; margin-right: 6px;" alt="">{{user? user.nickname: "用户"}}<i class="el-icon-arrow-down el-icon--right"></i>
-		  </span>
-		  <el-dropdown-menu :popper-append-to-body="false" slot="dropdown">
-		    <el-dropdown-item command="center"><router-link tag="span" :to="{name: 'usercenter'}">用户中心</router-link></el-dropdown-item>
+    <el-dropdown placement="bottom" style="cursor: pointer;" @command="handleUserCommand">
+      <span class="el-dropdown-link v-center">
+        <img src="@/assets/images/user.jpg" style="height: 40px;width: 40px;border-radius: 20px; margin-right: 6px;" alt="">{{user? user.nickname: "用户"}}<i class="el-icon-arrow-down el-icon--right"></i>
+      </span>
+      <el-dropdown-menu :popper-append-to-body="false" slot="dropdown">
+        <el-dropdown-item command="center"><router-link tag="span" :to="{name: 'usercenter'}">用户中心</router-link></el-dropdown-item>
         <el-dropdown-item command="logout">注销</el-dropdown-item>
-		  </el-dropdown-menu>
-		</el-dropdown>
+      </el-dropdown-menu>
+    </el-dropdown>
+    <!-- </div> -->
 	</el-row>
 </template>
 <script>
@@ -105,7 +109,7 @@ export default {
     }),
     ...mapGetters([
       'user',
-      'msgs'
+      'undoMsgs'
     ])
   },
   watch: {

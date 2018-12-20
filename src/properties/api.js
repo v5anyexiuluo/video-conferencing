@@ -75,6 +75,7 @@ export var apiMeeting = {
 		start: meeting+'/meetings/{mid}/start',
 		end: meeting+'/meetings/{mid}/end',
 		delete:meeting+'/meetings/{mid}/members/delete',
+		add: meeting+'/meetings/{mid}/members',
 		members: meeting+'/meetings/{mid}/members',
 		exit: meeting+'/meetings/{mid}/exit',
 		entry: meeting+'/meetings/{mid}'

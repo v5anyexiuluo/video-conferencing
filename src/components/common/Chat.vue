@@ -122,8 +122,10 @@
 			// }
 		},
 		beforeDestroy: function () {
-		    this.chatCore.ClearXChatKit();
-		    this.addChatMsg({chatroom: this.chatCore.meetingjson.chatroom, msg:this.messages})
+			if(this.meetCore){
+				this.chatCore.ClearXChatKit();
+				this.addChatMsg({chatroom: this.chatCore.meetingjson.chatroom, msg:this.messages})
+			}
 		},
 	}
 </script>

@@ -20,7 +20,7 @@
           <template slot="title">
             <i :class="item.icon"></i>
             <span>
-              <el-badge v-if="item.badge" :value="msgs.length" class="item">
+              <el-badge v-if="item.badge" :value="undoMsgs.length" class="item">
                 {{item.title}}
               </el-badge>
               <template v-else>
@@ -38,7 +38,7 @@
           <router-link :to="{name: item.name}" class="a-navmenu">
             <i :class="item.icon"></i>
             <span>
-              <el-badge v-if="item.badge" :value="msgs.length" class="item">
+              <el-badge v-if="item.badge" :value="undoMsgs.length" class="item">
                 {{item.title}}
               </el-badge>
               <template v-else>
@@ -105,7 +105,7 @@ export default {
       'activeIndex',
       'user',
       'meeting',
-      'msgs'
+      'undoMsgs'
     ])
   }
 }

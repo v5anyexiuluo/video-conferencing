@@ -115,10 +115,10 @@ export default (function(){
       this.xchatkit.StopShare();
     }
 
-    this.SendInput = function(){
+    this.SendInput = function(cmd){
       var json = JSON.parse ( "{}" );
       json.chatroom = this.meetingjson.chatroom;
-      json.content = '';
+      json.content = cmd;
       this.xchatkit.SendInput ( json );
     }
 

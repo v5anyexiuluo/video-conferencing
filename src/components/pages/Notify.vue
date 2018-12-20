@@ -1,39 +1,93 @@
 <template>
 	<div style="padding:20px;">
-		<template v-if="msgs.length==0">暂无消息</template>
-		<template v-else v-for="msg in msgs">
-			<div v-if="msg.category==msgType.PLAIN_TEXT" class="h-full-container v-center">
-				<span class="full-element">{{msg.content.plain_message}}</span>
-				<div class="deal-actions" style="height: 40px;">
-				</div>
-			</div>
-			<div v-else-if="msg.category==msgType.CONFERENCE_READY_START" class="h-full-container v-center">
-				<span class="full-element">{{msg.content.plain_message}}</span>
-				<div class="deal-actions">
-					<el-button type="text" :disabled="countdown[msg.messageId]>0" @click="entryMeeting(msg.meetingInfoEntity)">{{countdown[msg.messageId] | countdownBtnText}}</el-button>
-				</div>
-			</div>
-			<div v-else-if="msg.category==msgType.CONTACT_ADDING" class="h-full-container v-center">
-				<span class="full-element">{{msg.content.plain_message}}</span>
-				<div v-if="msg.messageState!=msgStatus.PROCESSED" class="deal-actions">
-					<el-button type="text" @click="formAddFriend.nickName=msg.content.user_name;formAddFriend.api=msg.content.agree;formAddFriend.messageId=msg.messageId;dialogAddFriendVisible=true;">同意</el-button>
-					<el-button type="text" @click="handleRefuseFrdAdd(msg.content.refuse, msg.messageId)">拒绝</el-button>
-				</div>
-        <div v-else>已处理</div>
-			</div>
-			<div v-else-if="msg.category==msgType.CONFERENCE_CREATION" class="h-full-container v-center">
-				<span class="full-element">{{msg.content.plain_message}}</span>
-        <div class="deal-actions">
-          <el-button type="text" :disabled="countdown[msg.messageId]>0" @click="entryMeeting(msg.meetingInfoEntity)">{{countdown[msg.messageId] | countdownBtnText}}</el-button>
-        </div>
-			</div>
-			<div v-else-if="msg.category==msgType.CONFERENCE_CANCEL" class="h-full-container v-center">
-				<span class="full-element">{{msg.content.plain_message}}</span>
-			</div>
-			<div v-else-if="msg.category==msgType.CONFERENCE_ENDING" class="h-full-container v-center">
-				<span class="full-element">{{msg.content.plain_message}}</span>
-			</div>
-		</template>
+    <el-tabs style="height:94%;" v-model="activeName" type="card" @tab-click="handleClick">    
+      <el-tab-pane label="未读消息" name="undo" style="height:95%;">
+        <template v-if="undoMsgs.length==0">暂无消息</template>
+        <template v-else v-for="msg in undoMsgs">
+          <div v-if="msg.category==msgType.PLAIN_TEXT" class="h-full-container v-center">
+            <span class="full-element">{{msg.content.plain_message}}</span>
+            <div class="deal-actions" style="height: 40px;">
+            </div>
+          </div>
+          <div v-else-if="msg.category==msgType.CONFERENCE_READY_START" class="h-full-container v-center">
+            <span class="full-element">{{msg.content.plain_message}}</span>
+            <div class="deal-actions">
+              <el-button type="text" :disabled="countdown[msg.messageId]>0" @click="entryMeeting(msg.meetingInfoEntity)">{{countdown[msg.messageId] | countdownBtnText}}</el-button>
+            </div>
+          </div>
+          <div v-else-if="msg.category==msgType.CONTACT_ADDING" class="h-full-container v-center">
+            <!-- /{{msg.messageState}}/ -->
+            <span class="full-element">{{msg.content.plain_message}}</span>
+            <div v-if="msg.messageState!=msgStatus.PROCESSED" class="deal-actions">
+              <el-button type="text" @click="formAddFriend.nickName=msg.content.user_name;formAddFriend.api=msg.content.agree;formAddFriend.messageId=msg.messageId;dialogAddFriendVisible=true;">同意</el-button>
+              <el-button type="text" @click="handleRefuseFrdAdd(msg.content.refuse, msg.messageId)">拒绝</el-button>
+            </div>
+            <div v-else>已处理</div>
+          </div>
+          <div v-else-if="msg.category==msgType.CONFERENCE_CREATION" class="h-full-container v-center">
+            <span class="full-element">{{msg.content.plain_message}}</span>
+            <div class="deal-actions">
+              <el-button type="text" :disabled="countdown[msg.messageId]>0" @click="entryMeeting(msg.meetingInfoEntity)">{{countdown[msg.messageId] | countdownBtnText}}</el-button>
+            </div>
+          </div>
+          <div v-else-if="msg.category==msgType.CONFERENCE_CANCEL" class="h-full-container v-center">
+            <span class="full-element">{{msg.content.plain_message}}</span>
+          </div>
+          <div v-else-if="msg.category==msgType.CONFERENCE_ENDING" class="h-full-container v-center">
+            <span class="full-element">{{msg.content.plain_message}}</span>
+          </div>
+        </template>
+        <el-pagination
+          @current-change="handleCurrentChange('undo')"
+          :current-page.sync="undo.currentPage"
+          :page-count="undo.total"
+          layout="total, prev, pager, next">
+        </el-pagination>
+      </el-tab-pane>
+      <el-tab-pane label="历史消息" name="history" style="height:95%;">
+        <template v-if="historyMsgs.length==0">暂无消息</template>
+        <template v-else v-for="msg in historyMsgs">
+          <div v-if="msg.category==msgType.PLAIN_TEXT" class="h-full-container v-center">
+            <span class="full-element">{{msg.content.plain_message}}</span>
+            <div class="deal-actions" style="height: 40px;">
+            </div>
+          </div>
+          <div v-else-if="msg.category==msgType.CONFERENCE_READY_START" class="h-full-container v-center">
+            <span class="full-element">{{msg.content.plain_message}}</span>
+            <div class="deal-actions">
+              <el-button type="text" :disabled="countdown[msg.messageId]>0" @click="entryMeeting(msg.meetingInfoEntity)">{{countdown[msg.messageId] | countdownBtnText}}</el-button>
+            </div>
+          </div>
+          <div v-else-if="msg.category==msgType.CONTACT_ADDING" class="h-full-container v-center">
+            <!-- /{{msg.messageState}}/ -->
+            <span class="full-element">{{msg.content.plain_message}}</span>
+            <div v-if="msg.messageState!=msgStatus.PROCESSED" class="deal-actions">
+              <el-button type="text" @click="formAddFriend.nickName=msg.content.user_name;formAddFriend.api=msg.content.agree;formAddFriend.messageId=msg.messageId;dialogAddFriendVisible=true;">同意</el-button>
+              <el-button type="text" @click="handleRefuseFrdAdd(msg.content.refuse, msg.messageId)">拒绝</el-button>
+            </div>
+            <div v-else>已处理</div>
+          </div>
+          <div v-else-if="msg.category==msgType.CONFERENCE_CREATION" class="h-full-container v-center">
+            <span class="full-element">{{msg.content.plain_message}}</span>
+            <div class="deal-actions">
+              <el-button type="text" :disabled="countdown[msg.messageId]>0" @click="entryMeeting(msg.meetingInfoEntity)">{{countdown[msg.messageId] | countdownBtnText}}</el-button>
+            </div>
+          </div>
+          <div v-else-if="msg.category==msgType.CONFERENCE_CANCEL" class="h-full-container v-center">
+            <span class="full-element">{{msg.content.plain_message}}</span>
+          </div>
+          <div v-else-if="msg.category==msgType.CONFERENCE_ENDING" class="h-full-container v-center">
+            <span class="full-element">{{msg.content.plain_message}}</span>
+          </div>
+        </template>
+        <el-pagination
+          @current-change="handleCurrentChange('history')"
+          :current-page.sync="history.currentPage"
+          :page-count="history.total"
+          layout="total, prev, pager, next">
+        </el-pagination>
+      </el-tab-pane>
+    </el-tabs>
     <el-dialog title="添加好友" custom-class="start-meeting" width="400px" center :visible.sync="dialogAddFriendVisible">
       <el-form :model="formAddFriend" :rules="addFriendRules" ref="addFriendForm" label-width="80px">
         <el-form-item label="用户名" prop="nickName">
@@ -67,7 +121,7 @@
 	import utils from '@/assets/js/utils.js';
 	import {msgType, msgStatus} from '@/assets/js/common.js';
 	export default {
-    data: function(){
+    data() {
       return {
         stompClient: null,
         msgType: msgType,
@@ -90,7 +144,17 @@
           ]
         },
         timer: null,
-        count: 0
+        count: 0,
+        activeName: 'undo',
+        undo: {
+          total: 10,
+          currentPage: 1
+        },
+        currentPage: 1,
+        history: {
+          total: 10,
+          currentPage: 1
+        },
       }
     },
     name: 'Login',
@@ -110,21 +174,44 @@
         'setCountdownTime'
       ]),
 
+      handleClick(tab, event) {
+        // console.log(tab, event);
+        var $this = this;
+        if(tab.name == 'undo'){
+          $this.refreshUndo();
+        }else if(tab.name == 'history'){
+          $this.refreshHistory();
+        }else{
+          return;
+        }
+        // $this.currentPage = 1;
+        // $this.refreshTab();
+      },
+
       refreshNotifies(){
+        var $this = this;
+        $this.refreshHistory();
+        $this.refreshUndo();
+      },
+
+      refreshHistory(){
         var $this = this;
         $this.pullHistory(0, function(res){
           var msgs = res.data.data;
           msgs.forEach(function(value,index,array){
-            $this.addMsg(JSON.parse(value));
+            $this.addMsg({type:'history', data:JSON.parse(value)});
           })
         },function(res){
           $this.$message.error('获取历史消息失败！');
         })
+      },
 
+      refreshUndo(){
+        var $this = this;
         $this.pullUndoMsg(function(res){
           var msg=res.data.data;
           msg.forEach(function(value,index,array){
-            $this.addMsg(JSON.parse(value));
+            $this.addMsg({type:'undo', data:JSON.parse(value)});
           })
         },function(res){
           $this.$message.error('获取未读消息失败！');
@@ -167,6 +254,18 @@
         },function(){
         	$this.$message.error('拒绝好友请求失败');
         })
+      },
+
+      handleCurrentChange(type){
+        var $this = this;
+        console.log($this.undo.currentPage)
+        if(type=="undo"){
+          $this.refreshUndo();
+        }else if(type == "history"){
+          $this.refreshHistory();
+        }else{
+          return;
+        }
       },
 
       pullUndoMsg(cbOk, cbErr){
@@ -244,7 +343,8 @@
     computed:{
       ...mapGetters([
         'user',
-        'msgs',
+        'historyMsgs',
+        'undoMsgs',
         'countdown'
       ]),
       // timedown: function(){

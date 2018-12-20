@@ -1,56 +1,84 @@
 <template>
 	<div class="full-height content full-width h-full-container">
 	  <div class="content-main full-element v-full-container">
-	  	<div v-if="isMaster" ref="videoWindows" id="videoWindows" align="center" class="full-element h-full-container" style="background-color: #145">
-	  		<div class="full-element h-full-container" style="position: relative;">
-	  			<video :src="isShare? shareVideo.src:localVideo.src" ref="mainVideo" id="mainVideo" class="full-element" style="object-fit: contain;position:absolute; left: 0px; bottom: 0px; right: 0px; width: 100%; height: 100%;" poster="@/assets/images/master-away.jpg" playsinline autoplay controls muted>
-					您的浏览器不支持 video 标签。
-				</video>
-				<video v-if="isShare" :src="localVideo.src" ref="localVideo" id="localVideo" style="position: absolute;left: 20px;top: 20px;width: 200px;height: 120px;background: gray;object-fit: contain;" poster="@/assets/images/master-away.jpg" playsinline autoplay controls muted>
-					您的浏览器不支持 video 标签。
-				</video>
-	  		</div>
-	  		<div class="v-full-container" style="width:200px;background-color: #ecf5ff;">
-				<scroll ref="videoScroll" class="full-element" style="overflow: hidden;padding: 0 10px;height: 0px;">
-					<div>
-						<div style="width: 100%;height: 110px;position: relative;" v-if="item.id!=user.id" v-for="(item, index) in meetingMembers">
-							<video :src="videoSrc(item.id)" style="width: 100%;height: 110px;background: #9E9E9E;object-fit: contain;" poster="avatar.png" playsinline autoplay controls >
-								您的浏览器不支持 video 标签。
-							</video>
-							<div style="position: absolute;top: 6px;right: 6px; font-size: 12px;color: white;">
-								<span>{{item.nickname}}</span>
-								<span style="margin-left: 10px;" :style="{color: item.status!=memberStatus.USER_ENTERED? 'red':''}">{{item.status==memberStatus.USER_ENTERED? '在线':'离线'}}</span>
+	  	<div class="full-element h-full-container" v-if="videoShow">
+	  		<div v-if="isMaster" ref="videoWindows" id="videoWindows" align="center" class="full-element h-full-container" style="background-color: #145">
+		  		<div class="full-element h-full-container" style="position: relative;">
+		  			<video :src="isShare? shareVideo.src:localVideo.src" ref="mainVideo" id="mainVideo" class="full-element" style="object-fit: contain;position:absolute; left: 0px; bottom: 0px; right: 0px; width: 100%; height: 100%;" poster="@/assets/images/master-away.jpg" playsinline autoplay controls muted>
+						您的浏览器不支持 video 标签。
+					</video>
+					<div class="full-element" style="position:absolute; left: 0px; bottom: 0px; right: 0px; width: 100%; height: 100%;background-image: url('@/assets/images/master-away.jpg')"></div>
+					<video v-if="isShare" :src="localVideo.src" ref="localVideo" id="localVideo" style="position: absolute;left: 20px;top: 20px;width: 200px;height: 120px;background: gray;object-fit: contain;" poster="@/assets/images/master-away.jpg" playsinline autoplay controls muted>
+						您的浏览器不支持 video 标签。
+					</video>
+		  		</div>
+		  		<div class="v-full-container" style="width:200px;background-color: #ecf5ff;">
+					<scroll ref="videoScroll" class="full-element" style="overflow: hidden;padding: 0 10px;height: 0px;">
+						<div>
+							<div class="scroll-item" style="width: 100%;height: 110px;position: relative;" v-if="item.id!=user.id" v-for="(item, index) in meetingMembers">
+								<video :src="videoSrc(item.id)" style="width: 100%;height: 110px;background: #9E9E9E;object-fit: contain;" poster="avatar.png" playsinline autoplay controls >
+									您的浏览器不支持 video 标签。
+								</video>
+								<div style="position: absolute; width: 100%; top: 6px; font-size: 12px;color: white;display: flex;justify-content: space-between; padding: 0 10px;box-sizing: border-box;">
+									<span>
+										<i class="iconfont"  :class="[item['keepSilence']?  'el-icon-lg-keep-silence': 'el-icon-lg-keep-speak']" @click="onKeepSpeakOrSilence(index)"></i>
+										<i class="iconfont el-icon-lg-select" :class="[item['asMasterScreen']?  'active': '']" @click="onSelectAsMasterScreen(index)"></i>
+										<i class="iconfont el-icon-lg-force-exit" @click="onForceExit(item)"></i>
+									</span>
+									<span>
+										<span>{{item.nickname}}</span>
+										<span style="margin-left: 10px;" :style="{color: item.status!=memberStatus.USER_ENTERED? 'red':''}">{{item.status==memberStatus.USER_ENTERED? '在线':'离线'}}</span>
+									</span>
+								</div>
 							</div>
 						</div>
-					</div>
-				</scroll>
+					</scroll>
+		  		</div>
+			</div>
+			<div v-else ref="videoWindows" id="videoWindows" align="center" class="full-element h-full-container" style="background-color: #145">
+		  		<div class="full-element h-full-container" style="position: relative;">
+		  			<video :src="remoteVideo.src" ref="mainVideo" id="mainVideo" class="full-element" style="object-fit: contain;position:absolute; left: 0px; bottom: 0px; right: 0px; width: 100%; height: 100%;" poster="@/assets/images/master-away.jpg" playsinline autoplay controls >
+						您的浏览器不支持 video 标签。
+					</video>
+					<video :src="isShare? shareVideo.src:localVideo.src" ref="localVideo" id="localVideo" style="position: absolute;left: 20px;top: 20px;width: 200px;height: 120px;background: gray;object-fit: contain;" poster="@/assets/images/master-away.jpg" playsinline autoplay controls muted>
+						您的浏览器不支持 video 标签。
+					</video>
+		  		</div>
+		  		<div class="v-full-container" style="width:200px;background-color: #ecf5ff;">
+					<scroll ref="videoScroll" class="full-element" style="overflow: hidden;padding: 0 10px;height: 0px;">
+						<div>
+							<div style="width: 100%;height: 110px;position: relative;" v-if="item.id!=user.id && item.id!=curMeeting.founderId" v-for="(item, index) in meetingMembers">
+								<video :src="videoSrc(item.id)" style="width: 100%;height: 110px;background: #9E9E9E;object-fit: contain;" poster="avatar.png" playsinline autoplay controls >
+									您的浏览器不支持 video 标签。
+								</video>
+								<div style="position: absolute; width:100%; top: 6px; font-size: 12px;color: white;">
+									<span></span>
+									<span>
+										<span>{{item.nickname}}</span>
+										<span style="margin-left: 10px;" :style="{color: item.status!=memberStatus.USER_ENTERED? 'red':''}">{{item.status==memberStatus.USER_ENTERED? '在线':'离线'}}</span>
+									</span>
+								</div>
+							</div>
+						</div>
+					</scroll>
+		  		</div>
+			</div>
+			<div ref="audioWindows" id="audioWindows" align="center">
 	  		</div>
-		</div>
-		<div v-else ref="videoWindows" id="videoWindows" align="center" class="full-element h-full-container" style="background-color: #145;position: relative;">
-	  		<video :src="remoteVideo.src" ref="mainVideo" id="mainVideo" class="full-element" style="object-fit: contain;position:absolute; left: 0px; bottom: 0px; right: 0px; width: 100%; height: 100%;" poster="@/assets/images/master-away.jpg" playsinline autoplay controls >
-				您的浏览器不支持 video 标签。
-			</video>
-			<video :src="localVideo.src" ref="remoteVideo" id="remoteVideo" style="position: absolute;right: 20px;top: 20px;width: 200px;height: 120px;background: gray;object-fit: contain;" poster="@/assets/images/master-away.jpg" playsinline autoplay controls muted>
-				您的浏览器不支持 video 标签。
-			</video>
-			<!-- {{isShare}} -->
-			<video v-if="isShare" :src="shareVideo.src" ref="localVideo" id="localVideo" style="position: absolute;right: 20px;top: 200px;width: 200px;height: 120px;background: gray;" poster="@/assets/images/master-away.jpg" playsinline autoplay controls >
-				您的浏览器不支持 video 标签。
-			</video>
-		</div>
-		<div ref="audioWindows" id="audioWindows" align="center">
-  		</div>
+	  	</div>
+	  	<div v-else class="full-element v-full-container" style="background-size: 100% 100%;" :style="{backgroundImage:'url(' + (curMeeting.available==meetingStatus.BEFORE? require('@/assets/images/meeting-before.jpg'):(curMeeting.available==meetingStatus.ENDED? require('@/assets/images/meeting-ended.jpg'):(isMasterLeft? require('@/assets/images/master-away.jpg'):require('@/assets/images/client-away.jpg')))) + ')'}"></div>
 		<el-row class="btn-group" type="flex" align="middle" justify="space-between" style="width:100%;height: 50px;line-height: 50px;background-color: white;">
-			<el-col :span="3"><a @click="dialogSelectMeetingVisible = true" href="javascript:void(0)">切换会议</a></el-col>
-			<el-col :span="3"><a @click="dialogInviteFriendVisible = true" href="javascript:void(0)">邀请+</a></el-col>
+			<el-col :span="3"><el-button :disabled="curMeeting.available!=meetingStatus.STARTED || (isMaster&&isLeft) || (!isMaster&&(isMasterLeft||isLeft))" @click="dialogSelectMeetingVisible = true" href="javascript:void(0)">切换会议</el-button></el-col>
+			<!-- {{meetingStatus.STARTED}}-{{isLeft}}-{{isMasterLeft}} -->
+			<!-- <el-col :span="3"><a @click="dialogInviteFriendVisible = true" href="javascript:void(0)">邀请+</a></el-col> -->
 			<!-- <el-col :span="3"><a href="javascript:void(0)">主持人</a></el-col> -->
-			<el-col :span="3"><a @click="onStartOrEndShare" href="javascript:void(0)">{{Share}}</a></el-col>
+			<el-col :span="3"><el-button :disabled="curMeeting.available!=meetingStatus.STARTED || (isMaster&&isLeft) || (!isMaster&&(isMasterLeft||isLeft))" @click="onStartOrEndShare" href="javascript:void(0)">{{isShare? '结束共享':'共享桌面'}}</el-button></el-col>
 			<!-- <el-col :span="3"><a href="javascript:void(0)">聊天</a></el-col> -->
-			<el-col :span="3"><a href="javascript:void(0)">设置</a></el-col>
-			<el-col :span="3"></el-col>
+			<!-- <el-col :span="3"><a href="javascript:void(0)">设置</a></el-col> -->
 			<el-col :span="3"></el-col>
 			<!-- <el-col :span="3" @click="uploadVideoVisible=true;">上传视频</el-col> -->
-			<el-col :span="3"><a @click="onStartOrEndConference" href="javascript:void(0)">{{Conference}}</a></el-col>
+			<el-col :span="3"></el-col>
+			<el-col :span="3"><el-button :disabled="!(curMeeting.available==meetingStatus.STARTED && (isMaster || (!isMaster&&!isMasterLeft)))" @click="onPlayOrPauseConference" href="javascript:void(0)">{{isLeft? '继续':'暂停'}}</el-button>&nbsp;&nbsp;&nbsp;&nbsp;<span v-if="isMaster"><el-button v-if="curMeeting.available==meetingStatus.BEFORE" @click="onStartOrEndConference" href="javascript:void(0)">开始</el-button><el-button :disabled="curMeeting.available!=meetingStatus.STARTED" v-if="curMeeting.available!=meetingStatus.BEFORE" @click="onStartOrEndConference" href="javascript:void(0)">结束</el-button></span></el-col>
 		</el-row>
 	  </div>
 	  <div class="content-right">
@@ -140,8 +168,8 @@ export default {
 			remoteResources: [],
 			meetCore: null,
 			chatroom: '',
-			Conference: '离开会议',
-			Share: '共享桌面',
+			isLeft: true,
+			isMasterLeft: true
 		}
 	},
 	created(){
@@ -154,51 +182,26 @@ export default {
 				}
 			});
 	    }
-	  //   var tipsMsg = '';
-	  //   switch($this.curMeeting.available){
-	  //   	case $this.meetingStatus.BEFORE:
-	  //   		tipsMsg = '会议还未开始';
-   //  		case $this.meetingStatus.ENDED:
-   //  			tipsMsg = '会议已经结束';
-   //  			this.$notify({
-			// 		title: '提示',
-			// 		message: tipsMsg
-			// 	});
-			// 	return；
-			// default:
-			// 	break;
-	  //   }
 	    if($this.curMeeting.available==$this.meetingStatus.BEFORE){
-	    	this.$notify({
+	    	$this.refreshNowMembers();
+	    	$this.$notify({
 				title: '提示',
 				message: '会议还未开始'
 			});
 			return;
 	    }
 	    if($this.curMeeting.available==$this.meetingStatus.ENDED){
-	    	this.$notify({
+	    	$this.$notify({
 				title: '提示',
 				message: '会议已经结束'
 			});
 			return;
 	    }
-		// $this.getNowMeetings(function(res){
-		// 	if(res.data.data.length<1){
-		// 		$this.$message({
-		//             message: '暂无正在进行的会议！',
-		//             type: 'success'
-		//         });
-		// 	}else{
-		// 		$this.nowMeetings=res.data.data;
-		// 	}
-		// },function(res){
-		// 	$this.$message.error('获取正在进行的会议信息失败！');
-		// });
-		$this.refreshNowMembers();
-		$this.initXChatKit();
+	    $this.refreshNowMembers();
+		// $this.initXChatKit();
 	},
 	mounted() {
-		
+		window.addEventListener('beforeunload', e => this.beforeunloadHandler(e))
 	},
 	updated() {
 		
@@ -243,6 +246,15 @@ export default {
 			})
 		},
 
+		refreshCurMeetingStatus(){
+			var $this = this;
+			$this.getMeetingInfo($this.curMeeting.id, function(res){
+	          $this.setCurMeetingStatus(res.data.data)
+	        },function(res){
+	          $this.$message.error('更新会议信息失败！'+res.data.msg);
+	        });
+		},
+
 	    handleSelectMeeting () {
 	      var $this = this;
 	      if($this.formMeeting.meetingId){
@@ -267,11 +279,17 @@ export default {
 		      this.onEventPartyRemoved(json);
 		    }
 		    else if("EventPartyConnected" === json.msgtype){
-		      this.onEventPartyConnected(json);
+		    	this.onEventPartyConnected(json);
 		    }
 		    else if("EventPartyDisconnected" === json.msgtype){
-		      this.onEventPartyDisconnected(json);
+		    	this.onEventPartyDisconnected(json);
 		    }
+		    else if("onText" === json.msgtype){
+		    	this.onEventRecievedCmd(json);
+		    }
+	    	// else if("EventPartyClosed" === json.msgtype){
+		    //   this.onEventPartyDisconnected(json);
+		    // }
 		},
 
 		// 设置会议流回调
@@ -289,6 +307,11 @@ export default {
 		//加入会议事件
 	    onEventPartyAdded(json)
 	    {
+	      if(this.curMeeting.founderId==json.fromuser){
+	      	this.isMasterLeft = false;
+	      	this.isLeft = false;
+	      	this.refreshCurMeetingStatus();
+	      }
 	      if(!this.isMaster && this.curMeeting.founderId==json.fromuser) {
 	       	this.remoteVideo.src = window.URL.createObjectURL(json.stream);
 	      	return;
@@ -297,24 +320,37 @@ export default {
 	        return value.id == json.fromuser;
 	      })
 	      if(result!=-1) {
-	        Vue.set(this.meetingMembers[result],'status', memberStatus.USER_ENTERED);;
+	        Vue.set(this.meetingMembers[result],'status', memberStatus.USER_ENTERED);
+	      }
+	      if(json.fromuser==this.user.id){
+	      	return
 	      }
 	      result = this.remoteResources.findIndex((value, index, arr) => {
-	        return value.fromuser == json.fromuser;
-	      })
-	      if(result==-1) {
-	        this.remoteResources.push(json);
-	      }
+			return value.fromuser == json.fromuser;
+		  })
+		  if(result==-1) {
+			  this.remoteResources.push(json);
+		  }else{
+			  Vue.set(this.remoteResources, result, json);
+		  }
 	    },
 
 	    //离开会议
 	    onEventPartyRemoved(json)
 	    {
+	      if(this.curMeeting.founderId==json.fromuser){
+	      	this.isMasterLeft = true;
+	      	//TODO: 能否将一下方法合并到一起
+	      	this.refreshCurMeetingStatus();
+	      	if(this.isMaster){
+	      		this.PauseConference();
+	      	}
+	      }
 	      var result = this.meetingMembers.findIndex((value, index, arr) => {
 	        return value.id == json.fromuser;
 	      })
 	      if(result!=-1) {
-	        Vue.set(this.meetingMembers[result],'status', memberStatus.USER_LEFT);;
+	        Vue.set(this.meetingMembers[result],'status', memberStatus.USER_LEFT);
 	      }
 	      result = this.remoteResources.findIndex((value, index, arr) => {
 	        return value.fromuser == json.fromuser;
@@ -338,42 +374,143 @@ export default {
 			$this.meetCore.StopRecording(meetingObj.fromuser);
 		},
 
+		onEventRecievedCmd(json){
+			console.log(json)
+			var $this = this;
+			if(json.content.type=="forceExit"){
+				if(json.content.data.id==$this.user.id){
+					$this.$notify({
+						title: '提示',
+						message: '你已被踢出会议！'
+					});
+					$this.MeetingExit();
+					$this.setCurMeeting(null);
+				}
+			}else if(json.content.type=="keepSilence"){
+				if(json.content.data.id==$this.user.id){
+					$this.$notify({
+						title: '提示',
+						message: '你已被禁言！'
+					});
+					$this.disableMicphone();
+				}
+			}else if(json.content.type=="keepSpeak"){
+				if(json.content.data.id==$this.user.id){
+					$this.$notify({
+						title: '提示',
+						message: '解除禁言！'
+					});
+					$this.enableMicphone();
+				}
+			}else if(json.content.type=="asMasterScreen"){
+				// if($this.isMaster){
+				// 	// 被选择的用户的视频作为本地视频
+				// 	$this.localVideo = ;
+				// }else if(json.content.data.id==$this.user.id){
+				// 	$this.$notify({
+				// 		title: '提示',
+				// 		message: '作为主屏！'
+				// 	});
+				// 	$this.remoteVideo = ;
+				// }else{
+					
+				// }
+			}else if(json.content.type=="noAsMasterScreen"){
+				if(json.content.data.id==$this.user.id){
+					$this.$notify({
+						title: '提示',
+						message: '取消作为主屏！'
+					});
+				}
+			}
+		},
+
+		SendCmd(cmd){
+		    // var json = JSON.parse ( "{}" );
+		    // json.chatroom = textTarget.value;
+		    // json.content = textInput.value;
+		    var $this = this;
+		    $this.meetCore.SendInput(cmd);
+		},
+
 	    // 开始或者结束会议
 	    onStartOrEndConference()
 	    {
 	      var $this = this;
-	      if($this.Conference == '进入会议') {
-	        $this.JoinConference();
-	        $this.Conference = '离开会议';
-	      } else {
-	        $this.LeaveConference();
-	        $this.Conference = '进入会议';
+	      if($this.curMeeting.available==$this.meetingStatus.BEFORE) {
+	        $this.startConference();
+	      } else if($this.curMeeting.available==$this.meetingStatus.STARTED) {
+	        $this.endConference();
 	      }
 	    },
 
-		JoinConference(){
+	    onPlayOrPauseConference(){
+	    	var $this = this;
+			if($this.isLeft) {
+				$this.PlayConference();
+			} else {
+				$this.PauseConference();
+			}
+	    },
+
+		startConference(){
 			var $this = this;
 			if($this.isMaster){
 				$this.startMeeting($this.curMeeting.id, function(res){
-					$this.meetCore.JoinConference();
+					$this.PlayConference();
+					$this.refreshCurMeetingStatus();
 				}, function(res){
 					$this.$message.error('启动会议失败！'+res.data.msg);
-				})
-			}else{
-				$this.entryMeeting($this.curMeeting.id, $this.user.nickname, function(res){
-					$this.meetCore.JoinConference();
-				}, function(res){
-					$this.$message.error('进入会议失败！'+res.data.msg);
+					$this.isLeft = true;
 				})
 			}
 		},
 
-	    LeaveConference(){
-	      var $this = this;
-	      $this.meetCore.LeaveConference();
-	      $this.meetCore.ClearXChatKit();
-	      //刷新与会人员列表
-	      $this.refreshNowMembers();
+	   endConference(){
+	    	var $this = this;
+			if($this.isMaster){
+				$this.endMeeting($this.curMeeting.id, function(res){
+					$this.PauseConference();
+					$this.refreshCurMeetingStatus();
+				}, function(res){
+					$this.$message.error('结束会议失败！'+res.data.msg);
+					$this.isLeft = false;
+				})
+			}
+		},
+
+		PlayConference(){
+			var $this = this;
+			$this.entryMeeting($this.curMeeting.id, $this.user.nickname, function(res){
+				$this.isLeft = false;
+				$this.MeetingJoin();
+			}, function(res){
+				$this.$message.error('进入会议失败！'+res.data.msg);
+				$this.isLeft = true;
+			})
+		},
+
+		PauseConference(){
+			var $this = this;
+			$this.exitMeeting($this.curMeeting.id, $this.user.nickname, function(res){
+				$this.isLeft = true;
+				$this.MeetingExit();
+			}, function(res){
+				$this.$message.error('退出会议失败！'+res.data.msg);
+				$this.isLeft = false;
+			})
+		},
+
+		MeetingJoin(){
+			var $this = this;
+			$this.meetCore = new Meet($this.user.id, $this.user.nickname, $this.curMeeting.id, $this.onCallback).getXchatkit();
+	        $this.chatroom = $this.meetCore;
+	        $this.meetCore.JoinConference();
+		},
+
+		MeetingExit(){
+			var $this = this;
+			$this.meetCore.ClearXChatKit();
 		},
 			
 		// onLeaveConferenceClicked () {
@@ -403,41 +540,39 @@ export default {
 	    onStartOrEndShare()
 	    {
 	      var $this = this;
-	      if($this.Share == '共享桌面') {
-	        $this.onStartShareClicked();
-	        $this.Share = '停止共享';
+	      if($this.isShare) {
+	        $this.stopShare();
 	      } else {
-	        $this.onStopShareClicked();
-	        $this.Share = '共享桌面';
+	        $this.startShare();
 	      }
 	    },
 
 	    //开始屏幕共享
-	    onStartShareClicked()
+	    startShare()
 	    {
 	      var $this = this;
-	      $this.isShare = true;
 	      $this.meetCore.StartShare();
+	      $this.isShare = true;
 	    },
 
 	    //停止屏幕共享
-	    onStopShareClicked()
+	    stopShare()
 	    {
 	      var $this = this;
-	      $this.isShare = false;
 	      $this.meetCore.StopShare();
 	      $this.localVideo.src = window.URL.createObjectURL($this.meetCore.GetLocalStream());
+	      $this.isShare = false;
 	    },
 	    
 	    //启用摄像头
-	    onEnableCameraClicked()
+	    enableCamera()
 	    {
 	      var $this = this;
 	      $this.localVideo.src = $this.meetCore.GetLocalStream();
 	      $this.meetCore.EnableCamera();
 	    },
 	    //禁用摄像头
-	    onDisableCameraClicked()
+	    disableCamera()
 	    {
 	      $this.localVideo.src = '';
 	      localVideo.poster = "@/assets/images/master-away.jpg";
@@ -445,13 +580,13 @@ export default {
 	    },
 
 	    //启用麦克风
-	    onDisableMicphoneClicked()
+	    enableMicphone()
 	    {
 	      var $this = this;
-	      $this.meetCore.DisableMicphone();
+	      $this.meetCore.EnableMicphone();
 	    },
 	    //禁用麦克风
-	    onDisableMicphoneClicked()
+	    disableMicphone()
 	    {
 	      var $this = this;
 	      $this.meetCore.DisableMicphone();
@@ -527,7 +662,77 @@ export default {
 		onInviteFriendClicked()
 		{
 			this.dialogInviteFriendVisible = false;
-		    this.addMember(this.room, this.formInviteFriend.nickName);
+		    this.addMember($this.curMeeting.id, this.formInviteFriend.nickName, function(res){
+		    	$this.$message({
+					message: '添加会议成员成功！',
+					type: 'success'
+				});
+		    	$this.refreshNowMembers();
+		    }, function(res){
+		    	$this.$message.error('添加与会成员失败！'+res.data.msg);
+		    });
+		},
+
+		onForceExit(target){
+			var $this = this;
+			if($this.isMaster){
+				$this.deleteMemeber($this.curMeeting.id, target.nickname, function(res){
+					$this.SendCmd({cmd: "forceExit", data: target});
+					$this.$message({
+						message: '踢出成员成功！',
+						type: 'success'
+					});
+					$this.refreshNowMembers();
+				},function(res){
+					$this.$message.error('踢出与会成员失败！'+res.data.msg);
+				})
+			}
+		},
+
+		onSelectAsMasterScreen(index){
+			var $this = this;
+			if($this.isMaster){
+				if(typeof $this.meetingMembers[index]["asMasterScreen"] == "undefined"||!$this.meetingMembers[index]["asMasterScreen"]){
+					Vue.set($this.meetingMembers[index]["asMasterScreen"],index, true);
+					// $this.meetingMembers[index]["keepSilence"]=true;
+					$this.SendCmd({cmd: "asMasterScreen", data: $this.meetingMembers[index]});
+					$this.$message({
+						message: '你被设置为主屏！',
+						type: 'success'
+					});
+				}else{
+					Vue.set($this.meetingMembers[index]["asMasterScreen"],index, false);
+					// $this.meetingMembers[index]["keepSilence"]=false;
+					$this.SendCmd({cmd: "noAsMasterScreen", data: $this.meetingMembers[index]});
+					$this.$message({
+						message: '取消主屏！',
+						type: 'success'
+					});
+				}
+			}
+		},
+
+		onKeepSpeakOrSilence(index){
+			var $this = this;
+			if($this.isMaster){
+				if(typeof $this.meetingMembers[index]["keepSilence"] == "undefined"||!$this.meetingMembers[index]["keepSilence"]){
+					Vue.set($this.meetingMembers[index]["keepSilence"],index, true);
+					// $this.meetingMembers[index]["keepSilence"]=true;
+					$this.SendCmd({cmd: "keepSilence", data: $this.meetingMembers[index]});
+					$this.$message({
+						message: '禁言成功！',
+						type: 'success'
+					});
+				}else{
+					Vue.set($this.meetingMembers[index]["keepSilence"],index, false);
+					// $this.meetingMembers[index]["keepSilence"]=false;
+					$this.SendCmd({cmd: "keepSpeak", data: $this.meetingMembers[index]});
+					$this.$message({
+						message: '取消禁言成功！',
+						type: 'success'
+					});
+				}
+			}
 		},
 
 		// onHoldCallClicked()
@@ -562,16 +767,16 @@ export default {
 		// {
 		// 	var $this = this;
 		// 	if($this.Share == '共享桌面') {
-		// 		$this.onStartShareClicked();
+		// 		$this.startShare();
 		// 		$this.Share = '停止共享';
 		// 	} else {
-		// 		$this.onStopShareClicked();
+		// 		$this.stopShare();
 		// 		$this.Share = '共享桌面';
 		// 	}
 		// },
 
 		// //开始屏幕共享
-		// onStartShareClicked()
+		// startShare()
 		// {
 		// 	var $this = this;
 		// 	$this.isShare = true;
@@ -580,7 +785,7 @@ export default {
 		// },
 
 		// //停止屏幕共享
-		// onStopShareClicked()
+		// stopShare()
 		// {
 		// 	var $this = this;
 		// 	$this.isShare = false;
@@ -702,12 +907,6 @@ export default {
 		//         this.onEventPartyDisconnected ( json );
 		// },
 
-
-		//会议加人
-		addMember(meetingId, userNickname, cbOk, cbErr) {
-			
-		},
-
 		getNowMeetings(cbOk, cbErr){
 			var $this = this;
 			$this.$axios.get(apiMeeting.now.all+'?page=-1&size=-1', {}, cbOk, cbErr)
@@ -739,6 +938,26 @@ export default {
 			}), {}, cbOk, cbErr)
 		},
 
+
+		//会议加人
+		addMember(meetingId, nickname, cbOk, cbErr) {
+			var $this = this;
+			$this.$axios.put(utils.handleParamInUrl(apiMeeting.now.add, {
+				mid: meetingId.toString(),
+			}), {
+				user_nickname: nickname
+			}, cbOk, cbErr)
+		},
+
+		deleteMemeber(meetingId, nickname, cbOk, cbErr){
+			var $this = this;
+			$this.$axios.post(utils.handleParamInUrl(apiMeeting.now.delete, {
+				mid: meetingId.toString(),
+			}), {
+				members: [nickname]
+			}, cbOk, cbErr)
+		},
+
 		entryMeeting(meetingId, nickname, cbOk, cbErr){
 			var $this = this;
 			$this.$axios.post(utils.handleParamInUrl(apiMeeting.now.entry, {
@@ -751,7 +970,7 @@ export default {
 		exitMeeting(meetingId, nickname, cbOk, cbErr){
 			var $this = this;
 			$this.$axios.post(utils.handleParamInUrl(apiMeeting.now.exit, {
-				meeting_id: meetingId.toString(),
+				mid: meetingId.toString(),
 			}), {
 				user_nickname: nickname
 			}, cbOk, cbErr)
@@ -765,16 +984,22 @@ export default {
 				}else{
 					$this.isMaster = false;
 				}
-		        $this.meetCore = new Meet($this.user.id, $this.user.nickname, $this.curMeeting.id, $this.onCallback).getXchatkit();
-		        $this.chatroom = $this.meetCore;
-		        $this.JoinConference();
 		        // $this.chatroom = 'meeting:'+$this.formMeeting.meetingId.toString();
-		        
+		        if(!$this.isMaster){
+		        	$this.MeetingJoin();		        	
+		        }
+			}
+		},
+
+		beforeunloadHandler(e){
+			if(this.meetCore){
+				this.meetCore.ClearXChatKit();
 			}
 		},
 
 		...mapMutations([
-			'setCurMeeting'
+			'setCurMeeting',
+			'setCurMeetingStatus'
 		]),
 	},
 	name: 'MeetingNow',
@@ -795,11 +1020,19 @@ export default {
 			}
 		},
 		curMeeting:{
+			immediate:true,
 			handler:function(val, oldVal) {
 				var $this = this;
-				$this.initXChatKit();
+				if(val){
+					$this.refreshCurMeetingStatus();
+				}
+				if(val.available==$this.meetingStatus.BEFORE||val.available==$this.meetingStatus.STARTED){
+					if((oldVal && val.id != oldVal.id)||!oldVal){
+						$this.initXChatKit();
+					}
+				}
 			},
-			deep: true
+			deep: false
 		}
 	},
 	computed:{
@@ -821,11 +1054,30 @@ export default {
 	          		// remoteVideo.srcObject=json.stream;
 	          	}
 			}
+		},
+		videoShow: function(){
+			var $this = this;
+			if($this.curMeeting.available==$this.meetingStatus.BEFORE||$this.curMeeting.available==$this.meetingStatus.ENDED){
+				return false;
+			}
+			console.log($this.isMasterLeft);
+			if($this.isMaster){
+				return $this.isLeft? false: true;
+			}else{
+				return ($this.isLeft || $this.isMasterLeft)? false: true;
+			}
 		}
 	},
 	beforeDestroy: function () {
-	    this.LeaveConference();
+		if(this.meetCore){
+			this.meetCore.ClearXChatKit();
+		}
 	},
+
+	destroyed() {
+		window.removeEventListener('beforeunload', e => this.beforeunloadHandler(e))
+	},
+
 }
 </script>
 <style scoped>
@@ -839,9 +1091,9 @@ export default {
 	/* .content{
 		
 	} */
-	.btn-group a{
-		color: gray;
-		text-decoration: none;
+	.btn-group .el-button{
+	    line-height: initial;
+	    padding: 4px 10px;
 	}
 	.content-main{
 		border-right: 2px solid gray;
@@ -865,5 +1117,15 @@ export default {
 	}
 	.chat-message >>> .text{
 		line-height: 1.8em;
+	}
+	.scroll-item .iconfont{
+		cursor: pointer;
+		padding-right: 4px;
+	}
+	.scroll-item .iconfont:hover{
+		color: red;
+	}
+	.el-icon-lg-keep-silence, .el-icon-lg-select.active{
+		color: red;
 	}
 </style>

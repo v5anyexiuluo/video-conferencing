@@ -38,12 +38,22 @@ function formatToStamp(value){
 
 export default {
     state:{
-    	msgs: [],
+    	historyMsgs: [],
+      undoMsgs: [],
       countdown: {}
     },
     mutations:{
-    	addMsg(state, msg) {
-        var result = state.msgs.findIndex((value, index, arr) => {
+    	addMsg(state, data) {
+        var msg = data.data;
+        var msgs = null;
+        if(data.type=="history"){
+          msgs = state.historyMsgs;
+        }else if(data.type=="undo"){
+          msgs = state.undoMsgs;
+        }else{
+          return;
+        }
+        var result = msgs.findIndex((value, index, arr) => {
             return value.messageId == msg.messageId;
         })
         if(result==-1){
@@ -53,13 +63,13 @@ export default {
               }
               state.countdown[msg.messageId]=formatToStamp(msg.content.start_time);
             }
-            if(handleMsg(msg, state)){
-                state.msgs.push(handleMsg(msg, state))
+            if(handleMsg(msg)){
+                msgs.push(handleMsg(msg))
                 // localStorage.setItem('msgs',JSON.stringify(state.msgs))
             }
         }else{
           // state.msgs[result]=handleMsg(msg, state)
-          Vue.set(state.msgs,result,handleMsg(msg, state));
+          Vue.set(msgs,result,handleMsg(msg));
         }
       },
       setCountdownTime(state, id){
@@ -69,11 +79,17 @@ export default {
       }
     },
     getters:{
-    	msgs(state){
+    	historyMsgs(state){
         // if(localStorage.getItem('msgs')){
         //     state.msgs = JSON.parse(localStorage.getItem('msgs'))
         // }
-        return state.msgs;
+        return state.historyMsgs;
+      },
+      undoMsgs(state){
+        // if(localStorage.getItem('msgs')){
+        //     state.msgs = JSON.parse(localStorage.getItem('msgs'))
+        // }
+        return state.undoMsgs;
       },
       countdown(state){
         return state.countdown;

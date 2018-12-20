@@ -136,6 +136,7 @@ export default {
             }));
         }
         if(typeof content.category != 'undefined'){
+          console.log("收到消息："+content.messageId)
           $this.$confirm('你有新的消息，是否查看?', '提示', {
             confirmButtonText: '确定',
             cancelButtonText: '取消',

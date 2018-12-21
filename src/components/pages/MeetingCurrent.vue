@@ -437,7 +437,11 @@ export default {
 						message: '取消作为主屏！'
 					});
 				}
-				$this.centerVideo.src = $this.masterVideo.src;
+				if($this.isMaster){
+					$this.centerVideo.src = window.URL.createObjectURL($this.meetCore.GetLocalStream());
+				}else{
+					$this.centerVideo.src = $this.masterVideo.src;
+				}
 				if($this.isMaster){
 					$this.isCenter = true;
 				}else{

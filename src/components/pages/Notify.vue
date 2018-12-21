@@ -38,6 +38,7 @@
           </div>
         </template>
         <el-pagination
+          v-if="undoMsgs.length!=0"
           @current-change="handleCurrentChange('undo')"
           :current-page.sync="undo.currentPage"
           :page-count="undo.total"
@@ -81,6 +82,7 @@
           </div>
         </template>
         <el-pagination
+          v-if="historyMsgs.length!=0"
           @current-change="handleCurrentChange('history')"
           :current-page.sync="history.currentPage"
           :page-count="history.total"
@@ -196,8 +198,9 @@
 
       refreshHistory(){
         var $this = this;
-        $this.pullHistory(0, function(res){
-          var msgs = res.data.data;
+        $this.pullHistory($this.history.currentPage, 10, function(res){
+          $this.history.total = res.data.data.total;
+          var msgs = res.data.data.data;
           msgs.forEach(function(value,index,array){
             $this.addMsg({type:'history', data:JSON.parse(value)});
           })
@@ -208,8 +211,9 @@
 
       refreshUndo(){
         var $this = this;
-        $this.pullUndoMsg(function(res){
-          var msg=res.data.data;
+        $this.pullUndoMsg($this.undo.currentPage, 10, function(res){
+          $this.undo.total = res.data.data.total;
+          var msg=res.data.data.data;
           msg.forEach(function(value,index,array){
             $this.addMsg({type:'undo', data:JSON.parse(value)});
           })
@@ -268,14 +272,12 @@
         }
       },
 
-      pullUndoMsg(cbOk, cbErr){
-        this.$axios.get(apiMsg.pull.undo, null, cbOk, cbErr)
+      pullUndoMsg(page, size, cbOk, cbErr){
+        this.$axios.get(apiMsg.pull.undo+'?page='+page+'&size='+size, null, cbOk, cbErr)
       },
 
-      pullHistory(page, cbOk, cbErr){
-        this.$axios.get(utils.handleParamInUrl(apiMsg.pull.history,{
-          page: page
-        }), null, cbOk, cbErr)
+      pullHistory(page, size, cbOk, cbErr){
+        this.$axios.get(apiMsg.pull.history+'?page='+page+'&size='+size, null, cbOk, cbErr)
       },
 
       entryMeeting(meeting){

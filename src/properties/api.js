@@ -90,6 +90,6 @@ export var apiMsg = {
 	},
 	pull:{
 		undo: notify+'/notifications',
-		history: notify+'/notifications/history/{page}'
+		history: notify+'/notifications/history'
 	}
 } 

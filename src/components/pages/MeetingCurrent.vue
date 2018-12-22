@@ -4,11 +4,11 @@
 	  	<div class="full-element h-full-container" v-if="videoShow">
 	  		<div v-if="isMaster" ref="videoWindows" id="videoWindows" align="center" class="full-element h-full-container" style="background-color: #145">
 		  		<div class="full-element h-full-container" style="position: relative;">
-		  			<video :src="centerVideo.src" ref="mainVideo" id="mainVideo" class="full-element" style="object-fit: contain;position:absolute; left: 0px; bottom: 0px; right: 0px; width: 100%; height: 100%;" poster="@/assets/images/master-away.jpg" playsinline autoplay controls muted>
+		  			<video :src="isShare? shareVideo.src:localVideo.src" ref="mainVideo" id="mainVideo" class="full-element" style="object-fit: contain;position:absolute; left: 0px; bottom: 0px; right: 0px; width: 100%; height: 100%;" poster="@/assets/images/master-away.jpg" playsinline autoplay controls muted>
 						您的浏览器不支持 video 标签。
 					</video>
 					<div class="full-element" style="position:absolute; left: 0px; bottom: 0px; right: 0px; width: 100%; height: 100%;background-image: url('@/assets/images/master-away.jpg')"></div>
-					<video v-if="isShare" :src="secondVideo.src" ref="localVideo" id="localVideo" style="position: absolute;left: 20px;top: 20px;width: 200px;height: 120px;background: gray;object-fit: contain;" poster="@/assets/images/master-away.jpg" playsinline autoplay controls muted>
+					<video v-if="isShare" :src="localVideo.src" ref="localVideo" id="localVideo" style="position: absolute;left: 20px;top: 20px;width: 200px;height: 120px;background: gray;object-fit: contain;" poster="@/assets/images/master-away.jpg" playsinline autoplay controls muted>
 						您的浏览器不支持 video 标签。
 					</video>
 		  		</div>
@@ -37,10 +37,10 @@
 			</div>
 			<div v-else ref="videoWindows" id="videoWindows" align="center" class="full-element h-full-container" style="background-color: #145">
 		  		<div class="full-element h-full-container" style="position: relative;">
-		  			<video :src="centerVideo.src" ref="mainVideo" id="mainVideo" class="full-element" style="object-fit: contain;position:absolute; left: 0px; bottom: 0px; right: 0px; width: 100%; height: 100%;" poster="@/assets/images/master-away.jpg" playsinline autoplay controls >
+		  			<video :src="remoteVideo.src" ref="mainVideo" id="mainVideo" class="full-element" style="object-fit: contain;position:absolute; left: 0px; bottom: 0px; right: 0px; width: 100%; height: 100%;" poster="@/assets/images/master-away.jpg" playsinline autoplay controls >
 						您的浏览器不支持 video 标签。
 					</video>
-					<video :src="secondVideo.src" ref="localVideo" id="localVideo" style="position: absolute;left: 20px;top: 20px;width: 200px;height: 120px;background: gray;object-fit: contain;" poster="@/assets/images/master-away.jpg" playsinline autoplay controls muted>
+					<video :src="isShare? shareVideo.src:localVideo.src" ref="localVideo" id="localVideo" style="position: absolute;left: 20px;top: 20px;width: 200px;height: 120px;background: gray;object-fit: contain;" poster="@/assets/images/master-away.jpg" playsinline autoplay controls muted>
 						您的浏览器不支持 video 标签。
 					</video>
 		  		</div>
@@ -153,17 +153,13 @@ export default {
 	        nowMeetings:[],
 	        isMaster: true,
 	        isShare: false,
-	        isCenter: false,
-			secondVideo: {
+			localVideo: {
 				src: ''
 			},
-			centerVideo: {
+			remoteVideo: {
 				src: ''
 			},
 			shareVideo: {
-				src: ''
-			},
-			masterVideo: {
 				src: ''
 			},
 			meetingStatus: meetingStatus,
@@ -300,15 +296,11 @@ export default {
 		onEventLocalStream(json) {
 			var $this = this;
 			var meetingObj = json;
-			if($this.isMaster){
-				if($this.isShare){
-					$this.secondVideo.src=window.URL.createObjectURL($this.meetCore.GetLocalStream());
-					$this.centerVideo.src=window.URL.createObjectURL(meetingObj.stream);
-				}else{
-					$this.centerVideo.src=window.URL.createObjectURL(meetingObj.stream);
-				}
+			if($this.isShare){
+				$this.localVideo.src=window.URL.createObjectURL($this.meetCore.GetLocalStream());
+				$this.shareVideo.src=window.URL.createObjectURL(meetingObj.stream);
 			}else{
-				$this.secondVideo.src = window.URL.createObjectURL(meetingObj.stream);
+				$this.localVideo.src=window.URL.createObjectURL(meetingObj.stream);
 			}
 		},
 
@@ -320,17 +312,10 @@ export default {
 	      	this.isLeft = false;
 	      	this.refreshCurMeetingStatus();
 	      }
-	      if(this.curMeeting.founderId==json.fromuser){
-	      	this.masterVideo.src = window.URL.createObjectURL(json.stream);
-	      	if(!this.isMaster){
-	      		this.centerVideo.src = window.URL.createObjectURL(json.stream);
-	      	}
+	      if(!this.isMaster && this.curMeeting.founderId==json.fromuser) {
+	       	this.remoteVideo.src = window.URL.createObjectURL(json.stream);
 	      	return;
 	      }
-	      // if(!this.isMaster && this.curMeeting.founderId==json.fromuser) {
-	      //  	this.centerVideo.src = window.URL.createObjectURL(json.stream);
-	      // 	return;
-	      // }
 	      var result = this.meetingMembers.findIndex((value, index, arr) => {
 	        return value.id == json.fromuser;
 	      })
@@ -392,7 +377,7 @@ export default {
 		onEventRecievedCmd(json){
 			console.log(json)
 			var $this = this;
-			if(json.content.cmd=="forceExit"){
+			if(json.content.type=="forceExit"){
 				if(json.content.data.id==$this.user.id){
 					$this.$notify({
 						title: '提示',
@@ -400,10 +385,8 @@ export default {
 					});
 					$this.MeetingExit();
 					$this.setCurMeeting(null);
-					$this.isLeft = true;
-					$this.isMasterLeft = true;
 				}
-			}else if(json.content.cmd=="keepSilence"){
+			}else if(json.content.type=="keepSilence"){
 				if(json.content.data.id==$this.user.id){
 					$this.$notify({
 						title: '提示',
@@ -411,7 +394,7 @@ export default {
 					});
 					$this.disableMicphone();
 				}
-			}else if(json.content.cmd=="keepSpeak"){
+			}else if(json.content.type=="keepSpeak"){
 				if(json.content.data.id==$this.user.id){
 					$this.$notify({
 						title: '提示',
@@ -419,43 +402,25 @@ export default {
 					});
 					$this.enableMicphone();
 				}
-			}else if(json.content.cmd=="asMasterScreen"){
-				if(json.content.data.id==$this.user.id){
-					$this.isCenter = true;
-					$this.$notify({
-						title: '提示',
-						message: '作为主屏！'
-					});
-					$this.centerVideo.src = $this.secondVideo.src;
-					$this.secondVideo.src = $this.masterVideo.src;
-				}else{
-					$this.isCenter = false;
-					var result = this.remoteResources.find((value, index, arr) => {
-						return value.fromuser == json.content.data.id;
-					})
-					if(typeof(result)!="undefined"){
-		          		$this.centerVideo.src = window.URL.createObjectURL(result.stream);
-		          		// remoteVideo.srcObject=json.stream;
-		          	}
-				}
-			}else if(json.content.cmd=="noAsMasterScreen"){
+			}else if(json.content.type=="asMasterScreen"){
+				// if($this.isMaster){
+				// 	// 被选择的用户的视频作为本地视频
+				// 	$this.localVideo = ;
+				// }else if(json.content.data.id==$this.user.id){
+				// 	$this.$notify({
+				// 		title: '提示',
+				// 		message: '作为主屏！'
+				// 	});
+				// 	$this.remoteVideo = ;
+				// }else{
+					
+				// }
+			}else if(json.content.type=="noAsMasterScreen"){
 				if(json.content.data.id==$this.user.id){
 					$this.$notify({
 						title: '提示',
 						message: '取消作为主屏！'
 					});
-				}
-				// if($this.isMaster){
-				// 	$this.centerVideo.src = window.URL.createObjectURL($this.meetCore.GetLocalStream());
-				// }else{
-				// 	$this.centerVideo.src = $this.masterVideo.src;
-				// }
-				$this.centerVideo.src = $this.masterVideo.src;
-				if($this.isMaster){
-					$this.isCenter = true;
-				}else{
-					$this.isCenter = false;
-					$this.secondVideo.src = window.URL.createObjectURL($this.meetCore.GetLocalStream());
 				}
 			}
 		},
@@ -595,11 +560,7 @@ export default {
 	    {
 	      var $this = this;
 	      $this.meetCore.StopShare();
-	      if($this.isMaster){
-	      	$this.centerVideo.src = window.URL.createObjectURL($this.meetCore.GetLocalStream());
-	      }else{
-	      	$this.secondVideo.src = window.URL.createObjectURL($this.meetCore.GetLocalStream());
-	      }
+	      $this.localVideo.src = window.URL.createObjectURL($this.meetCore.GetLocalStream());
 	      $this.isShare = false;
 	    },
 	    
@@ -607,23 +568,14 @@ export default {
 	    enableCamera()
 	    {
 	      var $this = this;
-	      if($this.isMaster){
-	      	$this.centerVideo.src = $this.meetCore.GetLocalStream();
-	      }else{
-	      	$this.secondVideo.src = $this.meetCore.GetLocalStream();
-	      }
+	      $this.localVideo.src = $this.meetCore.GetLocalStream();
 	      $this.meetCore.EnableCamera();
 	    },
 	    //禁用摄像头
 	    disableCamera()
 	    {
-    	  if($this.isMaster){
-	      	$this.centerVideo.src = '';
-	      }else{
-	      	$this.secondVideo.src = '';
-	      }
-	      // $this.localVideo.src = '';
-	      // localVideo.poster = "@/assets/images/master-away.jpg";
+	      $this.localVideo.src = '';
+	      localVideo.poster = "@/assets/images/master-away.jpg";
 	      $this.meetCore.DisableCamera();
 	    },
 
@@ -741,23 +693,19 @@ export default {
 			var $this = this;
 			if($this.isMaster){
 				if(typeof $this.meetingMembers[index]["asMasterScreen"] == "undefined"||!$this.meetingMembers[index]["asMasterScreen"]){
-					var temp = $this.meetingMembers[index];
-					temp["asMasterScreen"]=true;
-					Vue.set($this.meetingMembers, index, temp);
+					Vue.set($this.meetingMembers[index]["asMasterScreen"],index, true);
 					// $this.meetingMembers[index]["keepSilence"]=true;
 					$this.SendCmd({cmd: "asMasterScreen", data: $this.meetingMembers[index]});
 					$this.$message({
-						message: '设置'+temp.nickname+'为主屏成功！',
+						message: '你被设置为主屏！',
 						type: 'success'
 					});
 				}else{
-					var temp = $this.meetingMembers[index];
-					temp["asMasterScreen"]=false;
-					Vue.set($this.meetingMembers, index, temp);
+					Vue.set($this.meetingMembers[index]["asMasterScreen"],index, false);
 					// $this.meetingMembers[index]["keepSilence"]=false;
 					$this.SendCmd({cmd: "noAsMasterScreen", data: $this.meetingMembers[index]});
 					$this.$message({
-						message: '取消'+temp.nickname+'主屏！',
+						message: '取消主屏！',
 						type: 'success'
 					});
 				}
@@ -768,9 +716,7 @@ export default {
 			var $this = this;
 			if($this.isMaster){
 				if(typeof $this.meetingMembers[index]["keepSilence"] == "undefined"||!$this.meetingMembers[index]["keepSilence"]){
-					var temp = $this.meetingMembers[index];
-					temp["keepSilence"]=true;
-					Vue.set($this.meetingMembers, index, temp);
+					Vue.set($this.meetingMembers[index]["keepSilence"],index, true);
 					// $this.meetingMembers[index]["keepSilence"]=true;
 					$this.SendCmd({cmd: "keepSilence", data: $this.meetingMembers[index]});
 					$this.$message({
@@ -778,9 +724,7 @@ export default {
 						type: 'success'
 					});
 				}else{
-					var temp = $this.meetingMembers[index];
-					temp["keepSilence"]=false;
-					Vue.set($this.meetingMembers, index, temp);
+					Vue.set($this.meetingMembers[index]["keepSilence"],index, false);
 					// $this.meetingMembers[index]["keepSilence"]=false;
 					$this.SendCmd({cmd: "keepSpeak", data: $this.meetingMembers[index]});
 					$this.$message({
@@ -1037,10 +981,8 @@ export default {
 			if($this.curMeeting){
 				if($this.user.id==$this.curMeeting.founderId){
 					$this.isMaster = true;
-					$this.isCenter = true;
 				}else{
 					$this.isMaster = false;
-					$this.isCenter = false;
 				}
 		        // $this.chatroom = 'meeting:'+$this.formMeeting.meetingId.toString();
 		        if(!$this.isMaster){

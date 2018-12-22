@@ -303,9 +303,9 @@ export default {
 			if($this.isMaster){
 				if($this.isShare){
 					$this.secondVideo.src=window.URL.createObjectURL($this.meetCore.GetLocalStream());
-					$this.centerVideo.src=window.URL.createObjectURL(meetingObj.stream);
+					$this.masterVideo.src=$this.centerVideo.src=window.URL.createObjectURL(meetingObj.stream);
 				}else{
-					$this.centerVideo.src=window.URL.createObjectURL(meetingObj.stream);
+					$this.masterVideo.src=$this.centerVideo.src=window.URL.createObjectURL(meetingObj.stream);
 				}
 			}else{
 				$this.secondVideo.src = window.URL.createObjectURL(meetingObj.stream);
@@ -420,6 +420,7 @@ export default {
 					$this.enableMicphone();
 				}
 			}else if(json.content.cmd=="asMasterScreen"){
+				$this.secondVideo.src = $this.masterVideo.src;
 				if(json.content.data.id==$this.user.id){
 					$this.isCenter = true;
 					$this.$notify({
@@ -427,7 +428,6 @@ export default {
 						message: '作为主屏！'
 					});
 					$this.centerVideo.src = $this.secondVideo.src;
-					$this.secondVideo.src = $this.masterVideo.src;
 				}else{
 					$this.isCenter = false;
 					var result = this.remoteResources.find((value, index, arr) => {
@@ -453,6 +453,7 @@ export default {
 				$this.centerVideo.src = $this.masterVideo.src;
 				if($this.isMaster){
 					$this.isCenter = true;
+					$this.secondVideo.src = window.URL.createObjectURL($this.meetCore.GetLocalStream());
 				}else{
 					$this.isCenter = false;
 					$this.secondVideo.src = window.URL.createObjectURL($this.meetCore.GetLocalStream());

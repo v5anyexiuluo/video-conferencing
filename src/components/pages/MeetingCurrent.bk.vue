@@ -20,11 +20,7 @@
 									您的浏览器不支持 video 标签。
 								</video>
 								<div style="position: absolute; width: 100%; top: 6px; font-size: 12px;color: white;display: flex;justify-content: space-between; padding: 0 10px;box-sizing: border-box;">
-									<span>
-										<i class="iconfont"  :class="[item['keepSilence']?  'el-icon-lg-keep-silence': 'el-icon-lg-keep-speak']" @click="onKeepSpeakOrSilence(index)"></i>
-										<i class="iconfont el-icon-lg-select" :class="[item['asMasterScreen']?  'active': '']" @click="onSelectAsMasterScreen(index)"></i>
-										<i class="iconfont el-icon-lg-force-exit" @click="onForceExit(item)"></i>
-									</span>
+									<span></span>
 									<span>
 										<span>{{item.nickname}}</span>
 										<span style="margin-left: 10px;" :style="{color: item.status!=memberStatus.USER_ENTERED? 'red':''}">{{item.status==memberStatus.USER_ENTERED? '在线':'离线'}}</span>
@@ -284,9 +280,9 @@ export default {
 		    else if("EventPartyDisconnected" === json.msgtype){
 		    	this.onEventPartyDisconnected(json);
 		    }
-		    else if("onText" === json.msgtype){
-		    	this.onEventRecievedCmd(json);
-		    }
+		    // else if("onText" === json.msgtype){
+		    // 	this.onEventRecievedCmd(json);
+		    // }
 	    	// else if("EventPartyClosed" === json.msgtype){
 		    //   this.onEventPartyDisconnected(json);
 		    // }
@@ -372,57 +368,6 @@ export default {
 			var $this = this;
 			var meetingObj = json;
 			$this.meetCore.StopRecording(meetingObj.fromuser);
-		},
-
-		onEventRecievedCmd(json){
-			console.log(json)
-			var $this = this;
-			if(json.content.type=="forceExit"){
-				if(json.content.data.id==$this.user.id){
-					$this.$notify({
-						title: '提示',
-						message: '你已被踢出会议！'
-					});
-					$this.MeetingExit();
-					$this.setCurMeeting(null);
-				}
-			}else if(json.content.type=="keepSilence"){
-				if(json.content.data.id==$this.user.id){
-					$this.$notify({
-						title: '提示',
-						message: '你已被禁言！'
-					});
-					$this.disableMicphone();
-				}
-			}else if(json.content.type=="keepSpeak"){
-				if(json.content.data.id==$this.user.id){
-					$this.$notify({
-						title: '提示',
-						message: '解除禁言！'
-					});
-					$this.enableMicphone();
-				}
-			}else if(json.content.type=="asMasterScreen"){
-				// if($this.isMaster){
-				// 	// 被选择的用户的视频作为本地视频
-				// 	$this.localVideo = ;
-				// }else if(json.content.data.id==$this.user.id){
-				// 	$this.$notify({
-				// 		title: '提示',
-				// 		message: '作为主屏！'
-				// 	});
-				// 	$this.remoteVideo = ;
-				// }else{
-					
-				// }
-			}else if(json.content.type=="noAsMasterScreen"){
-				if(json.content.data.id==$this.user.id){
-					$this.$notify({
-						title: '提示',
-						message: '取消作为主屏！'
-					});
-				}
-			}
 		},
 
 		SendCmd(cmd){
@@ -671,68 +616,6 @@ export default {
 		    }, function(res){
 		    	$this.$message.error('添加与会成员失败！'+res.data.msg);
 		    });
-		},
-
-		onForceExit(target){
-			var $this = this;
-			if($this.isMaster){
-				$this.deleteMemeber($this.curMeeting.id, target.nickname, function(res){
-					$this.SendCmd({cmd: "forceExit", data: target});
-					$this.$message({
-						message: '踢出成员成功！',
-						type: 'success'
-					});
-					$this.refreshNowMembers();
-				},function(res){
-					$this.$message.error('踢出与会成员失败！'+res.data.msg);
-				})
-			}
-		},
-
-		onSelectAsMasterScreen(index){
-			var $this = this;
-			if($this.isMaster){
-				if(typeof $this.meetingMembers[index]["asMasterScreen"] == "undefined"||!$this.meetingMembers[index]["asMasterScreen"]){
-					Vue.set($this.meetingMembers[index]["asMasterScreen"],index, true);
-					// $this.meetingMembers[index]["keepSilence"]=true;
-					$this.SendCmd({cmd: "asMasterScreen", data: $this.meetingMembers[index]});
-					$this.$message({
-						message: '你被设置为主屏！',
-						type: 'success'
-					});
-				}else{
-					Vue.set($this.meetingMembers[index]["asMasterScreen"],index, false);
-					// $this.meetingMembers[index]["keepSilence"]=false;
-					$this.SendCmd({cmd: "noAsMasterScreen", data: $this.meetingMembers[index]});
-					$this.$message({
-						message: '取消主屏！',
-						type: 'success'
-					});
-				}
-			}
-		},
-
-		onKeepSpeakOrSilence(index){
-			var $this = this;
-			if($this.isMaster){
-				if(typeof $this.meetingMembers[index]["keepSilence"] == "undefined"||!$this.meetingMembers[index]["keepSilence"]){
-					Vue.set($this.meetingMembers[index]["keepSilence"],index, true);
-					// $this.meetingMembers[index]["keepSilence"]=true;
-					$this.SendCmd({cmd: "keepSilence", data: $this.meetingMembers[index]});
-					$this.$message({
-						message: '禁言成功！',
-						type: 'success'
-					});
-				}else{
-					Vue.set($this.meetingMembers[index]["keepSilence"],index, false);
-					// $this.meetingMembers[index]["keepSilence"]=false;
-					$this.SendCmd({cmd: "keepSpeak", data: $this.meetingMembers[index]});
-					$this.$message({
-						message: '取消禁言成功！',
-						type: 'success'
-					});
-				}
-			}
 		},
 
 		// onHoldCallClicked()
@@ -1123,9 +1006,6 @@ export default {
 		padding-right: 4px;
 	}
 	.scroll-item .iconfont:hover{
-		color: red;
-	}
-	.el-icon-lg-keep-silence, .el-icon-lg-select.active{
 		color: red;
 	}
 </style>

@@ -40,7 +40,7 @@
 		  			<video :src="centerVideo.src" ref="mainVideo" id="mainVideo" class="full-element" style="object-fit: contain;position:absolute; left: 0px; bottom: 0px; right: 0px; width: 100%; height: 100%;" poster="@/assets/images/master-away.jpg" playsinline autoplay controls >
 						您的浏览器不支持 video 标签。
 					</video>
-					<video v-if="!isCenter" :src="secondVideo.src" ref="localVideo" id="localVideo" style="position: absolute;left: 20px;top: 20px;width: 200px;height: 120px;background: gray;object-fit: contain;" poster="@/assets/images/master-away.jpg" playsinline autoplay controls muted>
+					<video :src="secondVideo.src" ref="localVideo" id="localVideo" style="position: absolute;left: 20px;top: 20px;width: 200px;height: 120px;background: gray;object-fit: contain;" poster="@/assets/images/master-away.jpg" playsinline autoplay controls muted>
 						您的浏览器不支持 video 标签。
 					</video>
 		  		</div>
@@ -320,10 +320,17 @@ export default {
 	      	this.isLeft = false;
 	      	this.refreshCurMeetingStatus();
 	      }
-	      if(!this.isMaster && this.curMeeting.founderId==json.fromuser) {
-	       	this.masterVideo.src = this.centerVideo.src = window.URL.createObjectURL(json.stream);
+	      if(this.curMeeting.founderId==json.fromuser){
+	      	this.masterVideo.src = window.URL.createObjectURL(json.stream);
+	      	if(!this.isMaster){
+	      		this.centerVideo.src = window.URL.createObjectURL(json.stream);
+	      	}
 	      	return;
 	      }
+	      // if(!this.isMaster && this.curMeeting.founderId==json.fromuser) {
+	      //  	this.centerVideo.src = window.URL.createObjectURL(json.stream);
+	      // 	return;
+	      // }
 	      var result = this.meetingMembers.findIndex((value, index, arr) => {
 	        return value.id == json.fromuser;
 	      })
@@ -420,6 +427,7 @@ export default {
 						message: '作为主屏！'
 					});
 					$this.centerVideo.src = $this.secondVideo.src;
+					$this.secondVideo.src = $this.masterVideo.src;
 				}else{
 					$this.isCenter = false;
 					var result = this.remoteResources.find((value, index, arr) => {
@@ -437,11 +445,12 @@ export default {
 						message: '取消作为主屏！'
 					});
 				}
-				if($this.isMaster){
-					$this.centerVideo.src = window.URL.createObjectURL($this.meetCore.GetLocalStream());
-				}else{
-					$this.centerVideo.src = $this.masterVideo.src;
-				}
+				// if($this.isMaster){
+				// 	$this.centerVideo.src = window.URL.createObjectURL($this.meetCore.GetLocalStream());
+				// }else{
+				// 	$this.centerVideo.src = $this.masterVideo.src;
+				// }
+				$this.centerVideo.src = $this.masterVideo.src;
 				if($this.isMaster){
 					$this.isCenter = true;
 				}else{

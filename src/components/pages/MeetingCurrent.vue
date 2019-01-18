@@ -125,6 +125,8 @@
 	</div>
 </template>
 <script>
+// 房间可能的属性所有者、管理员、成员
+// 成员可能的角色主持人、参与者	
 import {apiMeeting} from '@/properties/api.js';
 import {mapState,mapMutations,mapGetters} from 'vuex';
 import BScroll from 'better-scroll'

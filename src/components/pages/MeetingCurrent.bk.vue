@@ -963,6 +963,7 @@ export default {
 
 }
 </script>
+
 <style scoped>
 	.el-main{
 		width: 100%;

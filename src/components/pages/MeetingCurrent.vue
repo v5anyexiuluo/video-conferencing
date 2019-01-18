@@ -141,7 +141,6 @@ export default {
 		return {
 			dialogInviteFriendVisible: false,
 			dialogSelectMeetingVisible: false,
-			// uploadVideoVisible: false,
 			formMeeting: {
 				meetingId: null
 			},

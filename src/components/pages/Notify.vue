@@ -171,6 +171,7 @@
     },
     methods: {
       ...mapMutations([
+        'clearMsg',
         'addMsg',
         'setCurMeeting',
         'setCountdownTime'
@@ -199,8 +200,11 @@
       refreshHistory(){
         var $this = this;
         $this.pullHistory($this.history.currentPage, 10, function(res){
+          console.log('refreshHistory')
+          console.log(res)
           $this.history.total = res.data.data.total;
           var msgs = res.data.data.data;
+          $this.clearMsg()
           msgs.forEach(function(value,index,array){
             $this.addMsg({type:'history', data:JSON.parse(value)});
           })
@@ -214,6 +218,7 @@
         $this.pullUndoMsg($this.undo.currentPage, 10, function(res){
           $this.undo.total = res.data.data.total;
           var msg=res.data.data.data;
+          $this.clearMsg()
           msg.forEach(function(value,index,array){
             $this.addMsg({type:'undo', data:JSON.parse(value)});
           })

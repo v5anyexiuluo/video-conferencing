@@ -43,6 +43,10 @@ export default {
       countdown: {}
     },
     mutations:{
+      clearMsg(state) {
+        state.historyMsgs = []
+        state.undoMsgs = []
+      },
     	addMsg(state, data) {
         var msg = data.data;
         var msgs = null;

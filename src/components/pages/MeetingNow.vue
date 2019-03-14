@@ -25,7 +25,7 @@
 					</el-checkbox>
 				</div>
 			</el-form-item>
-			<el-form-item label="与会成员">
+			<el-form-item label="与会成员：">
 				<div style="height: 260px;">
 					<el-col :span="11" style="height: 100%;display: flex;flex-wrap: nowrap;flex-direction: column;">
 						<div class="tabHeader" style="height: 40px;line-height: 40px; background-color: #f5f7fa;border: 1px solid #ebeef5; border-radius: 4px 4px 0px 0px;">

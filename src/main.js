@@ -8,7 +8,7 @@ import router from './router'
 import Axios from '@/properties/axios.js';
 import api from './properties/api.js'
 import properties from './properties/properties.js'
-import { Row, Col, Container, Aside, Header, Footer, Badge, Main, Menu, Submenu, MenuItem, Tooltip, Breadcrumb, BreadcrumbItem, Table, TableColumn, Tabs, TabPane, Pagination, Button, Dropdown, DropdownMenu, DropdownItem, Collapse, CollapseItem, Popover, Tree, Dialog, Form, FormItem, Select, Option, OptionGroup, Card, Input, Tag, Checkbox, CheckboxGroup, TimePicker, DatePicker, Cascader, Transfer, Message, MessageBox, Loading, Notification } from 'element-ui';
+import { Row, Col, Container, Aside, Header, Footer, Badge, Main, Menu, Submenu, MenuItem, Tooltip, Breadcrumb, BreadcrumbItem, Table, TableColumn, Tabs, TabPane, Pagination, Button, Dropdown, DropdownMenu, DropdownItem, Collapse, CollapseItem, Popover, Tree, Dialog, Form, FormItem, Select, Option, OptionGroup, Card, Input, Tag, Checkbox, CheckboxGroup, TimePicker, DatePicker, Cascader, Transfer, Message, MessageBox, Loading, Notification, Upload } from 'element-ui';
 import 'element-ui/lib/theme-chalk/display.css';
 import "./assets/icon/iconfont.css";
 import "./assets/css/common.css";
@@ -66,6 +66,7 @@ Vue.component(Tag.name, Tag);
 Vue.component(Table.name, Table);
 Vue.component(TableColumn.name, TableColumn);
 Vue.component(Checkbox.name, Checkbox);
+Vue.component(Upload.name, Upload);
 Vue.use(Loading.directive);
 Vue.prototype.$loading = Loading.service;
 Vue.prototype.$message = Message;

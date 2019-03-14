@@ -15,7 +15,8 @@ export var apiAuth = {
 	sms: auth+'/users/getSms',
 	forgetsms: auth+'/users/getForgetSms',
 	userInfo: links+'/user',
-	userInfoByNickname: links+'/user/{nickname}'
+	userInfoByNickname: links+'/user/{nickname}',
+	edit: auth+'/users/{userid}'
 }
 export var apiChat = {
 	chat: chat

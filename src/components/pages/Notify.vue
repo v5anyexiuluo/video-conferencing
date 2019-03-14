@@ -9,7 +9,7 @@
             <div class="deal-actions" style="height: 40px;">
             </div>
           </div>
-          <div v-else-if="msg.category==msgType.CONFERENCE_READY_START" class="h-full-container v-center">
+          <div v-else-if="msg.category==msgType.CONFERENCE_AREADY_START" class="h-full-container v-center">
             <span class="full-element">{{msg.content.plain_message}}</span>
             <div class="deal-actions">
               <el-button type="text" :disabled="countdown[msg.messageId]>0" @click="entryMeeting(msg.meetingInfoEntity)">{{countdown[msg.messageId] | countdownBtnText}}</el-button>
@@ -53,7 +53,8 @@
             <div class="deal-actions" style="height: 40px;">
             </div>
           </div>
-          <div v-else-if="msg.category==msgType.CONFERENCE_READY_START" class="h-full-container v-center">
+          <div v-else-if="msg.category=='CONFERENCE_AREADY_START'" class="h-full-container v-center">
+            123
             <span class="full-element">{{msg.content.plain_message}}</span>
             <div class="deal-actions">
               <el-button type="text" :disabled="countdown[msg.messageId]>0" @click="entryMeeting(msg.meetingInfoEntity)">{{countdown[msg.messageId] | countdownBtnText}}</el-button>
@@ -78,6 +79,9 @@
             <span class="full-element">{{msg.content.plain_message}}</span>
           </div>
           <div v-else-if="msg.category==msgType.CONFERENCE_ENDING" class="h-full-container v-center">
+            <span class="full-element">{{msg.content.plain_message}}</span>
+          </div>
+          <div v-else class="h-full-container v-center">
             <span class="full-element">{{msg.content.plain_message}}</span>
           </div>
         </template>
@@ -168,6 +172,7 @@
       $this.initTimer();
     },
     mounted() {
+
     },
     methods: {
       ...mapMutations([
@@ -220,8 +225,12 @@
           var msg=res.data.data.data;
           $this.clearMsg()
           msg.forEach(function(value,index,array){
-            $this.addMsg({type:'undo', data:JSON.parse(value)});
+            $this.addMsg({
+              type:'undo',
+              data:JSON.parse(value)
+            });
           })
+          console.log($this.undoMsgs)
         },function(res){
           $this.$message.error('获取未读消息失败！');
         })

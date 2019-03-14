@@ -12,7 +12,7 @@ function handleMsg(msg){
     case msgType.CONTACT_ADDING:
       msg.content.plain_message = '⽤户'+msg.content.user_name+'请求添加您为好友！'
       break;
-    case msgType.CONFERENCE_READY_START:
+    case msgType.CONFERENCE_AREADY_START:
       msg.content.plain_message = '会议'+msg.content.conference_name+'即将开始，开始时间为'+msg.content.start_time
       break;
     case msgType.CONFERENCE_CANCEL:
@@ -25,7 +25,8 @@ function handleMsg(msg){
       msg.content.plain_message = '您的好友'+msg.content.friend_name+'邀请您参加会议'+msg.content.conference_name+',会议开始时间为'+msg.content.start_time
       break;
     default:
-      return '';
+      // return '';
+      break;
   }
   return msg;
 }
@@ -61,17 +62,17 @@ export default {
             return value.messageId == msg.messageId;
         })
         if(result==-1){
-            if(msg.category==msgType.CONFERENCE_CREATION||msg.category==msgType.CONFERENCE_READY_START){
-              if(Object.prototype.toString.call(msg.content.start_time) !== "[object String]"){
-                return;
-              }
-              state.countdown[msg.messageId]=formatToStamp(msg.content.start_time);
+          if(msg.category==msgType.CONFERENCE_CREATION||msg.category==msgType.CONFERENCE_AREADY_START){
+            if(Object.prototype.toString.call(msg.content.start_time) !== "[object String]"){
+              return;
             }
-            if(handleMsg(msg)){
-                msgs.push(handleMsg(msg))
-                // localStorage.setItem('msgs',JSON.stringify(state.msgs))
-            }
-        }else{
+            state.countdown[msg.messageId]=formatToStamp(msg.content.start_time);
+          }
+          if(handleMsg(msg)){
+            msgs.push(handleMsg(msg))
+            // localStorage.setItem('msgs',JSON.stringify(state.msgs))
+          }
+        } else {
           // state.msgs[result]=handleMsg(msg, state)
           Vue.set(msgs,result,handleMsg(msg));
         }

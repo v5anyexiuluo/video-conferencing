@@ -66,6 +66,7 @@ export default {
     if($this.firstInit){
       
     }
+    console.log(this.stompClient)
   },
   beforeDestroy: function () {
       this.stompClient.client.disconnect(function(){
@@ -80,7 +81,8 @@ export default {
   methods: {
     ...mapMutations([
       'setFirstInit',
-      'addMsg'
+      'addMsg',
+      'over'
     ]),
 
     handleQuickAddMeeting(){
@@ -93,10 +95,13 @@ export default {
     // websocket连接
     connect() {
       var $this = this;
+      console.log("$this.stompClient")
+      console.log($this.stompClient)
       // “/ws/contacts”为接入点（endpoint）
       // console.log(apiMsg.ws.endpoint)
       var socket = new SockJS('https://xingshidream.cn:8085/api/v1/ws/contacts');
-      $this.stompClient = Stomp.over(socket);
+      // $this.stompClient = Stomp.over(socket);
+      $this.over(socket)
       $this.stompClient.connect({}, function (frame) {
           console.log('Connected: ' + frame);
           var subcribePath = utils.handleParamInUrl(apiMsg.ws.subcribe,{
@@ -109,6 +114,8 @@ export default {
       },function(res){
         console.log(res)
       });
+      console.log("$this.stompClient")
+      console.log($this.stompClient)
     },
 
     // 订阅消息
@@ -235,7 +242,8 @@ export default {
     ...mapGetters([
       'user',
       'loading',
-      'firstInit'
+      'firstInit',
+      'stompClient'
     ])
   },
   directives:{

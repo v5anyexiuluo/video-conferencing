@@ -1,6 +1,8 @@
 import {msgType} from '@/assets/js/common.js';
 import utils from '@/assets/js/utils.js';
 import Vue from 'vue';
+import Stomp from "stompjs";
+
 function handleMsg(msg){
   // msg = JSON.parse(msg) 
   if(typeof msg.category == 'undefined'){
@@ -38,66 +40,73 @@ function formatToStamp(value){
 }
 
 export default {
-    state:{
-    	historyMsgs: [],
-      undoMsgs: [],
-      countdown: {}
+  state:{
+    stompClient: null,
+    historyMsgs: [],
+    undoMsgs: [],
+    countdown: {}
+  },
+  mutations:{
+    clearMsg(state) {
+      state.historyMsgs = []
+      state.undoMsgs = []
     },
-    mutations:{
-      clearMsg(state) {
-        state.historyMsgs = []
-        state.undoMsgs = []
-      },
-    	addMsg(state, data) {
-        var msg = data.data;
-        var msgs = null;
-        if(data.type=="history"){
-          msgs = state.historyMsgs;
-        }else if(data.type=="undo"){
-          msgs = state.undoMsgs;
-        }else{
-          return;
-        }
-        var result = msgs.findIndex((value, index, arr) => {
-            return value.messageId == msg.messageId;
-        })
-        if(result==-1){
-          if(msg.category==msgType.CONFERENCE_CREATION||msg.category==msgType.CONFERENCE_AREADY_START){
-            if(Object.prototype.toString.call(msg.content.start_time) !== "[object String]"){
-              return;
-            }
-            state.countdown[msg.messageId]=formatToStamp(msg.content.start_time);
+    addMsg(state, data) {
+      var msg = data.data;
+      var msgs = null;
+      if(data.type=="history"){
+        msgs = state.historyMsgs;
+      }else if(data.type=="undo"){
+        msgs = state.undoMsgs;
+      }else{
+        return;
+      }
+      var result = msgs.findIndex((value, index, arr) => {
+          return value.messageId == msg.messageId;
+      })
+      if(result==-1){
+        if(msg.category==msgType.CONFERENCE_CREATION||msg.category==msgType.CONFERENCE_AREADY_START){
+          if(Object.prototype.toString.call(msg.content.start_time) !== "[object String]"){
+            return;
           }
-          if(handleMsg(msg)){
-            msgs.push(handleMsg(msg))
-            // localStorage.setItem('msgs',JSON.stringify(state.msgs))
-          }
-        } else {
-          // state.msgs[result]=handleMsg(msg, state)
-          Vue.set(msgs,result,handleMsg(msg));
+          state.countdown[msg.messageId]=formatToStamp(msg.content.start_time);
         }
-      },
-      setCountdownTime(state, id){
-        if(state.countdown[id]>0){
-          Vue.set(state.countdown,id,state.countdown[id]-1);
+        if(handleMsg(msg)){
+          msgs.push(handleMsg(msg))
+          // localStorage.setItem('msgs',JSON.stringify(state.msgs))
         }
+      } else {
+        // state.msgs[result]=handleMsg(msg, state)
+        Vue.set(msgs,result,handleMsg(msg));
       }
     },
-    getters:{
-    	historyMsgs(state){
-        // if(localStorage.getItem('msgs')){
-        //     state.msgs = JSON.parse(localStorage.getItem('msgs'))
-        // }
-        return state.historyMsgs;
-      },
-      undoMsgs(state){
-        // if(localStorage.getItem('msgs')){
-        //     state.msgs = JSON.parse(localStorage.getItem('msgs'))
-        // }
-        return state.undoMsgs;
-      },
-      countdown(state){
-        return state.countdown;
+    setCountdownTime(state, id){
+      if(state.countdown[id]>0){
+        Vue.set(state.countdown,id,state.countdown[id]-1);
       }
+    },
+    over(state, socket) {
+      state.stompClient = Stomp.over(socket);
     }
+  },
+  getters:{
+    stompClient(state) {
+      return state.stompClient
+    },
+    historyMsgs(state){
+      // if(localStorage.getItem('msgs')){
+      //     state.msgs = JSON.parse(localStorage.getItem('msgs'))
+      // }
+      return state.historyMsgs;
+    },
+    undoMsgs(state){
+      // if(localStorage.getItem('msgs')){
+      //     state.msgs = JSON.parse(localStorage.getItem('msgs'))
+      // }
+      return state.undoMsgs;
+    },
+    countdown(state){
+      return state.countdown;
+    }
+  }
 }

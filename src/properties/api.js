@@ -92,5 +92,8 @@ export var apiMsg = {
 	pull:{
 		undo: notify+'/notifications',
 		history: notify+'/notifications/history'
+	},
+	change: {
+		read: notify + '/notifications/client/{username}'
 	}
 } 

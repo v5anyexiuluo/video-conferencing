@@ -21,8 +21,24 @@
               <!-- /{{msg.messageState}}/ -->
               <span class="full-element">{{msg.content.plain_message}}</span>
               <div v-if="msg.messageState!=msgStatus.PROCESSED" class="deal-actions">
-                <el-button type="text" @click="formAddFriend.nickName=msg.content.user_name;formAddFriend.api=msg.content.agree;formAddFriend.messageId=msg.messageId;dialogAddFriendVisible=true;">同意</el-button>
-                <el-button type="text" @click="handleRefuseFrdAdd(msg.content.refuse, msg.messageId)">拒绝</el-button>
+                <el-button
+                  type="text"
+                  @click="
+                    formAddFriend.nickName=msg.content.user_name;
+                    formAddFriend.api=msg.content.agree;
+                    formAddFriend.messageId=msg.messageId;
+                    dialogAddFriendVisible=true;
+                    process(msg.messageId)"
+                  >
+                    同意
+                  </el-button>
+                <el-button
+                  type="text"
+                  @click="
+                    handleRefuseFrdAdd(msg.content.refuse, msg.messageId)
+                    process(msg.messageId)">
+                    拒绝
+                  </el-button>
               </div>
               <div v-else @click="read(msg.messageId)">已处理</div>
             </div>

@@ -416,6 +416,10 @@
           md5.hex($this.user.nickname),
           function(res) {
             $this.$message.success(res.data.msg)
+            let ctime = setTimeout(function(){
+              $this.refreshUndo()
+              clearTimeout(ctime);
+            }, 500)
             $this.refreshUndo()
           }, function (err) {
             $this.$message.error(err.data.msg)
@@ -454,7 +458,10 @@
           md5.hex($this.user.nickname),
           function(res) {
             $this.$message.success(res.data.msg)
-            $this.refreshUndo()
+            let ctime = setTimeout(function(){
+              $this.refreshUndo()
+              clearTimeout(ctime);
+            }, 500)
           }, function (err) {
             $this.$message.error(err.data.msg)
           }

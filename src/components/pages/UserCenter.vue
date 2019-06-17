@@ -98,10 +98,10 @@
   </el-container>
 </template>
 <script>
-import { apiAuth, apiLinks, apiMeeting } from "@/properties/api.js"
+import { apiAuth, apiLinks, apiMeeting } from '@/properties/api.js'
 import utils from '@/assets/js/utils.js'
 export default {
-  data() {
+  data () {
     return {
       imageUrl: '',
       UserInfo: {
@@ -122,107 +122,107 @@ export default {
       UserInfoDialogVisible: false,
       rules: {
         nickname: [
-            { required: true, message: '请输入用户名', trigger: 'blur' },
-            {
-              validator: function (rule, value, callback) {
-                var MobileRegex = /^1[34578]\d{9}$/;
+          { required: true, message: '请输入用户名', trigger: 'blur' },
+          {
+            validator: function (rule, value, callback) {
+              var MobileRegex = /^1[34578]\d{9}$/
                 if (MobileRegex.test(value)) {
-                  callback(new Error('用户名不可以是手机号！'))
-                } else {
-                  callback();
+                callback(new Error('用户名不可以是手机号！'))
+              } else {
+                callback()
                 }
-              },
-              trigger: 'blur'
-            }
+            },
+            trigger: 'blur'
+          }
         ],
         phone: [
-            { required: true, message: '请输入手机号码', trigger: 'blur' },
-            {
-              validator: function (rule, value, callback) {
-                var MobileRegex = /^1[34578]\d{9}$/;
+          { required: true, message: '请输入手机号码', trigger: 'blur' },
+          {
+            validator: function (rule, value, callback) {
+              var MobileRegex = /^1[34578]\d{9}$/
                 if (!MobileRegex.test(value)) {
-                  callback(new Error('手机号码格式不正确！'))
-                } else {
-                  callback();
+                callback(new Error('手机号码格式不正确！'))
+              } else {
+                callback()
                 }
-              },
-              trigger: 'blur'
-            }
+            },
+            trigger: 'blur'
+          }
         ],
         email: [
-            { required: true, message: '请输入邮箱', trigger: 'blur' },
-            {
-              validator: function (rule, value, callback) {
-                var MobileRegex = /^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z0-9]{2,6}$/;
+          { required: true, message: '请输入邮箱', trigger: 'blur' },
+          {
+            validator: function (rule, value, callback) {
+              var MobileRegex = /^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z0-9]{2,6}$/
                 if (!MobileRegex.test(value)) {
-                  callback(new Error('邮箱格式不正确！'))
-                } else {
-                  callback();
+                callback(new Error('邮箱格式不正确！'))
+              } else {
+                callback()
                 }
-              },
-              trigger: 'blur'
-            }
-        ],
+            },
+            trigger: 'blur'
+          }
+        ]
       }
     }
   },
   name: 'UserCenter',
   components: {
-    
+
   },
   mounted () {
     this.getInfo()
   },
   methods: {
-    handleAvatarSuccess(res, file) {
-      console.log(file);
-      console.log(file.raw);
-      this.imageUrl = URL.createObjectURL(file.raw);
+    handleAvatarSuccess (res, file) {
+      console.log(file)
+      console.log(file.raw)
+      this.imageUrl = URL.createObjectURL(file.raw)
       console.log(this.imageUrl)
     },
-    beforeAvatarUpload(file) {
-      const isJPG = file.type === 'image/jpeg';
-      const isLt2M = file.size / 1024 / 1024 < 2;
+    beforeAvatarUpload (file) {
+      const isJPG = file.type === 'image/jpeg'
+      const isLt2M = file.size / 1024 / 1024 < 2
 
       if (!isJPG) {
-        this.$message.error('上传头像图片只能是 JPG 格式!');
+        this.$message.error('上传头像图片只能是 JPG 格式!')
       }
       if (!isLt2M) {
-        this.$message.error('上传头像图片大小不能超过 2MB!');
+        this.$message.error('上传头像图片大小不能超过 2MB!')
       }
-      return isJPG && isLt2M;
+      return isJPG && isLt2M
     },
-    handleEdit() {
+    handleEdit () {
       this.UserInfoDialogVisible = true
       this.getEditInfo()
     },
 
     getEditInfo () {
-      let $this = this;
+      let $this = this
       $this.getSelfInfo(
-        function(res) {
+        function (res) {
           $this.EditUserInfo = res.data.data
         },
-        function(res) {
-          $this.$message.error("获取用户信息失败！")
+        function (res) {
+          $this.$message.error('获取用户信息失败！')
         }
-      );
+      )
     },
 
     getInfo () {
-      let $this = this;
+      let $this = this
       $this.getSelfInfo(
-        function(res) {
+        function (res) {
           $this.UserInfo = res.data.data
         },
-        function(res) {
-          $this.$message.error("获取用户信息失败！")
+        function (res) {
+          $this.$message.error('获取用户信息失败！')
         }
-      );
+      )
     },
 
     getSelfInfo (cbOk, cbErr) {
-      let $this = this;
+      let $this = this
       $this.$axios.get(apiAuth.userInfo, null, cbOk, cbErr)
     },
     Edit (formName) {
@@ -231,28 +231,28 @@ export default {
           this.UserInfoDialogVisible = false
           this.EditInfo()
         } else {
-          console.log('error submit!!');
-          return false;
+          console.log('error submit!!')
+          return false
         }
-      });
+      })
     },
     EditInfo () {
-      let $this = this;
+      let $this = this
       $this.EditSelfInfo(
         $this.EditUserInfo,
-        function(res) {
-          console.log("res")
+        function (res) {
+          console.log('res')
           console.log(res)
           $this.getInfo()
-        }, function(res) {
-          console.log("更新失败")
+        }, function (res) {
+          console.log('更新失败')
           console.log(res)
-          $this.$message.error("更新用户信息失败！")
+          $this.$message.error('更新用户信息失败！')
         }
       )
     },
     EditSelfInfo (user, cbOk, cbErr) {
-      let $this = this;
+      let $this = this
       $this.$axios.post(
         utils.handleParamInUrl(apiAuth.edit, {
           userid: user.id
@@ -266,7 +266,7 @@ export default {
         },
         cbOk,
         cbErr
-      );
+      )
     }
   }
 }

@@ -10,42 +10,42 @@ import MeetingVideo from '@/components/pages/MeetingVideo'
 import Settings from '@/components/pages/Settings'
 import UserCenter from '@/components/pages/UserCenter'
 import NotFound from '@/components/pages/NotFound'
-import properties from '@/properties/properties.js';
+import properties from '@/properties/properties.js'
 import store from '@/store/'
 
 Vue.use(Router)
 
-var genComponent = componentName=> resolve => require(['../components/pages/'+componentName], resolve)
+var genComponent = componentName => resolve => require(['../components/pages/' + componentName], resolve)
 
-function getRoutes() {
+function getRoutes () {
   var sideNavs = properties.sideNavs
   var routes = []
-  for(var i=0;i<sideNavs.length;i++){
-    if(typeof(sideNavs[i].subs)!="undefined"&&sideNavs[i].subs){
-      var subNavs=sideNavs[i].subs;
-      for(var j=0;j<subNavs.length;j++){
-        var sub = {};
-        sub["name"]=subNavs[j].name;
-        sub['path']='/'+sideNavs[i].name+'/'+subNavs[j].name;
-        sub['meta']={activeIndex: subNavs[j].id}
-        if(subNavs[j].component){
-          sub['component']=genComponent(subNavs[j].component);
+  for (var i = 0; i < sideNavs.length; i++) {
+    if (typeof (sideNavs[i].subs) !== 'undefined' && sideNavs[i].subs) {
+      var subNavs = sideNavs[i].subs
+      for (var j = 0; j < subNavs.length; j++) {
+        var sub = {}
+        sub['name'] = subNavs[j].name
+        sub['path'] = '/' + sideNavs[i].name + '/' + subNavs[j].name
+        sub['meta'] = {activeIndex: subNavs[j].id}
+        if (subNavs[j].component) {
+          sub['component'] = genComponent(subNavs[j].component)
           // sub['component']=import('@/components/pages/'+subNavs[j].component);
         }
-        routes.push(sub);
+        routes.push(sub)
       }
-    }else{
-      var sub = {};
-      sub["name"]=sideNavs[i].name;
-      sub['path']='/'+sideNavs[i].name;
-      sub['meta']={activeIndex: sideNavs[i].id.toString()}
-      if(sideNavs[i].component){
-        sub['component']=genComponent(sideNavs[i].component);
+    } else {
+      var sub = {}
+      sub['name'] = sideNavs[i].name
+      sub['path'] = '/' + sideNavs[i].name
+      sub['meta'] = {activeIndex: sideNavs[i].id.toString()}
+      if (sideNavs[i].component) {
+        sub['component'] = genComponent(sideNavs[i].component)
       }
-      routes.push(sub);
+      routes.push(sub)
     }
   }
-  return routes;
+  return routes
   // return [
   //     { name: 'order', path: '/meeting/order', component: MeetingOrder },
   //     { name: 'history', path: '/meeting/history', component: MeetingHistory },
@@ -55,7 +55,6 @@ function getRoutes() {
   //     { name: 'friend', path: '/friends/friend', component: LinksFriend }
   // ];
 }
-
 
 const router = new Router({
   // mode: 'history',
@@ -69,7 +68,7 @@ const router = new Router({
     },
     {
       path: '/',
-      redirect: { name: 'login' },
+      redirect: { name: 'login' }
     },
     {
       name: 'login',
@@ -90,7 +89,7 @@ const router = new Router({
       name: 'frame',
       path: '/frame',
       component: Frame,
-      children:[
+      children: [
         {
           name: 'usercenter',
           path: '/usercenter',
@@ -110,18 +109,18 @@ const router = new Router({
           name: 'video',
           path: '/video/:id',
           component: MeetingVideo
-        },
+        }
       ]
     },
-    { path:'*' , component:NotFound}
+    { path: '*', component: NotFound}
   ]
 })
 
 router.beforeEach((to, from, next) => {
   // console.log(store)
   // console.log(to.meta.activeIndex);
-  store.commit('setActiveIndex',to.meta.activeIndex)
-  next();
+  store.commit('setActiveIndex', to.meta.activeIndex)
+  next()
 })
 
 export default router

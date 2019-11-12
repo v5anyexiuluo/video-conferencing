@@ -16,7 +16,7 @@
       text-color="#fff"
       active-text-color="#ffd04b">
       <template v-for="(item, index) in sideNavs">
-        <el-submenu v-if="item.subs" :index="item.id.toString()">
+        <el-submenu v-if="item.subs" :index="item.id.toString()" :key="index">
           <template slot="title">
             <i :class="item.icon"></i>
             <span>
@@ -28,13 +28,13 @@
               </template>
             </span>
           </template>
-          <router-link v-for="(subItem, subIndex) in item.subs" :to="{name: subItem.name}" class="a-navmenu">
+          <router-link v-for="(subItem, subIndex) in item.subs" :key="subIndex" :to="{name: subItem.name}" class="a-navmenu">
             <el-menu-item :index="subItem.id.toString()" style="padding-left: 54px;">
               <span>{{subItem.title}}</span>
             </el-menu-item>
           </router-link>
         </el-submenu>
-        <el-menu-item v-else :index="item.id.toString()">
+        <el-menu-item v-else :index="item.id.toString()" :key="index">
           <router-link :to="{name: item.name}" class="a-navmenu">
             <i :class="item.icon"></i>
             <span>
@@ -54,52 +54,52 @@
 
 <script>
 // import connect from '@/assets/js/connector.js';
-import {mapState,mapMutations,mapGetters} from 'vuex';
-import properties from '@/properties/properties.js';
+import {mapState, mapMutations, mapGetters} from 'vuex'
+import properties from '@/properties/properties.js'
 export default {
   data () {
     return {
       isCollapse: false,
       sideNavs: properties.sideNavs
       // isTabCollapse: true,
-    };
+    }
   },
   name: 'side-nav',
-  props:['logo'],
+  props: ['logo'],
   methods: {
-    handleOpen(key, keyPath) {
-      console.log(key, keyPath);
+    handleOpen (key, keyPath) {
+      console.log(key, keyPath)
     },
-    handleClose(key, keyPath) {
-      console.log(key, keyPath);
+    handleClose (key, keyPath) {
+      console.log(key, keyPath)
     },
-    handleSelect(key, keyPath) {
-      console.log(key, keyPath);
+    handleSelect (key, keyPath) {
+      console.log(key, keyPath)
       // this.nav.activePid = key;
       // this.nav.activeId = 1;
       // connect.$emit('sub-to-parent',{activeIndex: key});
     },
-    collapseSideBar(){
-      this.isCollapse = !this.isCollapse;
+    collapseSideBar () {
+      this.isCollapse = !this.isCollapse
     },
     ...mapMutations([
       'setUser',
-      'setMeeting',
-    ]),
+      'setMeeting'
+    ])
   },
-  filters:{
+  filters: {
     // toString: function(value){
     //   return value.toString();
     // }
   },
-  created:function(){
-    
+  created: function () {
+
   },
-  watch:{
+  watch: {
   },
-  computed:{
+  computed: {
     ...mapState({
-      nav:state=>state.nav
+      nav: state => state.nav
     }),
     ...mapGetters([
       'activeIndex',

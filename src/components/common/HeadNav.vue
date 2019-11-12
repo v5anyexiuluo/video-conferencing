@@ -21,7 +21,7 @@
         </el-badge>
       </span>
       <el-dropdown-menu :popper-append-to-body="false" slot="dropdown">
-        <el-dropdown-item v-for="msg in undoMsgs"><router-link tag="span" :to="{name: 'notifies'}">{{msg.content.plain_message}}</router-link></el-dropdown-item>
+        <el-dropdown-item v-for="(msg, index) in undoMsgs" :key="index"><router-link tag="span" :to="{name: 'notifies'}">{{msg.content.plain_message}}</router-link></el-dropdown-item>
       </el-dropdown-menu>
     </el-dropdown>
     <el-dropdown placement="bottom" style="cursor: pointer;" @command="handleUserCommand">
@@ -37,44 +37,44 @@
 	</el-row>
 </template>
 <script>
-import {mapState,mapMutations,mapGetters} from 'vuex';
+import {mapState, mapMutations, mapGetters} from 'vuex'
 import {apiAuth} from '@/properties/api.js'
 export default {
   data () {
     return {
-    };
+    }
   },
   name: 'head-nav',
-  created: function(){
-    var $this = this;
-    $this.getSelfInfo(function(res){
-      $this.setUser(res.data.data);
-    },function(res){
-      $this.$message.error('请先登录！');
+  created: function () {
+    var $this = this
+    $this.getSelfInfo(function (res) {
+      $this.setUser(res.data.data)
+    }, function (res) {
+      $this.$message.error('请先登录！')
       $this.$router.push({name: 'login'})
-    });
+    })
   },
-  mounted: function(){
-    var $this = this;
+  mounted: function () {
+    var $this = this
   },
   methods: {
-    handleUserCommand(command){
-      var $this = this;
-      switch(command){
+    handleUserCommand (command) {
+      var $this = this
+      switch (command) {
         case 'center':
-          break;
+          break
         case 'logout':
-          $this.logout(function(res){
-            $this.setUser(null);
+          $this.logout(function (res) {
+            $this.setUser(null)
             $this.$message({
               message: '注销成功！',
               type: 'success'
-            });
+            })
             $this.$router.push({name: 'login'})
-          },function(res){
-            $this.$message.error('注销失败！');
+          }, function (res) {
+            $this.$message.error('注销失败！')
           })
-          break;
+          break
       }
     },
     // handleLogout(){
@@ -90,22 +90,22 @@ export default {
     //     $this.$message.error('注销失败！');
     //   })
     // },
-    //获取本人信息
-    getSelfInfo(cbOk, cbErr) {
-      var $this = this;
-      $this.$axios.get(apiAuth.userInfo,null,cbOk,cbErr)
+    // 获取本人信息
+    getSelfInfo (cbOk, cbErr) {
+      var $this = this
+      $this.$axios.get(apiAuth.userInfo, null, cbOk, cbErr)
     },
-    logout(cbOk, cbErr){
-      var $this = this;
-      $this.$axios.get(apiAuth.logout,null,cbOk, cbErr)
+    logout (cbOk, cbErr) {
+      var $this = this
+      $this.$axios.get(apiAuth.logout, null, cbOk, cbErr)
     },
     ...mapMutations([
       'setUser'
-    ]),
+    ])
   },
-  computed:{
+  computed: {
     ...mapState({
-      nav:state=>state.nav
+      nav: state => state.nav
     }),
     ...mapGetters([
       'user',

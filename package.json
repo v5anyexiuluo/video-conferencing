@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "animate.css": "^3.7.0",
-    "axios": "^0.18.0",
+    "axios": "^0.21.1",
     "better-scroll": "^1.12.6",
     "element-ui": "^2.4.5",
     "js-md5": "^0.7.3",
